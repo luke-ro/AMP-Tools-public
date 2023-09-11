@@ -2,6 +2,8 @@
 
 #include "AMPCore.h"
 #include "hw/HW2.h"
+#include "helpers.h"
+#include "cmath"
 
 /// @brief Declare your bug algorithm class here. Note this class derives the bug algorithm class declared in HW2.h
 class MyBugAlgorithm : public amp::BugAlgorithm {
@@ -10,6 +12,7 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         virtual amp::Path2D plan(const amp::Problem2D& problem) const override;
 
         // Add any other methods here...
+        bool checkCollision(const amp::Problem2D& problem, Eigen::vector2d x1, Eigen::vector2d x2);
     
     private:
         // Add any member variables here...

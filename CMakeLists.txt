@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(amp-tools)
 
-find_package (Eigen3 3.3.4 REQUIRED NO_MODULE)
+find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(PythonLibs 3.4 REQUIRED)
 find_package(OpenSSL REQUIRED)
 
@@ -84,6 +84,7 @@ endif()
 add_subdirectory(scripts)
 add_subdirectory(include/public)
 add_subdirectory(src/public)
+add_subdirectory(mincludes)
 add_subdirectory(ws)
 
 # Copy the executables out of the install directory
