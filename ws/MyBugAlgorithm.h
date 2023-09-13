@@ -20,7 +20,7 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         bool isCollsion(const amp::Problem2D& problem, Eigen::vector2d x);
         
         // Checks for a collision inside of a single polygon
-        bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
+        bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q);
 
         //determines if at goal within _epsilon distance. 
         bool atGoal(const amp::Problem2D& problem, , const Eigen::Vector2d& x);
