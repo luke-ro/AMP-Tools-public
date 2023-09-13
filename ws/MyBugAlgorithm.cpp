@@ -1,5 +1,10 @@
 #include "MyBugAlgorithm.h"
 
+// returns true if val is between the values specified by x1 and x2
+bool isBetween(val,x1,x2){
+    return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
+}
+
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
 
@@ -54,4 +59,73 @@ bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::vector
     }
 
     return true;
+}
+
+bool MyBugAlgorithm::insideObstacles(const amp::Problem2D& problem, Eigen::vector2d x){
+    // predefine some variables
+    Eigen::Vector2d p1;
+    Eigen::Vector2d p2;
+    int num_verts;
+    int num_intersections;
+
+    // iterate through obstacles
+    for(auto obs : problem){
+
+
+    }
+    return false;
+}
+
+bool MyBugAlgorithm::insidePolygon(amp::Polygon pg, Eigen::Vector2d q){
+        //reset number of intersections for each obstacle
+    int num_intersections = 0;
+
+    int num_verts = pg.verticesCCW.size();
+    
+    //iterate through edges
+    for(int i=0;i++;i<num_verts+1){
+        // get the current edge's vertices 
+        p1 = obs[i];
+        p2 = obs[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
+
+
+        // slope of zero (horiz) edge condition
+        if((p2[1]-p1[1])==0){
+            // otherwise horizontal lines dont count as intersection. Do nothing.
+
+        // check the first vertex. If same y (and to the left exclusive), count as intersection
+        }else if(q[1]==p1[1] && q[0]>p1[1]){
+            num_intersections++;        
+
+        // inf slope (vert) edge condition
+        }else if((p2[0]-p1[0])==0){
+            if(p2[0] == q[0]){
+                // point is to the right of the line. Do nothing. 
+
+            }else if(isBetween(q[1],p1[1],p2[1])){
+                // point is to the left and is vertically within other bounds
+                num_intersections++;
+            }
+            continue;
+        }
+
+        // calculate the line for the edge
+        double m = (p2[1]-p1[1])/(p2[0]-p1[0]);
+        double x_inter = (q[1]-p1[1])/m + p[0];
+
+        // only checking for intersections on the right of the point
+        if (x_inter<q[0]){
+            //intersection occurs to the left of q[0]. continue.
+            continue;
+        }
+
+        //
+        if(isBetween(x_inter,p1[0],p2[0])){
+            num_intersections++;
+        }
+    }
+
+    // odd number of intersections means inside obstacle
+    if(num_intersections%2==1)
+        return true;
 }

@@ -16,4 +16,5 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
     
     private:
         // Add any member variables here...
+        double epsilon;
 };
