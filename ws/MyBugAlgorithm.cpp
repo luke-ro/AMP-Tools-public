@@ -21,28 +21,58 @@ bool isBetwLeftClosed(val,x1,x2){
     }
 }
 
-// Implement your methods in the `.cpp` file, for example:
+
+// Implement your methods in the `.cpp` file, for example: BUG1!!!
 amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
-    Eigen::Vector2d curr = Eigen::Vector2d(problem.q_init);
+    Eigen::Vector2d q = Eigen::Vector2d(problem.q_init);
+
+    int i_hit = NAN;
+    path.pushback(q);
+
+    // iterate until path is found or failure.
     while(true){
-        while(!(hit || obstacle encountered)){
-            move deltaX foward
-        }
-        if (at goal){
-            return path
-        }
-        while(!(at goal || at last hit point)){
-            follow boundary
-            keep track of closest point to goal q_Li
+        // get the step distance
+        Eigen::vector2d stepToGoal = (problem.q_goal-q).normalized()*epsilon;
+
+        //iterate until at goal or in collision
+        while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal))){
+            q += stepToGoal;
         }
 
-        if(at goal){
-            return path
+        // add point to path 
+        path.pushback(q);
+        i_hit = path.size()-1;
+
+        //check to see if at goal
+        if (atGoal(problem,q)){
+            return path;
+        }
+
+        //follow boundary
+        // 1. get current edge
+        // 2. turn left 
+        while(!(atGoal(problem,q)|| atPoint(path[i_hit],q))){
+            // follow boundary
+            // while(!(atCorner || isCollsion(q+step))) //may have to invert the while loops
+            // 3. go straight until collision or end of edge
+                // 4. if  distToGoal(problem,q)< minDist
+                    // 5. q_min  = q (gonna be wierd, make a checkpoint and keep modifying it?)
+                // 6. if (atGoal(problem,q))
+                    // return path
+            // 7. path.pushback(q)
+            // 8. follow new edge (happens for both collision and edge)
+
+        }
+
+        //check to see if at goal
+        if(atGoal(problem,q)){
+            return path;
         } 
 
+        //follow boundary back to q_li
         go to q_Li (follow boundary)
 
         if(path to q_goal is blocked){
@@ -59,23 +89,23 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
     return path;
 }
 
-bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::vector2d x1, Eigen::vector2d x2, float deltaX){
-    int dim=2;
-    n = ceil(((x1-x2).norm())/deltaX);
+// bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::vector2d x1, Eigen::vector2d x2, float deltaX){
+//     int dim=2;
+//     n = ceil(((x1-x2).norm())/deltaX);
 
-    std::vector<std::vector<double>> points(dim);
-    for(int i=0;i<2;i++){
-        points[i] = helpers::linspace(x1[i],x2[i],n)
-    }
+//     std::vector<std::vector<double>> points(dim);
+//     for(int i=0;i<2;i++){
+//         points[i] = helpers::linspace(x1[i],x2[i],n)
+//     }
 
-    for(int p=0;p<n;p++){
-        if insideObstacle2d(points[0][p],points[1][p]){
-            return false;
-        }
-    }
+//     for(int p=0;p<n;p++){
+//         if insideObstacle2d(points[0][p],points[1][p]){
+//             return false;
+//         }
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 /**
  * Checks entire workspace for collision
@@ -83,12 +113,16 @@ bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::vector
  * @param problem the dataframe that contains the workspace ans obstacles
  * @param x the 2d point to check
 */
-bool MyBugAlgorithm::insideObstacles(const amp::Problem2D& problem, Eigen::vector2d x){
+bool MyBugAlgorithm::isCollsion(const amp::Problem2D& problem, Eigen::vector2d x){
     // iterate through obstacles
     for(auto obs : problem){
-        if insidePolygon(obs,x)
-            return true
+        if insidePolygon(obs,x){
+            //collision was found
+            return true;
+        }
     }
+
+    // if at this point, a collision was not found
     return false;
 }
 
