@@ -23,13 +23,16 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q);
 
         //determines if at goal within _epsilon distance. 
-        bool atGoal(const amp::Problem2D& problem, , const Eigen::Vector2d& x);
+        bool atGoal(const amp::Problem2D& problem, , const Eigen::Vector2d& x){return (problem.q_goal-x).norm() < _epsilon;};
 
         //determines if points are within _epsilon of eachother
-        bool atPoint(const Eigen::Vector2d& x1, const Eigen::Vector2d& x2);
+        bool atPoint(const Eigen::Vector2d& x1, const Eigen::Vector2d& x2){return (x1-x2).norm() < _epsilon;};
 
         // returns euclidian distance to goal
-        double distToGoal(const amp::Problem2D& problem, x);
+        double distToGoal(const amp::Problem2D& problem, x){return (problem.q_goal-x).norm();};
+
+        // returns a small step directly towards the goal
+        Eigen::vector2d stepToGoal(const amp::Problem2D& problem, x){return (problem.q_goal-x).normalized()*_epsilon;}
     private:
         // Add any member variables here...
         double _epsilon;

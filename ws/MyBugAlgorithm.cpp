@@ -28,14 +28,14 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
     Eigen::Vector2d q = Eigen::Vector2d(problem.q_init);
-
+    Eigen::vector2d stepToGoal;
     int i_hit = NAN;
     path.pushback(q);
 
     // iterate until path is found or failure.
     while(true){
         // get the step distance
-        Eigen::vector2d stepToGoal = (problem.q_goal-q).normalized()*epsilon;
+        stepToGoal = (problem.q_goal-q).normalized()*epsilon;
 
         //iterate until at goal or in collision
         while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal))){
@@ -73,18 +73,17 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
         } 
 
         //follow boundary back to q_li
-        go to q_Li (follow boundary)
+        // 1. go to q_Li (follow boundary)
 
-        if(path to q_goal is blocked){
-            return with failure
+        if(isColision(q + stepToGoal(problem,q))){
+            amp::Path2D failure;
+            return failure;
         }
     }
     // path.waypoints.push_back(problem.q_init);
     // path.waypoints.push_back(Eigen::Vector2d(1.0, 5.0));
     // path.waypoints.push_back(Eigen::Vector2d(3.0, 9.0));
     // path.waypoints.push_back(problem.q_goal);
-
-
 
     return path;
 }
