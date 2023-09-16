@@ -1,21 +1,21 @@
 #include "MyBugAlgorithm.h"
 
 // returns true if val is between the values specified by x1 and x2 exlusive
-bool isBetwOpen(val,x1,x2){
+bool isBetwOpen(double val, double x1, double x2){
     return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1 and x2 inclusive
-bool isBetwClosed(val,x1,x2){
+bool isBetwClosed(double val, double x1, double x2){
     return (val>=std::min(x1,x2)) && (val<=std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1(inclusive) and x2 (exclusive)
-bool isBetwLeftClosed(val,x1,x2){
+bool isBetwLeftClosed(double val, double x1, double x2){
     if (x1<x2){
         return (val>=x1) && (val<x2);
     }else if(x1>x2){
-        return (val>x2) && (val=<x1);
+        return (val>x2) && (val<=x1);
     }else{
         return val==x1;
     }
@@ -23,28 +23,26 @@ bool isBetwLeftClosed(val,x1,x2){
 
 
 // Implement your methods in the `.cpp` file, for example: BUG1!!!
-amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
+amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
     Eigen::Vector2d q = Eigen::Vector2d(problem.q_init);
-    Eigen::vector2d stepToGoal;
-    int i_hit = NAN;
-    path.pushback(q);
+    // Eigen::Vector2d stepToGoal;
+    int i_hit = -1;
+    path.waypoints.push_back(q);
 
     // iterate until path is found or failure.
     while(true){
-        // get the step distance
-        stepToGoal = (problem.q_goal-q).normalized()*epsilon;
 
         //iterate until at goal or in collision
-        while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal))){
-            q += stepToGoal;
+        while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal(problem,q)))){
+            q += stepToGoal(problem,q);
         }
 
         // add point to path 
-        path.pushback(q);
-        i_hit = path.size()-1;
+        path.waypoints.push_back(q);
+        i_hit = path.waypoints.size()-1;
 
         //check to see if at goal
         if (atGoal(problem,q)){
@@ -54,7 +52,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
         //follow boundary
         // 1. get current edge
         // 2. turn left 
-        while(!(atGoal(problem,q)|| atPoint(path[i_hit],q))){
+        while(!(atGoal(problem,q)|| atPoint(path.waypoints[i_hit],q))){
             // follow boundary
             // while(!(atCorner || isCollsion(q+step))) //may have to invert the while loops
             // 3. go straight until collision or end of edge
@@ -62,7 +60,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
                     // 5. q_min  = q (gonna be wierd, make a checkpoint and keep modifying it?)
                 // 6. if (atGoal(problem,q))
                     // return path
-            // 7. path.pushback(q)
+            // 7. path.waypoints.push_back(q)
             // 8. follow new edge (happens for both collision and edge)
 
         }
@@ -75,7 +73,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
         //follow boundary back to q_li
         // 1. go to q_Li (follow boundary)
 
-        if(isColision(q + stepToGoal(problem,q))){
+        if(isCollsion(problem, q + stepToGoal(problem,q))){
             amp::Path2D failure;
             return failure;
         }
@@ -88,7 +86,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
     return path;
 }
 
-// bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::vector2d x1, Eigen::vector2d x2, float deltaX){
+// bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::Vector2d x1, Eigen::Vector2d x2, float deltaX){
 //     int dim=2;
 //     n = ceil(((x1-x2).norm())/deltaX);
 
@@ -112,10 +110,10 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
  * @param problem the dataframe that contains the workspace ans obstacles
  * @param x the 2d point to check
 */
-bool MyBugAlgorithm::isCollsion(const amp::Problem2D& problem, Eigen::vector2d x){
+bool MyBugAlgorithm::isCollsion(const amp::Problem2D& problem, Eigen::Vector2d x){
     // iterate through obstacles
-    for(auto obs : problem){
-        if insidePolygon(obs,x){
+    for(auto obs : problem.obstacles){
+        if (insidePolygon(obs,x)){
             //collision was found
             return true;
         }
@@ -136,24 +134,20 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
         //reset number of intersections for each obstacle
     int num_intersections = 0;
 
-    int num_verts = pg.verticesCCW.size();
+    int num_verts = pg.verticesCCW().size();
     
+    Eigen::Vector2d p1,p2;
+
     //iterate through edges
     for(int i=0;i++;i<num_verts+1){
         // get the current edge's vertices 
-        p1 = obs[i];
-        p2 = obs[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
+        p1 = pg.verticesCCW()[i];
+        p2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
 
         // calculate the line for the edge
         double m = (p2[1]-p1[1])/(p2[0]-p1[0]);
-        double x_inter = (q[1]-p1[1])/m + p[0];
-        double f_of_x = [](std::double x){
-            //lambda function for line
-            if (std::isfinite(m))
-                return (m*(x-p1[0]))+p1[1]; 
-            else 
-                return NAN;
-        }; 
+        double x_inter = (q[1]-p1[1])/m + p1[0];
+        auto f_of_x = [m,p1](double x){return (m*(x-p1[0]))+p1[1];}; 
 
         // only checking for intersections on the right of the point
         if (m!=0 && x_inter<q[0]){
