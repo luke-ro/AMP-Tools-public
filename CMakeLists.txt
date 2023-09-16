@@ -104,6 +104,7 @@ endif()
 add_subdirectory(scripts)
 add_subdirectory(include/public)
 add_subdirectory(src/public)
+# add_subdirectory(mincludes)
 add_subdirectory(ws)
 
 # Copy the executables out of the install directory

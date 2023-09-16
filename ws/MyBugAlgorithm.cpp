@@ -1,4 +1,5 @@
 #include "MyBugAlgorithm.h"
+#include "stdio.h"
 
 // returns true if val is between the values specified by x1 and x2 exlusive
 bool isBetwOpen(double val, double x1, double x2){
@@ -86,24 +87,6 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
     return path;
 }
 
-// bool MyBugAlgorithm::checkCollision(const amp::Problem2D& problem, Eigen::Vector2d x1, Eigen::Vector2d x2, float deltaX){
-//     int dim=2;
-//     n = ceil(((x1-x2).norm())/deltaX);
-
-//     std::vector<std::vector<double>> points(dim);
-//     for(int i=0;i<2;i++){
-//         points[i] = helpers::linspace(x1[i],x2[i],n)
-//     }
-
-//     for(int p=0;p<n;p++){
-//         if insideObstacle2d(points[0][p],points[1][p]){
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
-
 /**
  * Checks entire workspace for collision
  * 
@@ -115,6 +98,8 @@ bool MyBugAlgorithm::isCollsion(const amp::Problem2D& problem, Eigen::Vector2d x
     for(auto obs : problem.obstacles){
         if (insidePolygon(obs,x)){
             //collision was found
+            // LOG("COLLISION: "<< std::format("{}",x[0]) << ", " << std::format("{}",x[1]));
+            printf("COLLISION AT %2.2f, %2.2f", x[0],x[1]);
             return true;
         }
     }
@@ -137,9 +122,9 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
     int num_verts = pg.verticesCCW().size();
     
     Eigen::Vector2d p1,p2;
-
+    // printf("`insidePolygon` AT %2.2f, %2.2f", q[0],q[1]);
     //iterate through edges
-    for(int i=0;i++;i<num_verts+1){
+    for(int i=0;i<num_verts+1;i++){
         // get the current edge's vertices 
         p1 = pg.verticesCCW()[i];
         p2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)

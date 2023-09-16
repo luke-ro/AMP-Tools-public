@@ -18,7 +18,7 @@ done
 mkdir -p build && cd build
 
 architecture=$(uname -m)
-cmake ./.. -DAMP_BUILD_LIB=OFF -DSYSTEM_ARCHITECTURE="${architecture}" 
+cmake ./.. -DCMAKE_BUILD_TYPE=Debug -DAMP_BUILD_LIB=OFF -DSYSTEM_ARCHITECTURE="${architecture}" 
 
 make
 if [ $? != 0 ]; then
