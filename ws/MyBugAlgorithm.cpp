@@ -126,7 +126,7 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
     //iterate through edges
     for(int i=0;i<num_verts+1;i++){
         // get the current edge's vertices 
-        p1 = pg.verticesCCW()[i];
+        p1 = pg.verticesCCW()[i%num_verts];
         p2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
 
         // calculate the line for the edge
@@ -171,4 +171,70 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
     if(num_intersections%2==1)
         return true;
     return false;
+}
+
+/**
+ *  Follows an obstacle(s) clockwise (left turning)
+ * 
+ * @param problem the workspace
+ * @param q the current location
+ * @param q_prev previous steps location
+ * @return a step along the border
+*/
+Eigen::Vector2d MyBugAlgorithm::borderFollowLeft(const amp::Problem2D& problem, const Eigen::Vector2d& q, const Eigen::Vector2d& q_prev){
+    //try to step in current direction...
+        //check for obstacles
+    Eigen::Vector2d dir = (q-q_prev).normalized();
+    double angle = getAngle(dir);
+
+    Eigen::Vector2d right_vec {_epsilon,0};
+    right_vec = rotateVec(right_vec, angle);
+
+    Eigen::Vector2d forw_vec {0,_epsilon};
+    forw_vec = rotateVec(forw_vec, angle);
+
+    // checks if a step in the same direction results in the righ point being in the obstacle 
+    // and the foward point being free
+    bool foward_free = !isCollsion(problem, q+forw_vec);
+    bool right_collision = isCollsion(problem, q+forw_vec+right_vec);
+    
+    if(foward_free && !right_collision)
+        std::cout<<"------------------------THE EDGE OF THE OBSTACLE HAS BEEN LOST"<<"\n";
+    
+    if(foward_free && right_collision){
+        return forw_vec;
+
+    // if foward collision:
+        // turn left until foward is free
+    }else if(!foward_free){
+        do{
+            forw_vec = rotateVec(forw_vec,D_theta);
+            right_vec = rotateVec(right_vec,D_theta);
+        }while(isCollsion(problem,q+forw_vec));
+
+    // else if right is free
+        // turn right until right is in collision 
+    }else if(!right_collision){
+        do{
+            forw_vec = rotateVec(forw_vec,-D_theta);
+            right_vec = rotateVec(right_vec,-D_theta);
+        }while(!isCollsion(problem,q+forw_vec+right_vec));
+    }
+
+
+    return forw_vec;
+}
+
+/**
+ * Rotates a vector by a given angle (keeps it in the same frame)
+ * 
+ * @param vec vector to rotate
+ * @param ang angle to rotate by in rads
+*/
+Eigen::Vector2d MyBugAlgorithm::rotateVec(Eigen::Vector2d vec, double ang){
+    Eigen::Matrix<double, 2, 2> dcm;
+    dcm << cos(ang),-sin(ang),
+           sin(ang), cos(ang);
+
+    return dcm*vec;
 }
