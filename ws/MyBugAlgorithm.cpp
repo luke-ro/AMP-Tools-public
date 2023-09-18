@@ -58,19 +58,13 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
         }
 
         //follow boundary
-        // 1. get current edge
-        // 2. turn left 
         int i = 0; //counter to let the bug travel a bit
         do{
-            // follow boundary
-            // while(!(atCorner || isCollsion(q+step))) //may have to invert the while loops
-            // 3. go straight until collision or end of edge
-                // 4. if  distToGoal(problem,q)< minDist
-                    // 5. q_min  = q (gonna be wierd, make a checkpoint and keep modifying it?)
-                // 6. if (atGoal(problem,q))
-                    // return path
-            // 7. path.waypoints.push_back(q)
-            // 8. follow new edge (happens for both collision and edge)
+            // below is code that gets rid of the temp stuff, but is slower?
+            // q += borderFollowLeft(problem,q,path.waypoints[path.waypoints.size()-1]);
+            // path.waypoints.push_back(q);
+
+            // Need to keep track of last q 
             temp = q;
             q += borderFollowLeft(problem,q,q_last);
             q_last = temp;
@@ -78,23 +72,36 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
 
             double dist = distToGoal(problem,q);
             if (dist<dist_min){
-                i_min= path.waypoints.size()-1;
+                i_min = path.waypoints.size()-1;
                 dist_min = dist;
             }
             i++;
 
         }
-        while(!(atGoal(problem,q)|| ((atPoint(path.waypoints[i_hit],q)) && i>2)));
+        while(!(atGoal(problem,q)|| ((atPoint(path.waypoints[i_hit],q)) && i>2))); //i>2 gets the bug away from the hit point
 
         //check to see if at goal
         if(atGoal(problem,q)){
             return path;
         } 
 
-        for(int k=path.waypoints.size()-1; k>=i_min; k--){
-            path.waypoints.push_back(path.waypoints[k]);
+        // backtrack the shorter distance around obstacle
+        if (pathDistane(path,path.waypoints.size()-1,i_min) <= pathDistane(path,i_hit,i_min)){
+            //backtrack along path
+            for(int k=path.waypoints.size()-1; k>=i_min; k--){
+                path.waypoints.push_back(path.waypoints[k]);
+            }
+            q = path.waypoints[path.waypoints.size()-1];
+        }else{
+            Eigen::Vector2d q_hit = path.waypoints[i_hit];
+            // go around obstacle in same direction
+            do{
+                temp = q;
+                q += borderFollowLeft(problem,q,q_last);
+                q_last = temp;
+                path.waypoints.push_back(q);
+            }while(!atPoint(q,q_hit));
         }
-        q = path.waypoints[path.waypoints.size()-1];
         //follow boundary back to q_li
         // 1. go to q_Li (follow boundary)
 
@@ -263,4 +270,21 @@ Eigen::Vector2d MyBugAlgorithm::rotateVec(Eigen::Vector2d vec, double ang){
            sin(ang), cos(ang);
 
     return dcm*vec;
+}
+
+/**
+ * Measures the arc length of a path from index i_start to i_end
+ * 
+ * @param path a amp::Path2D object containing waypoints\
+ * @param i_start index of start
+ * @param i_end index of end
+ * @return length of path between the points
+*/
+double MyBugAlgorithm::pathDistane(const amp::Path2D& path, int i_start, int i_end){
+    double dist=0;
+    for(int i=i_start; i<i_end; i++){
+        // Eigen::Vector2d r = (path.waypoints[i]-path.waypoints[i+1]).norm();
+        dist+=(path.waypoints[i]-path.waypoints[i+1]).norm();
+    }
+    return dist;
 }

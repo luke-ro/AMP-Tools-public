@@ -40,6 +40,8 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         //rotate vector by theta
         Eigen::Vector2d rotateVec(Eigen::Vector2d vec, double ang);
 
+        //gets ditance along path
+        double pathDistane(const amp::Path2D& path, int i_start, int i_end);
 
     private:
         // Add any member variables here...
