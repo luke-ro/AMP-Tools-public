@@ -231,8 +231,14 @@ Eigen::Vector2d MyBugAlgorithm::borderFollowLeft(const amp::Problem2D& problem, 
     bool foward_free = !isCollsion(problem, q+forw_vec);
     bool right_collision = isCollsion(problem, q+forw_vec+right_vec);
     
-    if(foward_free && !right_collision)
-        std::cout<<"------------------------THE EDGE OF THE OBSTACLE HAS BEEN LOST"<<"\n";
+    //set a flag if the bug loses the wall
+    bool flag = false;
+    if(foward_free && !right_collision){
+        flag = true; //wall is lost prior to rotation of the follower
+    }
+
+    // need a counter in case there is a failure with a whole rotation
+    int iterations = ceil(2.0*3.1415/D_theta)+1;
     
     if(foward_free && right_collision){
         return forw_vec;
@@ -240,18 +246,28 @@ Eigen::Vector2d MyBugAlgorithm::borderFollowLeft(const amp::Problem2D& problem, 
     // if foward collision:
         // turn left until foward is free
     }else if(!foward_free){
+        int i = 0;
         do{
             forw_vec = rotateVec(forw_vec,D_theta);
             right_vec = rotateVec(right_vec,D_theta);
-        }while(isCollsion(problem,q+forw_vec));
+        }while(isCollsion(problem,q+forw_vec) && i++<iterations);
+        if(flag && i<iterations) 
+            flag = false;
 
     // else if right is free
         // turn right until right is in collision 
     }else if(!right_collision){
+        int i=0;
         do{
             forw_vec = rotateVec(forw_vec,-D_theta);
             right_vec = rotateVec(right_vec,-D_theta);
-        }while(!isCollsion(problem,q+forw_vec+right_vec));
+        }while(!isCollsion(problem,q+forw_vec+right_vec) && i++<iterations);
+        if(flag && i<iterations) 
+            flag = false;
+    }
+
+    if(flag){
+        std::cout<<"------------------------THE EDGE OF THE OBSTACLE HAS BEEN LOST"<<"\n";
     }
 
 
