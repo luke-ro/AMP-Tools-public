@@ -32,9 +32,12 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
     Eigen::Vector2d q_last, temp;
     // Eigen::Vector2d stepToGoal;
     int i_hit = -1;
+    int i_min = 0;
+    double dist_min=1000000000000000000;
     path.waypoints.push_back(q);
 
     // iterate until path is found or failure.
+    int loops = 0;
     while(true){
 
         //iterate until at goal or in collision
@@ -46,6 +49,8 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
         // add point to path 
         path.waypoints.push_back(q);
         i_hit = path.waypoints.size()-1;
+        i_min = path.waypoints.size()-1;
+        dist_min = distToGoal(problem,q);
 
         //check to see if at goal
         if (atGoal(problem,q)){
@@ -70,6 +75,12 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
             q += borderFollowLeft(problem,q,q_last);
             q_last = temp;
             path.waypoints.push_back(q);
+
+            double dist = distToGoal(problem,q);
+            if (dist<dist_min){
+                i_min= path.waypoints.size()-1;
+                dist_min = dist;
+            }
             i++;
 
         }
@@ -80,6 +91,9 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
             return path;
         } 
 
+        for(int k=path.waypoints.size()-1; k>=i_min; k--){
+            path.waypoints.push_back(path.waypoints[k]);
+        }
         //follow boundary back to q_li
         // 1. go to q_Li (follow boundary)
 
@@ -87,6 +101,8 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
             amp::Path2D failure;
             return failure;
         }
+        if(++loops>0) break;
+
     }
     // path.waypoints.push_back(problem.q_init);
     // path.waypoints.push_back(Eigen::Vector2d(1.0, 5.0));
