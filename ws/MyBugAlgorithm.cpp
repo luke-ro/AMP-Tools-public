@@ -94,6 +94,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
         for(int k=path.waypoints.size()-1; k>=i_min; k--){
             path.waypoints.push_back(path.waypoints[k]);
         }
+        q = path.waypoints[path.waypoints.size()-1];
         //follow boundary back to q_li
         // 1. go to q_Li (follow boundary)
 
@@ -101,7 +102,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
             amp::Path2D failure;
             return failure;
         }
-        if(++loops>0) break;
+        // if(++loops>0) break;
 
     }
     // path.waypoints.push_back(problem.q_init);
