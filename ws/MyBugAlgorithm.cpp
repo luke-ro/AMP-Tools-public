@@ -29,6 +29,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
     Eigen::Vector2d q = Eigen::Vector2d(problem.q_init);
+    Eigen::Vector2d q_last, temp;
     // Eigen::Vector2d stepToGoal;
     int i_hit = -1;
     path.waypoints.push_back(q);
@@ -38,6 +39,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
 
         //iterate until at goal or in collision
         while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal(problem,q)))){
+            q_last = q;
             q += stepToGoal(problem,q);
         }
 
@@ -53,7 +55,8 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
         //follow boundary
         // 1. get current edge
         // 2. turn left 
-        while(!(atGoal(problem,q)|| atPoint(path.waypoints[i_hit],q))){
+        int i = 0; //counter to let the bug travel a bit
+        do{
             // follow boundary
             // while(!(atCorner || isCollsion(q+step))) //may have to invert the while loops
             // 3. go straight until collision or end of edge
@@ -63,8 +66,14 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
                     // return path
             // 7. path.waypoints.push_back(q)
             // 8. follow new edge (happens for both collision and edge)
+            temp = q;
+            q += borderFollowLeft(problem,q,q_last);
+            q_last = temp;
+            path.waypoints.push_back(q);
+            i++;
 
         }
+        while(!(atGoal(problem,q)|| ((atPoint(path.waypoints[i_hit],q)) && i>2)));
 
         //check to see if at goal
         if(atGoal(problem,q)){
@@ -99,7 +108,7 @@ bool MyBugAlgorithm::isCollsion(const amp::Problem2D& problem, Eigen::Vector2d x
         if (insidePolygon(obs,x)){
             //collision was found
             // LOG("COLLISION: "<< std::format("{}",x[0]) << ", " << std::format("{}",x[1]));
-            printf("COLLISION AT %2.2f, %2.2f", x[0],x[1]);
+            // printf("COLLISION AT %2.2f, %2.2f", x[0],x[1]);
             return true;
         }
     }
@@ -187,10 +196,10 @@ Eigen::Vector2d MyBugAlgorithm::borderFollowLeft(const amp::Problem2D& problem, 
     Eigen::Vector2d dir = (q-q_prev).normalized();
     double angle = getAngle(dir);
 
-    Eigen::Vector2d right_vec {_epsilon,0};
+    Eigen::Vector2d right_vec {0,-_epsilon};
     right_vec = rotateVec(right_vec, angle);
 
-    Eigen::Vector2d forw_vec {0,_epsilon};
+    Eigen::Vector2d forw_vec {_epsilon,0};
     forw_vec = rotateVec(forw_vec, angle);
 
     // checks if a step in the same direction results in the righ point being in the obstacle 
