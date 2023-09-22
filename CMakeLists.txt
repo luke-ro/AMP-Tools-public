@@ -1,10 +1,24 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(amp-tools)
+#set(CMAKE_BUILD_TYPE Debug)
+if(DEFINED CMAKE_BUILD_TYPE)
+    message("Building type is DEBUG")
+else()
+    message("Building type is RELEASE")
+endif()
 
 # Flag for determining if the library should be built
 if(NOT DEFINED AMP_BUILD_LIB)
     option(AMP_BUILD_LIB "Build library (ON), link only (OFF)" OFF)
+endif()
+
+if(NOT DEFINED AMP_EXCLUDE_VIS)
+    option(AMP_EXCLUDE_VIS "Build without the visualizer" OFF)
+endif()
+
+if(NOT DEFINED AMP_EXCLUDE_LOGS)
+    option(AMP_EXCLUDE_LOGS "Build without logging" OFF)
 endif()
 
 # C++ libs
@@ -49,6 +63,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         message(WARNING "Unsupported Linux operating system: ${LINUX_UBUNTU_VERSION}, defaulting to ubuntu20 build")
         set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install/ubuntu20)
     endif()
+    set(OS_LD_LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message("Detected macOS operating system")
     message("Detected macOS architecture: ${SYSTEM_ARCHITECTURE}")
@@ -63,6 +78,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     else()
         message(FATAL_ERROR "Unsupported macos architecture: ${SYSTEM_ARCHITECTURE}, defaulting to macos_x86")
     endif()
+    set(OS_LD_LIBRARY_PATH_VAR "DYLD_LIBRARY_PATH")
 else()
     message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
 endif()
@@ -78,7 +94,6 @@ set(AMP_INCLUDE_DIRS
     ${CMAKE_BINARY_DIR}/include
 )
 
-message("PYTHON INCLUDE DIRES: ${PYTHON_INCLUDE_DIRS}")
 set(AMP_DEPENDENCY_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp/include
     ${EIGEN3_INCLUDE_DIRS}
@@ -104,7 +119,6 @@ endif()
 add_subdirectory(scripts)
 add_subdirectory(include/public)
 add_subdirectory(src/public)
-# add_subdirectory(mincludes)
 add_subdirectory(ws)
 
 # Copy the executables out of the install directory
