@@ -30,7 +30,7 @@ bool isBetwLeftClosed(double val, double x1, double x2){
  * @param problem amp::Problem2D describing the goal points and worspace.
  * @return path from q_start to q_goal
 */
-amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
+amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
@@ -132,7 +132,9 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
  * @param problem amp::Problem2D describing the goal points and worspace.
  * @return path from q_start to q_goal
 */
-amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
+amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
+
+    setMline(problem);
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
@@ -159,6 +161,7 @@ amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
         i_hit = path.waypoints.size()-1;
         i_min = path.waypoints.size()-1;
         dist_min = distToGoal(problem,q);
+        double dist_hit = dist_min;
 
         //check to see if at goal
         if (atGoal(problem,q)){
@@ -185,8 +188,13 @@ amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
             }
             i++;
 
+            //mline condition
+            if(onMline(q) && dist < (dist_hit+_epsilon) && !isCollsion(problem, q+stepToGoal(problem,q))){
+                break;
+            }
+
         }
-        while(!(atGoal(problem,q)|| ((atPoint(path.waypoints[i_hit],q)) && i>2))); //i>2 gets the bug away from the hit point
+        while(!(atGoal(problem,q) || ((atPoint(path.waypoints[i_hit],q)) && i>2))); //i>2 gets the bug away from the hit point
 
         //check to see if at goal
         if(atGoal(problem,q)){
@@ -194,37 +202,32 @@ amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
         } 
 
         // backtrack the shorter distance around obstacle
-        if (pathDistane(path,path.waypoints.size()-1,i_min) <= pathDistane(path,i_hit,i_min)){
-            //backtrack along path
-            for(int k=path.waypoints.size()-1; k>=i_min; k--){
-                path.waypoints.push_back(path.waypoints[k]);
-            }
-            q = path.waypoints[path.waypoints.size()-1];
-        }else{
-            Eigen::Vector2d q_hit = path.waypoints[i_hit];
-            // go around obstacle in same direction
-            do{
-                temp = q;
-                q += borderFollowLeft(problem,q,q_last);
-                q_last = temp;
-                path.waypoints.push_back(q);
-            }while(!atPoint(q,q_hit));
-        }
+        // if (pathDistane(path,path.waypoints.size()-1,i_min) <= pathDistane(path,i_hit,i_min)){
+        //     //backtrack along path
+        //     for(int k=path.waypoints.size()-1; k>=i_min; k--){
+        //         path.waypoints.push_back(path.waypoints[k]);
+        //     }
+        //     q = path.waypoints[path.waypoints.size()-1];
+        // }else{
+        //     Eigen::Vector2d q_hit = path.waypoints[i_hit];
+        //     // go around obstacle in same direction
+        //     do{
+        //         temp = q;
+        //         q += borderFollowLeft(problem,q,q_last);
+        //         q_last = temp;
+        //         path.waypoints.push_back(q);
+        //     }while(!atPoint(q,q_hit));
+        // }
         //follow boundary back to q_li
         // 1. go to q_Li (follow boundary)
 
         if(isCollsion(problem, q + stepToGoal(problem,q))){
             amp::Path2D failure;
-            return failure;
+            return path;
         }
         // if(++loops>0) break;
 
     }
-    // path.waypoints.push_back(problem.q_init);
-    // path.waypoints.push_back(Eigen::Vector2d(1.0, 5.0));
-    // path.waypoints.push_back(Eigen::Vector2d(3.0, 9.0));
-    // path.waypoints.push_back(problem.q_goal);
-
     return path;
 }
 
@@ -412,3 +415,32 @@ double MyBugAlgorithm::pathDistane(const amp::Path2D& path, int i_start, int i_e
     }
     return dist;
 }
+
+/**
+ * Sets the variables for the mline
+*/
+bool MyBugAlgorithm::setMline(const amp::Problem2D& problem){
+    _m_slope = (problem.q_goal[1]-problem.q_init[1])/(problem.q_goal[0]-problem.q_init[0]);
+    _m_xp = problem.q_init[0];
+    _m_yp = problem.q_init[1];
+    return true;
+}
+
+/**
+ * determines if a point is within _epsilon of the mline
+*/
+bool MyBugAlgorithm::onMline(const Eigen::Vector2d& q){
+    return abs(q[1]-mLine(q[0])) < (_epsilon);
+}
+
+
+// ?? MIGHT NOT NEED THIS ??
+/**
+ * Takes a step along the mline
+ * 
+ * @param q current point
+ * @return a step of length _epsilon along the mline
+*/
+// Eigen::Vector2d MyBugAlgorithm::stepOnMline(const Eigen::Vector2d& q){
+//     Eigen::Vector2d step = {_epsilon,0};
+// }

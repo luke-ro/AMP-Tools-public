@@ -9,7 +9,7 @@
 /// @brief Declare your bug algorithm class here. Note this class derives the bug algorithm class declared in HW2.h
 class MyBugAlgorithm : public amp::BugAlgorithm {
     public:
-        MyBugAlgorithm() : _epsilon(0.005), D_theta(0.005) {};
+        MyBugAlgorithm() : _epsilon(0.001), D_theta(0.005) {};
         // Override and implement the bug algorithm in the plan method. The methods are declared here in the `.h` file
         virtual amp::Path2D plan(const amp::Problem2D& problem) override;
 
@@ -33,6 +33,7 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         // returns a small step directly towards the goal
         Eigen::Vector2d stepToGoal(const amp::Problem2D& problem, const Eigen::Vector2d& x){return (problem.q_goal-x).normalized()*_epsilon;}
 
+
         // returns a vector with _epsilon magnitude step around boundary
         Eigen::Vector2d borderFollowLeft(const amp::Problem2D& problem, const Eigen::Vector2d& q, const Eigen::Vector2d& q_prev);
 
@@ -44,12 +45,23 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
 
         //gets ditance along path
         double pathDistane(const amp::Path2D& path, int i_start, int i_end);
+        
+        // takes a step along mline
+        Eigen::Vector2d stepOnMline(const Eigen::Vector2d& q);
 
         // determines if a point is within _epsilon of a line
-        bool onLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q);
+        bool onMline(const Eigen::Vector2d& q);
+
+        //sets the mline
+        bool setMline(const amp::Problem2D& problem);
+
+        double mLine(double x){return _m_slope*(x-_m_xp)+_m_yp;}
 
     private:
         // Add any member variables here...
         const double _epsilon; 
         const double D_theta;
+        double _m_slope;
+        double _m_xp;
+        double _m_yp;
 };
