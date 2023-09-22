@@ -265,9 +265,9 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
     Eigen::Vector2d p1,p2;
     // printf("`insidePolygon` AT %2.2f, %2.2f", q[0],q[1]);
     //iterate through edges
-    for(int i=0;i<num_verts+1;i++){
+    for(int i=0;i<num_verts;i++){
         // get the current edge's vertices 
-        p1 = pg.verticesCCW()[i%num_verts];
+        p1 = pg.verticesCCW()[i];
         p2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
 
         // calculate the line for the edge
@@ -285,9 +285,9 @@ bool MyBugAlgorithm::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d
             return true;
         
         // slope of zero (horiz) edge condition
-        }else if(m==0){
-            // horizontal lines dont count as intersection. 
-            // Pass.
+        // }else if(m==0){
+        //     // horizontal lines dont count as intersection. 
+        //     // Pass.
 
         // inf slope (vert) edge condition
         }else if(std::isinf(m) || std::isinf(-m)){
