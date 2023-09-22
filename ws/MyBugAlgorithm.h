@@ -9,9 +9,11 @@
 /// @brief Declare your bug algorithm class here. Note this class derives the bug algorithm class declared in HW2.h
 class MyBugAlgorithm : public amp::BugAlgorithm {
     public:
-        MyBugAlgorithm() : _epsilon(0.02), D_theta(0.01) {};
+        MyBugAlgorithm() : _epsilon(0.01), D_theta(0.01) {};
         // Override and implement the bug algorithm in the plan method. The methods are declared here in the `.h` file
         virtual amp::Path2D plan(const amp::Problem2D& problem) override;
+
+        virtual amp::Path2D planBug2(const amp::Problem2D& problem);
 
         // checks for collisions in entire ws
         bool isCollsion(const amp::Problem2D& problem, Eigen::Vector2d x);
@@ -42,6 +44,9 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
 
         //gets ditance along path
         double pathDistane(const amp::Path2D& path, int i_start, int i_end);
+
+        // determines if a point is within _epsilon of a line
+        bool onLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q);
 
     private:
         // Add any member variables here...

@@ -1,9 +1,4 @@
 set environment LD_LIBRARY_PATH /home/user/repos/test/install/ubuntu20/lib
-b MyBugAlgorithm.cpp:69
-b MyBugAlgorithm.cpp:41
-# condition 1 q[1] > 4.5
-b MyBugAlgorithm.cpp:210
-display q[0]
-display q[1]
-# b MyBugAlgorithm.h:atPoint
-# b MyBugAlgorithm.cpp:102 if x[0]>1
+b MyBugAlgorithm.cpp:270
+
+

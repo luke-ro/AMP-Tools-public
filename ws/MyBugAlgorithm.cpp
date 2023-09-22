@@ -24,7 +24,115 @@ bool isBetwLeftClosed(double val, double x1, double x2){
 
 
 // Implement your methods in the `.cpp` file, for example: BUG1!!!
+/**
+ * Finds a path through the environment using Bug 1 algorithm
+ * 
+ * @param problem amp::Problem2D describing the goal points and worspace.
+ * @return path from q_start to q_goal
+*/
 amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
+
+    // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
+    amp::Path2D path;
+    Eigen::Vector2d q = Eigen::Vector2d(problem.q_init);
+    Eigen::Vector2d q_last, temp;
+    // Eigen::Vector2d stepToGoal;
+    int i_hit = -1;
+    int i_min = 0;
+    double dist_min=1000000000000000000;
+    path.waypoints.push_back(q);
+
+    // iterate until path is found or failure.
+    int loops = 0;
+    while(true){
+
+        //iterate until at goal or in collision
+        while(!(atGoal(problem,q) || isCollsion(problem,q+stepToGoal(problem,q)))){
+            q_last = q;
+            q += stepToGoal(problem,q);
+        }
+
+        // add point to path 
+        path.waypoints.push_back(q);
+        i_hit = path.waypoints.size()-1;
+        i_min = path.waypoints.size()-1;
+        dist_min = distToGoal(problem,q);
+
+        //check to see if at goal
+        if (atGoal(problem,q)){
+            return path;
+        }
+
+        //follow boundary
+        int i = 0; //counter to let the bug travel a bit
+        do{
+            // below is code that gets rid of the temp stuff, but is slower?
+            // q += borderFollowLeft(problem,q,path.waypoints[path.waypoints.size()-1]);
+            // path.waypoints.push_back(q);
+
+            // Need to keep track of last q 
+            temp = q;
+            q += borderFollowLeft(problem,q,q_last);
+            q_last = temp;
+            path.waypoints.push_back(q);
+
+            double dist = distToGoal(problem,q);
+            if (dist<dist_min){
+                i_min = path.waypoints.size()-1;
+                dist_min = dist;
+            }
+            i++;
+
+        }
+        while(!(atGoal(problem,q)|| ((atPoint(path.waypoints[i_hit],q)) && i>2))); //i>2 gets the bug away from the hit point
+
+        //check to see if at goal
+        if(atGoal(problem,q)){
+            return path;
+        } 
+
+        // backtrack the shorter distance around obstacle
+        if (pathDistane(path,path.waypoints.size()-1,i_min) <= pathDistane(path,i_hit,i_min)){
+            //backtrack along path
+            for(int k=path.waypoints.size()-1; k>=i_min; k--){
+                path.waypoints.push_back(path.waypoints[k]);
+            }
+            q = path.waypoints[path.waypoints.size()-1];
+        }else{
+            Eigen::Vector2d q_hit = path.waypoints[i_hit];
+            // go around obstacle in same direction
+            do{
+                temp = q;
+                q += borderFollowLeft(problem,q,q_last);
+                q_last = temp;
+                path.waypoints.push_back(q);
+            }while(!atPoint(q,q_hit));
+        }
+        //follow boundary back to q_li
+        // 1. go to q_Li (follow boundary)
+
+        if(isCollsion(problem, q + stepToGoal(problem,q))){
+            amp::Path2D failure;
+            return failure;
+        }
+        // if(++loops>0) break;
+
+    }
+    // path.waypoints.push_back(problem.q_init);
+    // path.waypoints.push_back(Eigen::Vector2d(1.0, 5.0));
+    // path.waypoints.push_back(Eigen::Vector2d(3.0, 9.0));
+    // path.waypoints.push_back(problem.q_goal);
+
+    return path;
+}
+
+/**
+ * Finds a path through the environment using Bug 2 algorithm
+ * 
+ * @param problem amp::Problem2D describing the goal points and worspace.
+ * @return path from q_start to q_goal
+*/
+amp::Path2D MyBugAlgorithm::planBug2(const amp::Problem2D& problem){
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
