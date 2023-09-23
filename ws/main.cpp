@@ -6,6 +6,7 @@
 
 // Include any custom headers you created in your workspace
 #include "MyBugAlgorithm.h"
+#include <chrono>
 
 using namespace amp;
 
@@ -38,8 +39,14 @@ int main(int argc, char** argv) {
     
     {
         // Call your algorithm on the problem
+        auto start = std::chrono::high_resolution_clock::now();
         amp::Path2D path = algo.plan(problem);
-
+        auto stop = std::chrono::high_resolution_clock::now();
+        
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
+        double length = algo.pathDistane(path,0,path.waypoints.size()-1);
+        printf("The bug travelled %.2f in %.2f milliseconds.\n", length, duration);
+        
         // Check your path to make sure that it does not collide with the environment 
         bool success = HW2::check(path, problem);
 
@@ -60,6 +67,8 @@ int main(int argc, char** argv) {
         // Visualize the path environment, and any collision points with obstacles
         Visualizer::makeFigure(random_prob, path, collision_points);
     }
+
+    // HW2::grade(algo, "luke.roberson@colorado.edu", argc, argv);
 
     Visualizer::showFigures();
     return 0;

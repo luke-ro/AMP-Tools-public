@@ -228,6 +228,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem){
         // if(++loops>0) break;
 
     }
+
     return path;
 }
 
