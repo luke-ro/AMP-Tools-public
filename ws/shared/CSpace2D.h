@@ -1,11 +1,27 @@
 #include "AMPCore.h"
 #include <math.h>
-class CSpace2D : public ConfigurationSpace2D {
+
+
+
+class CSpace2D : public amp::ConfigurationSpace2D {
     public:
+        CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max);
+        
 
+        amp::Polygon minkDiff(const amp::Polygon& obs,  const amp::Polygon& rob_pos);
+        amp::Polygon pgDifference(const amp::Polygon& pg);
+        amp::Polygon zeroPgCCW(const amp::Polygon& pg);
+        int botLeftVerCCW(const amp::Polygon& pg);
 
-        virtual bool inCollision(double x0, double x1) const override{
-            // TODO
+        bool inCollision(double x0, double x1) const override{
+            return true;
+        }
+
+        /// @brief the angle of the line (x axis=0, positive in ccw dir) defined by two points 
+        inline double ang02pi(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
+            double ang = atan2(p1[1]-p2[1],p1[0]-p2[0]);
+            if (ang<0) return ang+360;
+            else return ang;
         }
 
 
