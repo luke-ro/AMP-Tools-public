@@ -23,7 +23,7 @@ amp::Polygon CSpace2D::minkDiff(const amp::Polygon& obstacle,  const amp::Polygo
 
     std::vector<Eigen::Vector2d> verts;
     do{
-        verts.push_back(obs.verticesCCW()[i]+rob.verticesCCW()[j]);
+        verts.push_back(obs.verticesCCW()[i%n]+rob.verticesCCW()[j%m]);
         if ((ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n])+ (i>=n ? 2*3.1415:0 )) < (ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m]) + (j>=m ? 2*3.1415:0 ))){
             i++;
         }else if((ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n])+ (i>=n ? 2*3.1415:0 )) > (ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m]) + (j>=m ? 2*3.1415:0 ))){
