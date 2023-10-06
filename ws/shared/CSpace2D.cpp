@@ -24,9 +24,9 @@ amp::Polygon CSpace2D::minkDiff(const amp::Polygon& obstacle,  const amp::Polygo
     std::vector<Eigen::Vector2d> verts;
     do{
         verts.push_back(obs.verticesCCW()[i]+rob.verticesCCW()[j]);
-        if (ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n]) > ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m])){
+        if ((ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n])+ (i>=n ? 2*3.1415:0 )) < (ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m]) + (j>=m ? 2*3.1415:0 ))){
             i++;
-        }else if(ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n]) < ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m])){
+        }else if((ang02pi(obs.verticesCCW()[i%n],obs.verticesCCW()[(i+1)%n])+ (i>=n ? 2*3.1415:0 )) > (ang02pi(rob.verticesCCW()[j%m],rob.verticesCCW()[(j+1)%m]) + (j>=m ? 2*3.1415:0 ))){
             j++;
         }else{
             i++;
@@ -74,7 +74,7 @@ int CSpace2D::botLeftVerCCW(const amp::Polygon& pg){
 amp::Polygon CSpace2D::pgDifference(const amp::Polygon& pg){
     std::vector<Eigen::Vector2d> verts;
     for(int i=pg.verticesCCW().size()-1; i>=0; i--){
-        verts.push_back(-pg.verticesCCW()[i]);
+        verts.push_back(-pg.verticesCW()[i]);
     }
     return amp::Polygon(verts); 
 }
@@ -86,7 +86,7 @@ amp::Polygon CSpace2D::pgDifference(const amp::Polygon& pg){
  * @return a new polygon with first vertex as bottom left vertex on origin. 
 */
 amp::Polygon CSpace2D::reorderPGCCW(const amp::Polygon& pg, bool zero) { 
-    int offset = botLeftVerCCW(pg); // Fix this func
+    int offset = botLeftVerCCW(pg); // Fix this func (?)
     Eigen::Vector2d botLeft = pg.verticesCCW()[offset];
 
     std::vector<Eigen::Vector2d> verts;
