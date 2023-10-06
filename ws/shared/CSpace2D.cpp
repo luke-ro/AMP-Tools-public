@@ -1,7 +1,28 @@
 #include "CSpace2D.h"
 
-CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max)
- :ConfigurationSpace2D(x0_min,x0_max,x1_min,x1_max){};
+
+
+
+CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, int s0, int s1)
+    :GridCSpace2D(s0, s1, x0_min, x0_max, x1_min, x1_max)
+    ,c_arr(s0, s1, false){
+    
+    // need to make a function to fill c_arr
+    // std::unique_ptr<amp::GridCSpace2D> genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env);
+
+};
+
+/**
+ * @brief creates a cspace from manipulator and env
+ * 
+ * @param manipulator
+ * @param env
+ * @return cspace in 2d occupancy array form 
+*/
+bool CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env){
+    // need to fill c_arr
+    return true;
+}
 
 /**
  * @brief Takes in a 2D  obstacle and robot and returns the minkowski difference
@@ -37,6 +58,18 @@ amp::Polygon CSpace2D::minkDiff(const amp::Polygon& obstacle,  const amp::Polygo
     return amp::Polygon(verts);
 }
 
+/**
+ * @brief Returns if a point is in collision or not
+ * 
+ * @param x0
+ * @param x1
+ * @return true if in collision, false otherwise
+*/
+bool CSpace2D::inCollision(double x0, double x1) const{
+    int i = (x0/(m_x0_bounds.second-m_x0_bounds.first))*(c_arr.size().first);
+    int j = (x1/(m_x1_bounds.second-m_x1_bounds.first))*(c_arr.size().second);
+    return c_arr(i,j);
+}
 
 /**
  * @brief Takes in a 2D polygon and returns the index of lowest (and leftmost if tied) vertex
