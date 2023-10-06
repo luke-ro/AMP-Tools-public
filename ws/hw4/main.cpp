@@ -9,6 +9,39 @@
 
 // using namespace amp;
 
+amp::Polygon rotatePG(amp::Polygon pg, double angle, Eigen::Vector2d point){
+    Eigen::Matrix3d R;
+    Eigen::Matrix3d T1;
+    Eigen::Matrix3d T2;
+
+    T1 << 1,  0,  -point[0],
+          0,  1,  -point[1],
+          0,  0,  1;
+
+    R <<  cos(angle), -sin(angle),  0,
+          sin(angle),  cos(angle),  0,
+          0,           0,           1;
+
+
+    T2 << 1,  0,  point[0],
+          0,  1,  point[1],
+          0,  0,  1;
+    
+    Eigen::Matrix3d T = T2*R*T1;
+    
+    std::vector<Eigen::Vector2d> verts;
+    for(auto vert: pg.verticesCCW()){
+        Eigen::Vector3d u;
+        u << vert[0], vert[1], 1;
+        Eigen::Vector3d v = T*u;
+        Eigen::Vector2d w;
+        w << v[0], v[1];
+        verts.push_back(w);
+    }
+
+    return amp::Polygon(verts);
+}
+
 int main(int argc, char** argv) {
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     amp::RNG::seed(amp::RNG::randiUnbounded());
@@ -21,7 +54,26 @@ int main(int argc, char** argv) {
         std::cout << vert[0]<< ", " << vert[1] << "\n";
     }
 
+    // stuff to show the vertices of the cspace obstacle for q1
+    std::vector<amp::Polygon> triang_vec;
+    triang_vec.push_back(C_triang);
+    amp::Visualizer::makeFigure(triang_vec,0.0);
+
+
+    /*** Q2 ***/
+    Eigen::Vector2d zero {0.0,0.0};
+    std::vector<amp::Polygon> pgs;
+    std::vector<double> heights;
+    amp::Polygon temp;
+    for(int i=0; i<12; i++){
+        temp = rotatePG(triang, 2*3.1415/12*double(i), zero);
+        pgs.push_back(cspace.minkDiff(triang,temp));
+        heights.push_back(0.2*double(i));
+    }
+    amp::Visualizer::makeFigure(pgs,heights);
+
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "luke.roberson@colorado.edu", argc, argv);
+    amp::Visualizer::showFigures();
     return 0;
 }
