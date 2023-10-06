@@ -6,6 +6,7 @@
 
 // Include the header of the shared class
 #include "CSpace2D.h"
+#include "Arm2L.h"
 
 // using namespace amp;
 
@@ -65,8 +66,9 @@ int main(int argc, char** argv) {
     std::vector<amp::Polygon> pgs;
     std::vector<double> heights;
     amp::Polygon temp;
-    for(int i=0; i<12; i++){
-        temp = rotatePG(triang, 2*3.1415/12*double(i), zero);
+    int n= 12;
+    for(int i=0; i<=n; i++){
+        temp = rotatePG(triang, 2.0*3.1415/double(n)*double(i), zero);
         pgs.push_back(cspace.minkDiff(triang,temp));
         heights.push_back(0.2*double(i));
     }
