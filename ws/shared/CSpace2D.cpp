@@ -69,9 +69,9 @@ bool CSpace2D::checkColConfig(const amp::LinkManipulator2D& manipulator, const a
     joints[2] = manipulator.getJointLocation(state, 2);
 
     for(int k=0; k<2; k++){
-        std::vector<Eigen::Vector2d> pts = linspace2D(joints[k],joints[k+1],20);
+        std::vector<Eigen::Vector2d> pts = H::linspace2D(joints[k],joints[k+1],20);
         for (auto pt : pts){
-            if (checkCollsionEnv(env,pt)){
+            if (H::checkCollsionEnv(env,pt)){
                 return true;
             }
         }
