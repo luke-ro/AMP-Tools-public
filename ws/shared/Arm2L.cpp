@@ -12,6 +12,10 @@ Arm2L::Arm2L(const Eigen::Vector2d& base_location, const std::vector<double>& li
 Eigen::Vector2d Arm2L::getJointLocation(const amp::ManipulatorState& state, uint32_t joint_index) const{
     Eigen::Vector2d loc = m_base_location;
 
+    if(joint_index>=state.size()){
+        return loc;
+        }
+
     // Go through links to get nth joint location
     for(int i=0; i<joint_index; i++){
         loc[0] += m_link_lengths[i]*cos(state[i]);
