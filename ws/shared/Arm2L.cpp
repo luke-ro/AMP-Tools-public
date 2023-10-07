@@ -1,4 +1,5 @@
 #include "Arm2L.h"
+#include "Rotate.h"
 
 Arm2L::Arm2L(const std::vector<double>& link_lengths) 
         : LinkManipulator2D(link_lengths)
@@ -16,10 +17,15 @@ Eigen::Vector2d Arm2L::getJointLocation(const amp::ManipulatorState& state, uint
         return loc;
         }
 
+    double angle = 0;
     // Go through links to get nth joint location
     for(int i=0; i<joint_index; i++){
-        loc[0] += m_link_lengths[i]*cos(state[i]);
-        loc[1] += m_link_lengths[i]*sin(state[i]);
+        Eigen::Vector2d temp = {m_link_lengths[i],0};
+        
+        // {m_link_lengths[i]*cos(state[i]),m_link_lengths[i]*sin(state[i])}
+
+        angle+=state[i];
+        loc += Rotate::rotatePoint(temp, angle, Eigen::Vector2d(0,0));
     }
 
     return loc;
@@ -63,8 +69,8 @@ amp::ManipulatorState Arm2L::getConfigurationFromIK(const Eigen::Vector2d& end_e
 
     std::vector<double> angs;
     angs.push_back(theta1);
-    angs.push_back(theta2+theta1);
-    angs.push_back(theta3+theta2+theta1);
+    angs.push_back(theta2);
+    angs.push_back(theta3);
 
     return angs;
 }

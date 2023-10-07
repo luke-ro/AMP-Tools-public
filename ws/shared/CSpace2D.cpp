@@ -125,8 +125,8 @@ amp::Polygon CSpace2D::minkDiff(const amp::Polygon& obstacle,  const amp::Polygo
  * @return true if in collision, false otherwise
 */
 bool CSpace2D::inCollision(double x0, double x1) const{
-    int i = (x0/(m_x0_bounds.second-m_x0_bounds.first))*(c_arr.size().first);
-    int j = (x1/(m_x1_bounds.second-m_x1_bounds.first))*(c_arr.size().second);
+    int i = (x0/(m_x0_bounds.second-m_x0_bounds.first))*(double(c_arr.size().first));
+    int j = (x1/(m_x1_bounds.second-m_x1_bounds.first))*(double(c_arr.size().second));
     return c_arr(i,j);
 }
 
