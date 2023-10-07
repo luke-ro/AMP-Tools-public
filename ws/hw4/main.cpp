@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
     std::vector<double> lengths_2a = {0.5, 1.0, 0.5};
     Arm2L manip_2a(lengths_2a);
     amp::HW4::checkFK(Eigen::Vector2d(0,0), 2, manip_2a, state_2a);
+    amp::Visualizer::makeFigure(manip_2a, state_2a);
 
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "luke.roberson@colorado.edu", argc, argv);
