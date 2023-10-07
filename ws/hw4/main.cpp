@@ -96,20 +96,22 @@ int main(int argc, char** argv) {
 
 
     /*** 3 ***/
-    // // amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
-    // amp::Environment2D env3a = amp::HW4::getEx3Workspace1();
-    // // std::vector<double> lengths_2a = {1.0, 1.0};
-    // Arm2L manip_3(base, lengths_2b);
-    // // std::unique_ptr<amp::GridCSpace2D> ptr_3a = MyGridCon mgc(manip_3, env3a);
-    // // auto ptr = std::make_unique<CSpace2D>(env.x_min,env.x_max,env.y_min,env.y_max);
-    // // auto ptr_3a = std::make_unique<amp::GridCSpace2D>(manip_3, env3a);
-    // CSpace2D gridcon(0, 2*pi, 0, 2*pi, 10, 10);
-    // // amp::HW4::checkCSpace()
-    // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
+    // amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
+    amp::Environment2D env3a = amp::HW4::getEx3Workspace1();
+    // std::vector<double> lengths_2a = {1.0, 1.0};
+    Arm2L manip_3(base, lengths_2b);
+    // std::unique_ptr<amp::GridCSpace2D> ptr_3a = MyGridCon mgc(manip_3, env3a);
+    // auto ptr = std::make_unique<CSpace2D>(env.x_min,env.x_max,env.y_min,env.y_max);
+    // auto ptr_3a = std::make_unique<amp::GridCSpace2D>(manip_3, env3a);
+    CSpace2D gridcon(0, 2*pi, 0, 2*pi, 10, 10);
+    // amp::HW4::checkCSpace()
+    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
+    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
+    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
 
 
     // Grade method
-    // amp::HW4::grade<Arm2L>(gridcon, "luke.roberson@colorado.edu", argc, argv);
+    // amp::HW4::grade<Arm2L>(g ridcon, "luke.roberson@colorado.edu", argc, argv);
     amp::Visualizer::showFigures();
     return 0;
 }
