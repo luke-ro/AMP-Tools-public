@@ -27,7 +27,7 @@ CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const am
 
     for(int i=0; i<bounds.first; i++){
         for(int j=0; j<bounds.second; j++){
-            if(checkCollision(manipulator, env, idxToNumx0(i), idxToNumx1(j))){
+            if(checkColConfig(manipulator, env, idxToNumx0(i), idxToNumx1(j))){
                 c_arr(i,j) = true;
                 temp_cspace(i,j) = true;
             }
@@ -37,26 +37,7 @@ CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const am
     return temp_cspace;
 }
 
-/**
- * @brief checks for a collision in env with given manip angles
- * 
- * @param manipulator the manipulator
- * @param env the environment with convex pgs
- * @param theta1 first angle (relative to global x axis)
- * @param theta2 second angle (relative to global x axis)
-*/
-bool CSpace2D::checkCollision(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2){
-    int n = 200;
-    std::vector<Eigen::Vector2d> joints;
-    // for(double theta1=0; theta1<2.0*pi; theta1+=2.0*pi/n){
-    //     for(double theta2=0; theta1<2.0*pi; theta1+=2.0*pi/n){
-    if (checkColConfig(manipulator, env, theta1, theta2)){
-        return true;
-    }
-    //     }
-    // }
-    return false;
-}
+
 
 bool CSpace2D::checkColConfig(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2){
     std::vector<double> state;
