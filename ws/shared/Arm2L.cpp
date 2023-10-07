@@ -12,7 +12,7 @@ Arm2L::Arm2L(const Eigen::Vector2d& base_location, const std::vector<double>& li
 Eigen::Vector2d Arm2L::getJointLocation(const amp::ManipulatorState& state, uint32_t joint_index) const{
     Eigen::Vector2d loc = m_base_location;
 
-    if(joint_index>=state.size()){
+    if(joint_index>state.size()){
         return loc;
         }
 
