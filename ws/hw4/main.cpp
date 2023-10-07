@@ -76,11 +76,20 @@ int main(int argc, char** argv) {
     amp::Visualizer::makeFigure(pgs,heights);
 
     /*** 2a ***/
-    amp::ManipulatorState state_2a = {pi/6, pi/3, 7*pi/4};
+    Eigen::Vector2d base {0,0};
+    // amp::ManipulatorState state_2a = {pi/2, pi/2, -pi/3};
+    amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
     std::vector<double> lengths_2a = {0.5, 1.0, 0.5};
-    Arm2L manip_2a(lengths_2a);
+    Arm2L manip_2a(base,lengths_2a);
     amp::HW4::checkFK(Eigen::Vector2d(0,0), 2, manip_2a, state_2a);
     amp::Visualizer::makeFigure(manip_2a, state_2a);
+
+    /*** 2b ***/
+    std::vector<double> lengths_2b = {1.0, 0.5, 1.0};
+    Eigen::Vector2d end_eff_2b {2,0};
+    Arm2L manip_2b(base,lengths_2b);
+    amp::ManipulatorState state_2b = manip_2b.getConfigurationFromIK(end_eff_2b);
+    amp::Visualizer::makeFigure(manip_2b, state_2b);
 
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "luke.roberson@colorado.edu", argc, argv);
