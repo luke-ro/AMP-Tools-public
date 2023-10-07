@@ -1,11 +1,12 @@
 #include "CSpace2D.h"
 
-
-
+const double pi = 3.1415;
 
 CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, int s0, int s1)
     :GridCSpace2D(s0, s1, x0_min, x0_max, x1_min, x1_max)
-    ,c_arr(s0, s1, false){
+    ,c_arr(s0, s1, false)
+    ,x0_len(s0)
+    ,x1_len(s1){
     
     // need to make a function to fill c_arr
     // std::unique_ptr<amp::GridCSpace2D> genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env);
@@ -19,10 +20,65 @@ CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, i
  * @param env
  * @return cspace in 2d occupancy array form 
 */
-bool CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env){
+CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env){
     // need to fill c_arr
-    return true;
+    CSpace2D temp_cspace(env.x_min, env.x_max, env.y_max, env.y_max, x0_len, x1_len);
+    std::pair<int,int> bounds = c_arr.size();
+
+    for(int i=0; i<bounds.first; i++){
+        for(int j=0; j<bounds.second; j++){
+            if(checkCollision(manipulator, env, idxToNumx0(i), idxToNumx1(j))){
+                c_arr(i,j) = true;
+                temp_cspace(i,j) = true;
+            }
+        }
+    }
+    
+    return temp_cspace;
 }
+
+/**
+ * @brief checks for a collision in env with given manip angles
+ * 
+ * @param manipulator the manipulator
+ * @param env the environment with convex pgs
+ * @param theta1 first angle (relative to global x axis)
+ * @param theta2 second angle (relative to global x axis)
+*/
+bool CSpace2D::checkCollision(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2){
+    int n = 200;
+    std::vector<Eigen::Vector2d> joints;
+    // for(double theta1=0; theta1<2.0*pi; theta1+=2.0*pi/n){
+    //     for(double theta2=0; theta1<2.0*pi; theta1+=2.0*pi/n){
+    if (checkColConfig(manipulator, env, theta1, theta2)){
+        return true;
+    }
+    //     }
+    // }
+    return false;
+}
+
+bool CSpace2D::checkColConfig(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2){
+    std::vector<double> state;
+    state.push_back(theta1);
+    state.push_back(theta2);
+
+    std::vector<Eigen::Vector2d> joints;
+    joints[0] = manipulator.getJointLocation(state, 0);
+    joints[1] = manipulator.getJointLocation(state, 1);
+    joints[2] = manipulator.getJointLocation(state, 2);
+
+    for(int k=0; k<2; k++){
+        std::vector<Eigen::Vector2d> pts = linspace2D(joints[k],joints[k+1],20);
+        for (auto pt : pts){
+            if (checkCollsionEnv(env,pt)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 /**
  * @brief Takes in a 2D  obstacle and robot and returns the minkowski difference
