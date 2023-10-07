@@ -63,14 +63,16 @@ amp::ManipulatorState Arm2L::getConfigurationFromIK(const Eigen::Vector2d& end_e
     double ctheta1 = 1/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[0]*(l1+(l2*ctheta2))+(j2[1]*l2*sqrt(1-(ctheta2))));
     double stheta1 = 1/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[1]*(l1+(l2*ctheta2))-(j2[0]*l2*sqrt(1-(ctheta2))));
 
-    double theta2 = atan2(stheta2,ctheta2);
-    double theta1 = atan2(stheta1,ctheta1);
-    double theta3 = Rotate::ang(j2,end_effector_location)-theta1-theta2;
-
     std::vector<double> angs;
-    angs.push_back(theta1);
-    angs.push_back(theta2);
-    angs.push_back(theta3);
+    angs.push_back(atan2(stheta1,ctheta1));
+    angs.push_back(atan2(stheta2,ctheta2));
+    angs.push_back(Rotate::ang(j2,end_effector_location)-angs[0]-angs[1]);
 
-    return angs;
+    std::vector<double> to_ret;
+    for (int i=0;  i<m_link_lengths.size(); i++){
+        to_ret.push_back(angs[i]);
+    }
+
+
+    return to_ret;
 }
