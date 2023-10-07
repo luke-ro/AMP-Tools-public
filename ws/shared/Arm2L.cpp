@@ -59,8 +59,8 @@ amp::ManipulatorState Arm2L::getConfigurationFromIK(const Eigen::Vector2d& end_e
 
     std::vector<double> angs;
     angs.push_back(theta1);
-    angs.push_back(theta2);
-    angs.push_back(theta3);
+    angs.push_back(theta2+theta1);
+    angs.push_back(theta3+theta2+theta1);
 
     return angs;
 }
