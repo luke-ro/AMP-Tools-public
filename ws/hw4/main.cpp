@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     /*** 2a ***/
     Eigen::Vector2d base {0,0};
     // amp::ManipulatorState state_2a = {pi/2, pi/2, -pi/3};
-    amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
+    amp::ManipulatorState state_2a = {pi/6, pi/3, 7*pi/4};
     std::vector<double> lengths_2a = {0.5, 1.0, 0.5};
     Arm2L manip_2a(base,lengths_2a);
     // amp::HW4::checkFK(Eigen::Vector2d(0,0), 2, manip_2a, state_2a);
@@ -95,19 +95,23 @@ int main(int argc, char** argv) {
     amp::Visualizer::makeFigure(manip_2b, state_2b);
 
 
+
     /*** 3 ***/
-    // amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
-    amp::Environment2D env3a = amp::HW4::getEx3Workspace1();
-    // std::vector<double> lengths_2a = {1.0, 1.0};
-    Arm2L manip_3(base, lengths_2b);
-    // std::unique_ptr<amp::GridCSpace2D> ptr_3a = MyGridCon mgc(manip_3, env3a);
-    // auto ptr = std::make_unique<CSpace2D>(env.x_min,env.x_max,env.y_min,env.y_max);
-    // auto ptr_3a = std::make_unique<amp::GridCSpace2D>(manip_3, env3a);
-    CSpace2D gridcon(0, 2*pi, 0, 2*pi, 10, 10);
-    // amp::HW4::checkCSpace()
-    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
-    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
-    amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
+    // // amp::ManipulatorState state_2a = {pi/6, pi/3+pi/6, 7*pi/4+pi/3+pi/6};
+    // amp::Environment2D env3a = amp::HW4::getEx3Workspace1();
+    // // std::vector<double> lengths_2a = {1.0, 1.0};
+    // Arm2L manip_3(base, lengths_2b);
+    // // std::unique_ptr<amp::GridCSpace2D> ptr_3a = MyGridCon mgc(manip_3, env3a);
+    // // auto ptr = std::make_unique<CSpace2D>(env.x_min,env.x_max,env.y_min,env.y_max);
+    // // auto ptr_3a = std::make_unique<amp::GridCSpace2D>(manip_3, env3a);
+    // CSpace2D gridcon(0, 2*pi, 0, 2*pi, 100, 100);
+    // // amp::HW4::checkCSpace()
+    // amp::Visualizer::makeFigure(amp::HW4::getEx3Workspace1());
+    // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
+    // amp::Visualizer::makeFigure(amp::HW4::getEx3Workspace2());
+    // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
+    // amp::Visualizer::makeFigure(amp::HW4::getEx3Workspace3());
+    // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
 
 
     // Grade method
