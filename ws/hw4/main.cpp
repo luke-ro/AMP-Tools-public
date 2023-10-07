@@ -9,6 +9,7 @@
 #include "Arm2L.h"
 
 // using namespace amp;
+const double pi = 3.1415;
 
 amp::Polygon rotatePG(amp::Polygon pg, double angle, Eigen::Vector2d point){
     Eigen::Matrix3d R;
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
     amp::Visualizer::makeFigure(triang_vec,0.0);
 
 
-    /*** Q2 ***/
+    /*** 1b ***/
     Eigen::Vector2d zero {0.0,0.0};
     std::vector<amp::Polygon> pgs;
     std::vector<double> heights;
@@ -73,6 +74,12 @@ int main(int argc, char** argv) {
         heights.push_back(0.2*double(i));
     }
     amp::Visualizer::makeFigure(pgs,heights);
+
+    /*** 2a ***/
+    amp::ManipulatorState state_2a = {pi/6, pi/3, 7*pi/4};
+    std::vector<double> lengths_2a = {0.5, 1.0, 0.5};
+    Arm2L manip_2a(lengths_2a);
+    amp::HW4::checkFK(Eigen::Vector2d(0,0), 2, manip_2a, state_2a);
 
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "luke.roberson@colorado.edu", argc, argv);
