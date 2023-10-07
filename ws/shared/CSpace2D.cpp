@@ -64,9 +64,12 @@ bool CSpace2D::checkColConfig(const amp::LinkManipulator2D& manipulator, const a
     state.push_back(theta2);
 
     std::vector<Eigen::Vector2d> joints;
-    joints[0] = manipulator.getJointLocation(state, 0);
-    joints[1] = manipulator.getJointLocation(state, 1);
-    joints[2] = manipulator.getJointLocation(state, 2);
+    // joints[0] = manipulator.getJointLocation(state, 0);
+    // joints[1] = manipulator.getJointLocation(state, 1);
+    // joints[2] = manipulator.getJointLocation(state, 2);
+    joints.push_back(manipulator.getJointLocation(state, 0));
+    joints.push_back(manipulator.getJointLocation(state, 1));
+    joints.push_back(manipulator.getJointLocation(state, 2));
 
     for(int k=0; k<2; k++){
         std::vector<Eigen::Vector2d> pts = H::linspace2D(joints[k],joints[k+1],20);
