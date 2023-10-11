@@ -72,8 +72,8 @@ int main(int argc, char** argv) {
     amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
     
     // Grade method
-    // MyGridCon* gridcon_grade;
-    // amp::HW4::grade<Arm2L>(*gridcon_grade, "luke.roberson@colorado.edu", argc, argv);
+    MyGridCon* gridcon_grade;
+    amp::HW4::grade<Arm2L>(*gridcon_grade, "luke.roberson@colorado.edu", argc, argv);
     amp::Visualizer::showFigures();
     return 0;
 }
