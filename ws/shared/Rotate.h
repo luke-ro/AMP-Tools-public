@@ -2,7 +2,10 @@
 
 #include "AMPCore.h"
 
+#define PI 3.1415
+
 namespace Rotate{
+
 
 /// @brief the angle of the line (x axis=0, positive in ccw dir) defined by two points 
 static double ang02pi(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
@@ -14,6 +17,17 @@ static double ang02pi(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
 /// @brief the angle of the line (x axis=0, positive in ccw dir) defined by two points 
 inline double ang(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
     return atan2(p2[1]-p1[1],p2[0]-p1[0]);
+}
+
+/// @brief returns the difference from [-pi,pi) between two angles 
+inline double angleDifference(double a1, double a2){      
+    double a = a1 - a2;
+    if (a>=PI){
+        return a-(2*PI);
+    }else if(a<-PI){
+        return a+(2*PI);
+    } 
+    return a;
 }
 
 inline void rotateLine2DInPlace(Eigen::Vector2d& p1, Eigen::Vector2d& p2, double angle, const Eigen::Vector2d pivot){
