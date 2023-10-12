@@ -1,20 +1,73 @@
 #pragma once
 #include "AMPCore.h"
+#include "Rotate.h"
 
 namespace H{
 
+    // returns true if val is between the values specified by x1 and x2 exlusive
+    inline bool isBetwOpen(double val, double x1, double x2);
+
+    // returns true if val is between the values specified by x1 and x2 inclusive
+    inline bool isBetwClosed(double val, double x1, double x2);
+
+    // returns true if val is between the values specified by x1(inclusive) and x2 (exclusive)
+    inline bool isBetwLeftClosed(double val, double x1, double x2);
+
+    inline bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q);
+
+    /**
+     * @brief Checks entire workspace for collision
+    */
+    inline bool checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2d& q);
+
+    /*
+    *  MATLAB or Numpy linspace like function. 
+    *  taken from https://stackoverflow.com/questions/27028226/python-linspace-in-c
+    */
+    template<typename T>
+    inline std::vector<double> linspace(T start_in, T end_in, int num_in);
+
+
+    inline std::vector<Eigen::Vector2d> linspace2D(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n);
+
+
+    /**
+     * @brief gets index of closest vertex
+    */
+    inline int closestVertex(amp::Polygon pg, Eigen::Vector2d q);
+
+    /**
+     * @brief Gets the distance to an polygons closest point.
+    */
+    inline int pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q);
+
+
+    /**
+     * @brief returns if a point is to the 'left' of an infinite line defined by two points 
+     * (left is 90 deg CCW of the direction defined by p1 and p2)
+     * closestVertex
+    */
+    inline bool isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q);
+
+    ///@brief get intersection 
+
+}
+
+
+
+
 // returns true if val is between the values specified by x1 and x2 exlusive
-inline bool isBetwOpen(double val, double x1, double x2){
+inline bool H::isBetwOpen(double val, double x1, double x2){
     return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1 and x2 inclusive
-inline bool isBetwClosed(double val, double x1, double x2){
+inline bool H::isBetwClosed(double val, double x1, double x2){
     return (val>=std::min(x1,x2)) && (val<=std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1(inclusive) and x2 (exclusive)
-inline bool isBetwLeftClosed(double val, double x1, double x2){
+inline bool H::isBetwLeftClosed(double val, double x1, double x2){
     if (x1<x2){
         return (val>=x1) && (val<x2);
     }else if(x1>x2){
@@ -24,7 +77,7 @@ inline bool isBetwLeftClosed(double val, double x1, double x2){
     }
 }
 
-inline bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
+inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
         //reset number of intersections for each obstacle
     int num_intersections = 0;
 
@@ -88,7 +141,7 @@ inline bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
  * @param env the dataframe that contains the workspace ans obstacles
  * @param q the 2D point to check
 */
-inline bool checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2d& q){
+inline bool H::checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2d& q){
     // iterate through obstacles
     for(auto obs : env.obstacles){
         if (insidePolygon(obs,q)){
@@ -108,7 +161,7 @@ inline bool checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2
 *  taken from https://stackoverflow.com/questions/27028226/python-linspace-in-c
 */
 template<typename T>
-inline std::vector<double> linspace(T start_in, T end_in, int num_in)
+inline std::vector<double> H::linspace(T start_in, T end_in, int num_in)
 {
 
   std::vector<double> linspaced;
@@ -135,7 +188,7 @@ inline std::vector<double> linspace(T start_in, T end_in, int num_in)
   return linspaced;
 }
 
-inline std::vector<Eigen::Vector2d> linspace2D(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
+inline std::vector<Eigen::Vector2d> H::linspace2D(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
     std::vector<double> x1 = linspace(p1[0],p2[0],n);
     std::vector<double> x2 = linspace(p1[1],p2[1],n);
 
@@ -150,4 +203,86 @@ inline std::vector<Eigen::Vector2d> linspace2D(const Eigen::Vector2d& p1, const 
     return line;
 }
 
+
+/**
+ * @brief gets index of closest vertex
+*/
+inline int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
+    int idx = 0;
+    double min_dist = std::numeric_limits<double>::infinity();
+    double cur_dist;
+    for(int i=0;i<pg.verticesCCW().size();i++){
+        cur_dist = (pg.verticesCCW()[i]-pg.verticesCCW()[idx]).norm();
+        if(cur_dist<min_dist){
+            min_dist = cur_dist;
+            idx = i;
+        }
+    }
+    return idx;
+}
+
+/**
+ * @brief Gets the distance to an polygons closest point.
+ * 
+ * @param
+ * @return 
+*/
+inline int H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
+    // get the closest vertex
+    int v_close = closestVertex(pg,q);
+    int v_left;
+    int v_right;
+
+    if(v_close==0){
+        v_left = pg.verticesCCW().size()-1;
+        v_right = 1;
+    }else if(v_close==(pg.verticesCCW().size()-1)){
+        v_left = v_close-1;
+        v_right = 0;
+    }
+
+    double ang_close = Rotate::ang(q,pg.verticesCCW()[v_close]);
+    double ang_left = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_left]);
+    double ang_right = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_right]);
+
+    if(abs(Rotate::angleDifference(ang_close,ang_left)) > 3.1415/2.0 && abs(Rotate::angleDifference(ang_close,ang_right)) > 3.1415/2.0){
+        return v_close;
+    }
+
+    //TODO find intersection along line
+
+
+}
+
+
+/**
+ * @brief returns if a point is to the 'left' of an infinite line defined by two points 
+ * (left is 90 deg CCW of the direction defined by p1 and p2)
+ * closestVertex
+ * @param p1 first point
+ * @param p1 second point
+ * @param q query point
+ * @return true if q is to the left or on line
+*/
+inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q){
+    // calculate the line for the edge
+    double m = (p2[1]-p1[1])/(p2[0]-p1[0]);
+    auto f_of_x = [m,p1](double x){return (m*(x-p1[0]))+p1[1];}; 
+
+    if(p1[0]>p2[0]){
+        return q[0] <= f_of_x(q[0]);
+
+    } else if(p1[0] < p2[0]){
+        return q[0] >= f_of_x(q[0]);
+
+    }else if(p1[1] < p2[1]){
+        return q[0] >= p1[0];
+
+    }else if(p1[1] > p2[1]){
+        return q[0] <= p1[0];
+    }
+
+    //should never get to this line
+    std::cout << "isLeftOfLine: completed if stmt with no return. Are p1 & p2 the same point?"<<"\n"; 
+    return false;
 }
