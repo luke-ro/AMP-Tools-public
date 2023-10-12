@@ -251,20 +251,24 @@ inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q)
 
 
     // Rotate q about the v_close vertex by -ang of the line its closest to, 
-    // then the x coord should be the intersection distance along the line  
+    // then the x coord should be the intersection distance along the line.
+    // Then rotate back to line that intersection lies on and add to get point along line
 
     double dist_along_edge {0};
     Eigen::Vector2d rq {0,0};
+    Eigen::Vector2d pt_close{0,0};
     if(ang_left<0.5*3.1415){
         rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
-        dist_along_edge = rq[0];
+        rq[1] = 0.0;
+        pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_left,Eigen::Vector2d(0,0));
     }else if(ang_right<0.5*3.1415){
         rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
-        dist_along_edge = rq[0];
+        rq[1] = 0.0;
+        pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_right,Eigen::Vector2d(0,0));
+    }else{
+        std::cout<<"H::pgNearestPt: Bad things have happened. Program should not have gotten here."<<"\n";
     }
-    rq[1] = 0.0;
 
-    Eigen::Vector2d pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_left,Eigen::Vector2d(0,0));
     return pt_close;
 }
 
