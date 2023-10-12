@@ -39,7 +39,7 @@ namespace H{
     /**
      * @brief Gets the distance to an polygons closest point.
     */
-    inline int pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q);
+    inline Eigen::Vector2d pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q);
 
 
     /**
@@ -222,12 +222,12 @@ inline int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
 }
 
 /**
- * @brief Gets the distance to an polygons closest point.
+ * @brief Gets the distance to an polygons closest point. Assumes query point is in free space!
  * 
  * @param
  * @return 
 */
-inline int H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
+inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
     // get the closest vertex
     int v_close = closestVertex(pg,q);
     int v_left;
@@ -246,12 +246,26 @@ inline int H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
     double ang_right = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_right]);
 
     if(abs(Rotate::angleDifference(ang_close,ang_left)) > 3.1415/2.0 && abs(Rotate::angleDifference(ang_close,ang_right)) > 3.1415/2.0){
-        return v_close;
+        return pg.verticesCCW()[v_close];
     }
 
-    //TODO find intersection along line
 
+    // Rotate q about the v_close vertex by -ang of the line its closest to, 
+    // then the x coord should be the intersection distance along the line  
 
+    double dist_along_edge {0};
+    Eigen::Vector2d rq {0,0};
+    if(ang_left<0.5*3.1415){
+        rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
+        dist_along_edge = rq[0];
+    }else if(ang_right<0.5*3.1415){
+        rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
+        dist_along_edge = rq[0];
+    }
+    rq[1] = 0.0;
+
+    Eigen::Vector2d pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_left,Eigen::Vector2d(0,0));
+    return pt_close;
 }
 
 
