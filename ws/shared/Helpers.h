@@ -61,6 +61,15 @@ namespace H{
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
     {return double(idx)/len_arr*(cont_max-cont_min);}
+
+    ///@brief returns a random collision free point within the environment bounds
+    inline Eigen::Vector2d randomValidSample(const amp::Problem2D& problem, int n=20);
+
+    inline Eigen::Vector2d randomSample(const amp::Problem2D& problem);
+
+    inline bool freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n);
+
+    inline Eigen::Vector2d noise2d(double max);
 }
 
 
@@ -344,4 +353,42 @@ inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2
     //should never get to this line
     std::cout << "isLeftOfLine: completed if stmt with no return. Are p1 & p2 the same point?"<<"\n"; 
     return false;
+}
+
+/**
+ * 
+*/
+inline Eigen::Vector2d H::randomValidSample(const amp::Problem2D& problem, int n){
+    Eigen::Vector2d pt;
+    for(int i=0;i<n;i++){
+        pt[0] = (((double)rand()/(double)RAND_MAX)*(problem.x_max-problem.x_min)) + problem.x_min;
+        pt[1] = (((double)rand()/(double)RAND_MAX)*(problem.y_max-problem.y_min)) + problem.y_min;
+        if(!checkCollsionEnv(problem,pt)){
+            return pt;
+        }
+    }
+}
+
+inline Eigen::Vector2d H::randomSample(const amp::Problem2D& problem){
+    Eigen::Vector2d pt;
+    pt[0] = (((double)rand()/(double)RAND_MAX)*(problem.x_max-problem.x_min)) + problem.x_min;
+    pt[1] = (((double)rand()/(double)RAND_MAX)*(problem.y_max-problem.y_min)) + problem.y_min;
+    return pt;
+}
+
+inline bool H::freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
+    for(auto p : linspace2D(p1,p2,n)){
+        if(checkCollsionEnv(problem,p)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline Eigen::Vector2d H::noise2d(double max){
+    Eigen::Vector2d vec;
+    vec[0] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
+    vec[1] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
+    return vec;
 }
