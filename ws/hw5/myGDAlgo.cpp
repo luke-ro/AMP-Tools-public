@@ -1,6 +1,6 @@
 #include "myGDAlgo.h"
 
-myGDAlgo::myGDAlgo(int sx0, int sx1, double epsilon, double dstar_goal, double zeta, double Qstar, double eta, double alpha)
+myGDAlgo::myGDAlgo(double epsilon, double dstar_goal, double zeta, double Qstar, double eta, double alpha, int sx0, int sx1)
  :amp::GDAlgorithm()
  ,_sx0 (sx0)
  ,_sx1 (sx1)
