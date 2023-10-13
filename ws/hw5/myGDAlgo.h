@@ -12,6 +12,7 @@ class myGDAlgo : public amp::GDAlgorithm{
     Eigen::Vector2d calcGrad(const amp::Problem2D& problem, const Eigen::Vector2d& q);
     Eigen::Vector2d gradUatt(const amp::Problem2D& problem, Eigen::Vector2d q);
     Eigen::Vector2d gradUrep(const amp::Problem2D& problem, Eigen::Vector2d q);
+    Eigen::Vector2d randomWalk(const amp::Problem2D& problem, Eigen::Vector2d q, double r=0.5);
 
     private:
     double _dstar_goal;
@@ -20,6 +21,7 @@ class myGDAlgo : public amp::GDAlgorithm{
     double _eta;
     double _epsilon;
     double _alpha;
+    double _update_max;
     int _sx0;
     int _sx1;
     // _grad

@@ -10,18 +10,26 @@ myGDAlgo::myGDAlgo(double epsilon, double dstar_goal, double zeta, double Qstar,
  ,_Qstar (Qstar)
  ,_eta (eta)
  ,_alpha (alpha)
+ ,_update_max (1.0)
  {}
 
 amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
     // std::vector< std::vector<Eigen::Vector2d> > grad (_sx0,
     //     std::vector<Eigen::Vector2d>(_sx1));
     Eigen::Vector2d q = problem.q_init;
+    Eigen::Vector2d update;
     amp::Path2D path;
 
     int i=0;
     path.waypoints.push_back(q);
-    while((q-problem.q_goal).norm()>_epsilon){
-        q += -_alpha*calcGrad(problem,q);
+    while((q-problem.q_goal).norm()>_epsilon && i++<5000){
+        update = -_alpha*calcGrad(problem,q) + H::noise2d(0.05);
+        if(update.norm()>_update_max) update=update/update.norm()*_update_max;
+
+        q += update;
+        if (update.norm()<0.0001){
+            q = randomWalk(problem, q, 0.5);    
+        }
         path.waypoints.push_back(q);
     }
 
@@ -71,4 +79,16 @@ Eigen::Vector2d myGDAlgo::gradUrep(const amp::Problem2D& problem, Eigen::Vector2
 
     //else
     return Eigen::Vector2d(0.0,0.0);
+}
+
+Eigen::Vector2d myGDAlgo::randomWalk(const amp::Problem2D& problem, Eigen::Vector2d q, double r){
+    for(int i=0;i<50;i++){
+        Eigen::Vector2d pt = H::randomSample(problem);
+        pt = pt/pt.norm()*r;
+        if(H::freeBtwPoints(problem, q, pt, 20)){
+            return pt;
+        }
+    }
+    std::cout<<"myGDAlgo::randomWalk: was not able to find a valid path."<<"\n";
+    return Eigen::Vector2d(0,0);
 }
