@@ -27,8 +27,12 @@ int main(int argc, char** argv) {
     amp::Problem2D prob = amp::HW2::getWorkspace1();
 
     amp::Path2D path = gd.plan(prob);
+    amp::HW5::check(path, prob);
 
     amp::Visualizer::makeFigure(prob_ez,gd.plan(prob_ez));
     amp::Visualizer::makeFigure(prob,path);
+
+    amp::HW5::grade(gd, "luke.roberson@colorado.edu", argc, argv);
+
     amp::Visualizer::showFigures();
 }
