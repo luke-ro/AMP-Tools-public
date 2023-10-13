@@ -27,11 +27,18 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
         if(update.norm()>_update_max) update=update/update.norm()*_update_max;
 
         q += update;
-        if (update.norm()<0.0001){
-            q = randomWalk(problem, q, 0.5);    
+        if (update.norm()<0.01 && (q-problem.q_goal).norm() > 2 ){
+            q += randomWalk(problem, q, 0.2);    
         }
+
+        if((((double)rand()/(double)RAND_MAX))<0.5 && (q-problem.q_goal).norm() > 2 ){
+            q += randomWalk(problem, q, 0.5);  
+        }
+
+
+
         path.waypoints.push_back(q);
-        std::cout<<q[0]<<", "<<q[1]<<"\n";
+        // std::cout<<q[0]<<", "<<q[1]<<"\n";
     }
 
     return path;
@@ -72,22 +79,25 @@ Eigen::Vector2d myGDAlgo::gradUatt(const amp::Problem2D& problem, Eigen::Vector2
 }
 
 Eigen::Vector2d myGDAlgo::gradUrep(const amp::Problem2D& problem, Eigen::Vector2d q){
-    Eigen::Vector2d c = H::obstaclesClosePt(problem,q);
-    double dist = (q-c).norm();
-    if(dist < _Qstar){
-        return _eta*(1/_Qstar-1/dist)*(q-c)/(dist*dist);
+    
+    Eigen::Vector2d sum {0,0};
+    for(auto pg : problem.obstacles){
+        Eigen::Vector2d c = H::pgNearestPt(pg,q);
+        double dist = (q-c).norm();
+        if(dist < _Qstar){
+            sum += _eta*(1/_Qstar-1/dist)*(q-c)/(dist*dist);
+        }
     }
 
-    //else
-    return Eigen::Vector2d(0.0,0.0);
+    return sum;
 }
 
 Eigen::Vector2d myGDAlgo::randomWalk(const amp::Problem2D& problem, Eigen::Vector2d q, double r){
     for(int i=0;i<50;i++){
-        Eigen::Vector2d pt = H::randomSample(problem);
-        pt = pt/pt.norm()*r;
-        if(H::freeBtwPoints(problem, q, pt, 20)){
-            return pt;
+        Eigen::Vector2d step = H::randomSample(problem)-q;
+        step = step/step.norm()*r;
+        if(H::freeBtwPoints(problem, q, q+step, 20)){
+            return step;
         }
     }
     std::cout<<"myGDAlgo::randomWalk: was not able to find a valid path."<<"\n";
