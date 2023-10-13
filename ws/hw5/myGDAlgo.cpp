@@ -18,6 +18,7 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
     Eigen::Vector2d q = problem.q_init;
     amp::Path2D path;
 
+    int i=0;
     path.waypoints.push_back(q);
     while((q-problem.q_goal).norm()>_epsilon){
         q += -_alpha*calcGrad(problem,q);
