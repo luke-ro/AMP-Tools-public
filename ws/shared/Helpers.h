@@ -289,7 +289,7 @@ inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q)
         v_right = v_close+1;
     }
 
-    std::cout<<v_left<<"\n";
+    // std::cout<<v_left<<"\n";
     double ang_close = Rotate::ang(pg.verticesCCW()[v_close],q);
     double ang_left = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_left]);
     double ang_right = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_right]);
