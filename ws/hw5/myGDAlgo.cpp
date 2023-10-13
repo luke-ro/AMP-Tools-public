@@ -41,6 +41,8 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
         // std::cout<<q[0]<<", "<<q[1]<<"\n";
     }
 
+    path.waypoints.push_back(problem.q_goal);
+
     return path;
 }
 
@@ -100,6 +102,6 @@ Eigen::Vector2d myGDAlgo::randomWalk(const amp::Problem2D& problem, Eigen::Vecto
             return step;
         }
     }
-    std::cout<<"myGDAlgo::randomWalk: was not able to find a valid path."<<"\n";
+    // std::cout<<"myGDAlgo::randomWalk: was not able to find a valid path."<<"\n";
     return Eigen::Vector2d(0,0);
 }
