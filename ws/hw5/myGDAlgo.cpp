@@ -22,32 +22,33 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
     return amp::Path2D();
 }
 
-void fillGradient(std::Vector2d<std::Vector2d<Eigen::Vector2d>> grad_arr){
+void myGDAlgo::fillGradient(const amp::Problem2D& problem, std::vector<std::vector<Eigen::Vector2d>> &grad_arr){
+    Eigen::Vector2d q;
     // fill potential func with base potential
     for(int i=0; i<_sx0; i++){
         q[0] = H::idxToNum(i,_sx0,problem.x_min,problem.x_max);
         for(int j=0; j<_sx1; j++){
             q[1] = H::idxToNum(j,_sx1,problem.y_min,problem.y_max);
-            grad_arr[i][j] = calcGrad(q);
+            grad_arr[i][j] = calcGrad(problem,q);
         }
     }
 }
 
-Eigen::Vector2d calcGrad(const Eigen::Vector2d& q){
-    Eigen::Vector2d val;
-    double dist_goal = (q-problem.q_goal).norm();
+Eigen::Vector2d myGDAlgo::calcGrad(const amp::Problem2D& problem, const Eigen::Vector2d& q){
+    Eigen::Vector2d val(0.0,0.0);
+
 
     // set to base gradient func
-
-
+    val += gradUatt(problem, q);
 
     // add repuslive func
-
+    val += gradUrep(problem, q);
 
     return val;
 }
 
-Eigen::Vector2d gradUatt(Eigen::Vector2d q){
+Eigen::Vector2d myGDAlgo::gradUatt(const amp::Problem2D& problem, Eigen::Vector2d q){
+    double dist_goal = (q-problem.q_goal).norm();
     if(dist_goal<_dstar_goal){
         return _zeta*(q-problem.q_goal);
     }else{
@@ -55,7 +56,7 @@ Eigen::Vector2d gradUatt(Eigen::Vector2d q){
     }
 }
 
-Eigen::Vector2d gradUrep(Eigen::Vector2d q){
+Eigen::Vector2d myGDAlgo::gradUrep(const amp::Problem2D& problem, Eigen::Vector2d q){
     Eigen::Vector2d c = H::obstaclesClosePt(problem,q);
     double dist = (q-c).norm();
     if(dist < _Qstar){
