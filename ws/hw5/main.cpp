@@ -12,13 +12,13 @@
 int main(int argc, char** argv) {
 
     // srand(time(NULL));
-    srand(0);
+    srand(3);
 
     double epsilon=0.1;
-    double dstar_goal=5.0;
+    double dstar_goal=3.0;
     double zeta=1.0;
-    double Qstar=2.0;
-    double eta=.5;
+    double Qstar=3.0;
+    double eta=.3;
     double alpha=0.1;
     myGDAlgo gd(epsilon, dstar_goal, zeta, Qstar, eta, alpha);
     std::cout<<"here"<<"\n";
