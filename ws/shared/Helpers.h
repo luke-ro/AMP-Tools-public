@@ -239,7 +239,7 @@ inline Eigen::Vector2d H::obstaclesClosePt(const amp::Environment2D& env, const 
     // iterate through obstacles
     for(auto pg : env.obstacles){
         cur_point = pgNearestPt(pg,q);
-        cur_mag = cur_point.norm();
+        cur_mag = (cur_point-q).norm();
         if(cur_mag<min_mag){
             min_pt = cur_point;
             min_mag = cur_mag;
@@ -256,7 +256,7 @@ inline int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
     double min_dist = std::numeric_limits<double>::infinity();
     double cur_dist;
     for(int i=0;i<pg.verticesCCW().size();i++){
-        cur_dist = (pg.verticesCCW()[i]-pg.verticesCCW()[idx]).norm();
+        cur_dist = (pg.verticesCCW()[i]-q).norm();
         if(cur_dist<min_dist){
             min_dist = cur_dist;
             idx = i;
@@ -282,10 +282,14 @@ inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q)
         v_left = pg.verticesCCW().size()-1;
         v_right = 1;
     }else if(v_close==(pg.verticesCCW().size()-1)){
+        v_left = 0;
+        v_right = pg.verticesCCW().size()-2;
+    }else{
         v_left = v_close-1;
-        v_right = 0;
+        v_right = v_close+1;
     }
 
+    std::cout<<v_left<<"\n";
     double ang_close = Rotate::ang(pg.verticesCCW()[v_close],q);
     double ang_left = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_left]);
     double ang_right = Rotate::ang(pg.verticesCCW()[v_close],pg.verticesCCW()[v_right]);
@@ -305,13 +309,16 @@ inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q)
     double dist_along_edge {0};
     Eigen::Vector2d rq {0,0};
     Eigen::Vector2d pt_close{0,0};
-    if(ang_left<0.5*3.1415){
+    if(abs(Rotate::angleDifference(ang_close,ang_left))<0.5*3.1415 
+        && abs(Rotate::angleDifference(ang_close,ang_left))
+                <abs(Rotate::angleDifference(ang_close,ang_right))){
+
         rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
         rq[0] -= pg.verticesCCW()[v_close][0]; 
         rq[1] = 0.0;
         pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_left,Eigen::Vector2d(0,0));
-    }else if(ang_right<0.5*3.1415){
-        rq = Rotate::rotatePoint(q,-ang_left,pg.verticesCCW()[v_close]);
+    }else if(abs(Rotate::angleDifference(ang_close,ang_right))<0.5*3.1415){
+        rq = Rotate::rotatePoint(q,-ang_right,pg.verticesCCW()[v_close]);
         rq[0] -= pg.verticesCCW()[v_close][0]; 
         rq[1] = 0.0;
         pt_close = pg.verticesCCW()[v_close] + Rotate::rotatePoint(rq,ang_right,Eigen::Vector2d(0,0));

@@ -31,6 +31,7 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
             q = randomWalk(problem, q, 0.5);    
         }
         path.waypoints.push_back(q);
+        std::cout<<q[0]<<", "<<q[1]<<"\n";
     }
 
     return path;
