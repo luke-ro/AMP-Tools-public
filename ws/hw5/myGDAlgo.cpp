@@ -1,25 +1,30 @@
 #include "myGDAlgo.h"
 
-myGDAlgo::myGDAlgo(int sx0, int sx1, double dstar_goal, double zeta, double Qstar, double eta)
+myGDAlgo::myGDAlgo(int sx0, int sx1, double epsilon, double dstar_goal, double zeta, double Qstar, double eta, double alpha)
  :amp::GDAlgorithm()
  ,_sx0 (sx0)
  ,_sx1 (sx1)
+ ,_epsilon (epsilon)
  ,_dstar_goal (dstar_goal)
  ,_zeta (zeta)
  ,_Qstar (Qstar)
  ,_eta (eta)
+ ,_alpha (alpha)
  {}
 
 amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
-    std::vector< std::vector<Eigen::Vector2d> > grad (_sx0,
-        std::vector<Eigen::Vector2d>(_sx1));
-    Eigen::Vector2d q;
-    
+    // std::vector< std::vector<Eigen::Vector2d> > grad (_sx0,
+    //     std::vector<Eigen::Vector2d>(_sx1));
+    Eigen::Vector2d q = problem.q_init;
+    amp::Path2D path;
 
+    path.waypoints.push_back(q);
+    while((q-problem.q_goal).norm()>_epsilon){
+        q += -_alpha*calcGrad(problem,q);
+        path.waypoints.push_back(q);
+    }
 
-
-
-    return amp::Path2D();
+    return path;
 }
 
 void myGDAlgo::fillGradient(const amp::Problem2D& problem, std::vector<std::vector<Eigen::Vector2d>> &grad_arr){
@@ -35,16 +40,16 @@ void myGDAlgo::fillGradient(const amp::Problem2D& problem, std::vector<std::vect
 }
 
 Eigen::Vector2d myGDAlgo::calcGrad(const amp::Problem2D& problem, const Eigen::Vector2d& q){
-    Eigen::Vector2d val(0.0,0.0);
+    Eigen::Vector2d vec(0.0,0.0);
 
 
     // set to base gradient func
-    val += gradUatt(problem, q);
+    vec += gradUatt(problem, q);
 
     // add repuslive func
-    val += gradUrep(problem, q);
+    vec += gradUrep(problem, q);
 
-    return val;
+    return vec;
 }
 
 Eigen::Vector2d myGDAlgo::gradUatt(const amp::Problem2D& problem, Eigen::Vector2d q){
