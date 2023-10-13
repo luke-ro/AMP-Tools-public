@@ -5,7 +5,7 @@
 class myGDAlgo : public amp::GDAlgorithm{
     public:
 
-    myGDAlgo(int sx0 = 100, int sx1 = 100, double dstar_goal=5.0, double zeta=1.0, double Qstar=0.5, double eta=1.0);
+    myGDAlgo(int sx0 = 100, int sx1 = 100, double epsilon=0.5, double dstar_goal=5.0, double zeta=1.0, double Qstar=0.5, double eta=1.0, double alpha=0.1);
 
     virtual amp::Path2D plan(const amp::Problem2D& problem) override;
     void fillGradient(const amp::Problem2D& problem, std::vector<std::vector<Eigen::Vector2d>> &grad_arr);
@@ -14,11 +14,13 @@ class myGDAlgo : public amp::GDAlgorithm{
     Eigen::Vector2d gradUrep(const amp::Problem2D& problem, Eigen::Vector2d q);
 
     private:
-    int _sx0;
-    int _sx1;
     double _dstar_goal;
     double _zeta;
     double _Qstar;
     double _eta;
+    double _epsilon;
+    double _alpha;
+    int _sx0;
+    int _sx1;
     // _grad
 };
