@@ -10,7 +10,7 @@ myGDAlgo::myGDAlgo(double epsilon, double dstar_goal, double zeta, double Qstar,
  ,_Qstar (Qstar)
  ,_eta (eta)
  ,_alpha (alpha)
- ,_update_max (1.0)
+ ,_update_max (0.5)
  {}
 
 amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
@@ -35,7 +35,10 @@ amp::Path2D myGDAlgo::plan(const amp::Problem2D& problem){
             q += randomWalk(problem, q, 0.5);  
         }
 
-
+        if(H::checkCollsionEnv(problem,q)){
+            q = path.waypoints[path.waypoints.size()-1];
+            continue;
+        }
 
         path.waypoints.push_back(q);
         // std::cout<<q[0]<<", "<<q[1]<<"\n";
