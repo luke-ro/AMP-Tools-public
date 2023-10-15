@@ -70,6 +70,8 @@ namespace H{
     inline bool freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n);
 
     inline Eigen::Vector2d noise2d(double max);
+
+    inline double pathDistane(const amp::Path2D& path, int i_start, int i_end);
 }
 
 
@@ -398,4 +400,13 @@ inline Eigen::Vector2d H::noise2d(double max){
     vec[0] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
     vec[1] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
     return vec;
+}
+
+inline double H::pathDistane(const amp::Path2D& path, int i_start, int i_end){
+    double dist=0;
+    for(int i=i_start; i<i_end; i++){
+        // Eigen::Vector2d r = (path.waypoints[i]-path.waypoints[i+1]).norm();
+        dist+=(path.waypoints[i]-path.waypoints[i+1]).norm();
+    }
+    return dist;
 }
