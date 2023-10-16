@@ -391,7 +391,8 @@ inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2
     }
 
     //should never get to this line
-    std::cout << "isLeftOfLine: completed if stmt with no return. Are p1 & p2 the same point?"<<"\n"; 
+    if(p1[1] == p2[1]) std::cout<<"p1 and p2 are the same. Oh no"<<"\n";
+    std::cout << "H::isLeftOfLine: completed if with no return. That is not good."<<"\n"; 
     return false;
 }
 
