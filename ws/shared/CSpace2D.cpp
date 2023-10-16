@@ -22,7 +22,7 @@ CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, i
 */
 CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env){
     // need to fill c_arr
-    CSpace2D temp_cspace(env.x_min, env.x_max, env.y_max, env.y_max, x0_len, x1_len);
+    CSpace2D temp_cspace(m_x0_bounds.first, m_x0_bounds.second, m_x1_bounds.first, m_x1_bounds.second, x0_len, x1_len);
     std::pair<int,int> bounds = c_arr.size();
 
     for(int i=0; i<bounds.first; i++){
@@ -98,18 +98,18 @@ amp::Polygon CSpace2D::minkDiff(const amp::Polygon& obstacle,  const amp::Polygo
     return amp::Polygon(verts);
 }
 
-/**
- * @brief Returns if a point is in collision or not
- * 
- * @param x0
- * @param x1
- * @return true if in collision, false otherwise
-*/
-bool CSpace2D::inCollision(double x0, double x1) const{
-    int i = (x0/(m_x0_bounds.second-m_x0_bounds.first))*(double(c_arr.size().first));
-    int j = (x1/(m_x1_bounds.second-m_x1_bounds.first))*(double(c_arr.size().second));
-    return c_arr(i,j);
-}
+// /**
+//  * @brief Returns if a point is in collision or not
+//  * 
+//  * @param x0
+//  * @param x1
+//  * @return true if in collision, false otherwise
+// */
+// bool CSpace2D::inCollision(double x0, double x1) const{
+//     int i = (x0/(m_x0_bounds.second-m_x0_bounds.first))*(double(c_arr.size().first));
+//     int j = (x1/(m_x1_bounds.second-m_x1_bounds.first))*(double(c_arr.size().second));
+//     return c_arr(i,j);
+// }
 
 /**
  * @brief Takes in a 2D polygon and returns the index of lowest (and leftmost if tied) vertex
