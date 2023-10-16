@@ -4,6 +4,18 @@
  * @brief plans through a discrete world using wavefron
 */
 amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace){
+    std::pair<int> dims = grid_cspace.size();
+    
+    //get a map(hash table) that stores if each cell has or has not been visited.  
+    std::unordered_map<int,bool> visited;
+    for(int k=0; k<(dims.first*dims.second);k++){
+        visited[k] = false;
+    }
+    
+    std::list<int> queue; //fill with cell numbers (i*rowsize+j)
+                            // will have to go back and forth from cell nmber to idx
+
+
     return amp::Path2D();
 }
 
