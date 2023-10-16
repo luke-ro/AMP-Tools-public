@@ -16,6 +16,7 @@ class CSpace2D : public amp::GridCSpace2D {
             return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
         }
         
+        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override{}
         amp::Polygon minkDiff(const amp::Polygon& obs,  const amp::Polygon& rob_pos);
         amp::Polygon pgDifference(const amp::Polygon& pg);
         amp::Polygon reorderPGCCW(const amp::Polygon& pg, bool zero=false);
@@ -23,7 +24,7 @@ class CSpace2D : public amp::GridCSpace2D {
         CSpace2D genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env);
         // amp::DenseArray2D getCSpace(){return c_arr;};
 
-        bool inCollision(double x0, double x1) const override;
+        // bool inCollision(double x0, double x1) const override;
         bool checkCollision(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2);
         bool checkColConfig(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2);
         
