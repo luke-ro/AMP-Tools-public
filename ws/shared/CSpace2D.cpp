@@ -13,6 +13,12 @@ CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, i
 
 };
 
+std::pair<std::size_t, std::size_t> CSpace2D::getCellFromPoint(double x0, double x1) const{
+
+    return std::pair(0,0);
+}
+        
+
 /**
  * @brief creates a cspace from manipulator and env
  * 

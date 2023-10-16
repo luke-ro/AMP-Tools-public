@@ -16,7 +16,7 @@ class CSpace2D : public amp::GridCSpace2D {
             return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
         }
         
-        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override{}
+        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override;
         amp::Polygon minkDiff(const amp::Polygon& obs,  const amp::Polygon& rob_pos);
         amp::Polygon pgDifference(const amp::Polygon& pg);
         amp::Polygon reorderPGCCW(const amp::Polygon& pg, bool zero=false);
