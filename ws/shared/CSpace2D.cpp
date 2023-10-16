@@ -15,7 +15,10 @@ CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, i
 
 std::pair<std::size_t, std::size_t> CSpace2D::getCellFromPoint(double x0, double x1) const{
 
-    return std::pair(0,0);
+    return std::pair(
+        H::numToIdx(x0,x0_len,m_x0_bounds.first,m_x0_bounds.second),
+        H::numToIdx(x1,x1_len,m_x1_bounds.first,m_x1_bounds.second)
+        );
 }
         
 

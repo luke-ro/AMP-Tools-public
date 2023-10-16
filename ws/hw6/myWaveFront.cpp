@@ -1,5 +1,15 @@
 #include "myWaveFront.h"
 
+/**
+ * @brief plans through a discrete world using wavefron
+*/
+amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace){
+    return amp::Path2D();
+}
+
+/**
+ * @brief Constructs a discrete occupancy grid based on an environmnet
+*/
 std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(const amp::Environment2D& environment){
     int sz_x0 = floor(abs(environment.x_max-environment.x_min)/0.25);
     int sz_x1 = floor(abs(environment.y_max-environment.y_min)/0.25);
