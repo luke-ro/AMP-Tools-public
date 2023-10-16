@@ -13,7 +13,11 @@ namespace H{
     // returns true if val is between the values specified by x1(inclusive) and x2 (exclusive)
     inline bool isBetwLeftClosed(double val, double x1, double x2);
 
+    ///@brief better way of checking for collision
     inline bool insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q);
+    
+    ///@brief worse way of checking colision
+    inline bool insidePolygon1(const amp::Polygon& pg, const Eigen::Vector2d& q);
 
     /**
      * @brief Checks entire workspace for collision
@@ -60,7 +64,7 @@ namespace H{
 
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
-    {return double(idx)/len_arr*(cont_max-cont_min);}
+    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min;}
 
     ///@brief returns a random collision free point within the environment bounds
     inline Eigen::Vector2d randomValidSample(const amp::Problem2D& problem, int n=20);
@@ -98,7 +102,7 @@ inline bool H::isBetwLeftClosed(double val, double x1, double x2){
     }
 }
 
-inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
+inline bool H::insidePolygon1(const amp::Polygon& pg, const Eigen::Vector2d& q){
         //reset number of intersections for each obstacle
     int num_intersections = 0;
 
@@ -154,6 +158,30 @@ inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
     if(num_intersections%2==1)
         return true;
     return false;
+}
+
+inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
+        //reset number of intersections for each obstacle
+    int num_intersections = 0;
+
+    int num_verts = pg.verticesCCW().size();
+    
+    Eigen::Vector2d p1,p2;
+    // printf("`insidePolygon` AT %2.2f, %2.2f", q[0],q[1]);
+    //iterate through edges
+    for(int i=0;i<num_verts;i++){
+        // get the current edge's vertices 
+        p1 = pg.verticesCCW()[i];
+        p2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
+
+
+        if (!isLeftOfLine(p1,p2,q)){
+            return false;
+        }
+
+    }
+    
+    return true;
 }
 
 /**
@@ -345,18 +373,21 @@ inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2
     // calculate the line for the edge
     double m = (p2[1]-p1[1])/(p2[0]-p1[0]);
     auto f_of_x = [m,p1](double x){return (m*(x-p1[0]))+p1[1];}; 
+    
 
     if(p1[0]>p2[0]){
-        return q[0] <= f_of_x(q[0]);
+        double t = f_of_x(q[0]);
+        return q[1] <= t;
 
     } else if(p1[0] < p2[0]){
-        return q[0] >= f_of_x(q[0]);
+        double t = f_of_x(q[0]);
+        return q[1] >= t;
 
     }else if(p1[1] < p2[1]){
-        return q[0] >= p1[0];
+        return q[0] <= p1[0];
 
     }else if(p1[1] > p2[1]){
-        return q[0] <= p1[0];
+        return q[0] >= p1[0];
     }
 
     //should never get to this line

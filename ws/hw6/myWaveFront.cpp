@@ -22,10 +22,12 @@ std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(co
     Eigen::Vector2d q_ij;
     for(int i=0; i<sz_x0; i++){
         q_ij[0] = H::idxToNum(i, sz_x0, environment.x_min, environment.x_max);
-        for(int j=0; j<sz_x0; j++){
+        for(int j=0; j<sz_x1; j++){
             q_ij[1] = H::idxToNum(j, sz_x1, environment.y_min, environment.y_max);   
             if(H::checkCollsionEnv(environment,q_ij)){
                 (*grid_ptr)(i,j) = true;
+            }else{
+                (*grid_ptr)(i,j) = false;
             }
         }
     }
