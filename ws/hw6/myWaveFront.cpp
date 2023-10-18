@@ -8,24 +8,53 @@ inline std::pair<int,int> unwrapIdx(int k, int rowlength){
     return std::pair<int,int>(k/rowlength,k%rowlength);
 }
 
-inline std::vector<int> getAdjCells(int c, std::pair<int,int> dims){
-    std::pair<int,int>  ij = unwrapIdx(c,dims.first);
-    int i = ij.first;
-    int j = ij.second;
-    std::vector<int> cells;
-    if(i>0)
-        cells.push_back(wrapIdxs(i-1, j, dims.first));
+inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,int> dims){
+    std::vector<std::pair<int,int>> cells;
+    if(i>0){
+        cells.push_back(std::pair<int,int>(i-1,j));
+    }
 
-    if(i<dims.first-1) 
-        cells.push_back(wrapIdxs(i+1, j, dims.first));
+    if(i<dims.first-1){
+        cells.push_back(std::pair<int,int>(i+1,j));
+    }
 
-    if(j>0)
-        cells.push_back(wrapIdxs(i, j-1, dims.first));
+    if(j>0){
+        cells.push_back(std::pair<int,int>(i,j-1));
+    }
     
-    if(j<dims.second)
-        cells.push_back(wrapIdxs(i, j+1, dims.first));
+    if(j<dims.second){
+        cells.push_back(std::pair<int,int>(i,j+1));
+    }
 
     return cells;
+}
+
+inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr){
+    std::pair<int,int> dims = arr.size();
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims);
+    int min_val = 10000000;
+    for(auto nb : neighbors){
+        int temp = arr(nb.first,nb.second);
+        if(temp<min_val){
+            min_val = temp;
+        }
+    }
+    return min_val;
+}
+
+inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<int>& arr){
+    std::pair<int,int> dims = arr.size();
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims);
+    int min_val = 1000000;
+    std::pair<int,int> idx_min  = neighbors[0];
+    for(auto nb : neighbors){
+        int temp = arr(nb.first,nb.second);
+        if(temp<min_val){
+            min_val = temp;
+            idx_min = nb;
+        }
+    }
+    return idx_min;
 }
 
 /**
@@ -33,41 +62,65 @@ inline std::vector<int> getAdjCells(int c, std::pair<int,int> dims){
 */
 amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace){
     std::pair<int,int> dims = grid_cspace.size();
+    std::pair<int,int>  x0_bounds = grid_cspace.x0Bounds();
+    std::pair<int,int>  x1_bounds = grid_cspace.x1Bounds();
     
     //get a map(hash table) that stores if each cell has or has not been visited.  
     std::unordered_map<int,bool> visited;
     for(int k=0; k<(dims.first*dims.second);k++){
         visited[k] = false;
     }
+
+    amp::DenseArray2D<int> wave(dims.first, dims.second);
     
-    std::list<int> q; //fill with cell numbers (i*rowsize+j)
+    std::list<int> queue; //fill with cell numbers (i*rowsize+j)
                         // will have to go back and forth from cell nmber to idx
 
     // int idx0_init = H::numToIdx(q_init[0],_x0_bounds[0],_x0_bounds[1],_sz_x0);
     // int idx1_init = H::numToIdx(q_init[1],_x1_bounds[0],_x1_bounds[1],_sz_x1);
 
     //Assume that we get an index somehow?
-    int idx0_init = 0;
-    int idx1_init = 0;
-     
-    q.push_back(wrapIdxs(idx0_init,idx1_init,dims.first));
+    std::pair<int,int> idx_goal;
+    idx_goal.first = H::numToIdx(q_goal[0],x0_bounds.first,x0_bounds.second,dims.first);
+    idx_goal.second = H::numToIdx(q_goal[1],x1_bounds.first,x1_bounds.second,dims.second);
+    queue.push_back(wrapIdxs(idx_goal.first, idx_goal.second, dims.first));
 
-    while(!q.empty()){
-        int curr = q.front();
+    std::pair<int,int> idx;
+    while(!queue.empty()){
+        int curr = queue.front();
+        queue.pop_front();
+
         // This is where the cell needs to have its value inserted.
         // Just add one to the minimum neighboring value? 
-        q.pop_front();
+        idx = unwrapIdx(curr,dims.first);
+        wave(idx.first,idx.second) = 1+minNeighbor(idx.first, idx.second, wave);
 
-        for(auto adj : getAdjCells(curr,dims)){
-            if(!visited[adj]){
-                visited[adj] = true;
-                q.push_back(adj);
+        int k;
+        for(auto adj : getAdjCells(idx.first, idx.second, dims)){
+            k = wrapIdxs(adj.first, adj.second, dims.first);
+            if(!visited[k]){
+                visited[k] = true;
+                queue.push_back(k);
             }
         }
     }
 
+    // plan through it
+    amp::Path2D path;
+    Eigen::Vector2d q;
+    std::pair<int,int> idx_path;
+    idx_path.first = H::numToIdx(q_init[0],x0_bounds.first,x0_bounds.second,dims.first);
+    idx_path.second = H::numToIdx(q_init[1],x1_bounds.first,x1_bounds.second,dims.second);
+    while(idx!=idx_goal){
+        q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
+        q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
+        path.waypoints.push_back(q);
 
-    return amp::Path2D();
+        idx_path = minNeighborIdx(idx.first,idx.second,wave);
+    }
+
+
+    return path;
 }
 
 /**
