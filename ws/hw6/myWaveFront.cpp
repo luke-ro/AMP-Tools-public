@@ -142,6 +142,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     amp::Path2D path;
     Eigen::Vector2d q;
     std::pair<int,int> idx_path;
+    path.waypoints.push_back(q_init);
     idx_path.first = H::numToIdx(q_init[0],x0_bounds.first,x0_bounds.second,dims.first);
     idx_path.second = H::numToIdx(q_init[1],x1_bounds.first,x1_bounds.second,dims.second);
     
@@ -186,5 +187,14 @@ std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(co
             }
         }
     }
+
+    std::pair<int,int> idx_pt;
+    for(auto pt : H::getAllPgVerts(environment)){
+        idx_pt.first = H::numToIdx(pt[0],environment.x_min,environment.x_max,_sz_x0);
+        idx_pt.second = H::numToIdx(pt[1],environment.y_min,environment.y_max,_sz_x1);
+        std::cout<<idx_pt.first<<", "<<idx_pt.second<<"\n";
+        (*grid_ptr)(idx_pt.first,idx_pt.second) = true;
+    }
+
     return grid_ptr;
 }

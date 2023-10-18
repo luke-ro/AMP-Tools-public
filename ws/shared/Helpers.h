@@ -60,11 +60,13 @@ namespace H{
 
     ///@brief continuous number to index
     inline int numToIdx(double num, double num_min, double num_max, int len_arr)
-    {return (num-num_min)/(num_max-num_min)*len_arr;}
+    {int idx = (num-num_min)/(num_max-num_min)*len_arr; 
+    if(idx>=len_arr) return len_arr-1;
+    else return idx;}
 
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
-    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min;}
+    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min + ((cont_max-cont_min)/len_arr);}
 
     ///@brief returns a random collision free point within the environment bounds
     inline Eigen::Vector2d randomValidSample(const amp::Problem2D& problem, int n=20);
@@ -76,6 +78,8 @@ namespace H{
     inline Eigen::Vector2d noise2d(double max);
 
     inline double pathDistane(const amp::Path2D& path, int i_start, int i_end);
+
+    inline std::vector<Eigen::Vector2d> getAllPgVerts(const amp::Environment2D& env);
 }
 
 
@@ -441,4 +445,14 @@ inline double H::pathDistane(const amp::Path2D& path, int i_start, int i_end){
         dist+=(path.waypoints[i]-path.waypoints[i+1]).norm();
     }
     return dist;
+}
+
+inline std::vector<Eigen::Vector2d> H::getAllPgVerts(const amp::Environment2D& env){
+    std::vector<Eigen::Vector2d> all_pts;
+    for (auto pg : env.obstacles){
+        for(auto pt : pg.verticesCCW()){
+            all_pts.push_back(pt);
+        }
+    }
+    return all_pts;
 }
