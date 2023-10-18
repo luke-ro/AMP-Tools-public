@@ -20,7 +20,12 @@ int main(int argc, char** argv) {
     amp::Path2D wf_path;
     wf_path =  wf.planInCSpace(ws.q_init, ws.q_goal, *grid_ptr);
 
+    amp::Problem2D rand_prob;
+    amp::Path2D rand_path;
+    amp::HW6::generateAndCheck(wf,rand_path, rand_prob);
+
     //make plots
+    amp::Visualizer::makeFigure(rand_prob, rand_path);
     amp::Visualizer::makeFigure(ws,wf_path);
     amp::Visualizer::makeFigure(*grid_ptr);
     amp::Visualizer::showFigures();
