@@ -17,7 +17,8 @@ int main(int argc, char** argv) {
     myWaveFront wf;
     amp::Problem2D ws =  amp::HW2::getWorkspace2();
     auto grid_ptr = wf.constructDiscretizedWorkspace(ws);
-    amp::Path2D wf_path = wf.planInCSpace(ws.q_init, ws.q_goal, *grid_ptr);
+    amp::Path2D wf_path;
+    wf_path =  wf.planInCSpace(ws.q_init, ws.q_goal, *grid_ptr);
 
     //make plots
     amp::Visualizer::makeFigure(amp::HW2::getWorkspace2(),wf_path);

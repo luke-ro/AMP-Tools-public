@@ -35,7 +35,7 @@ inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr){
     int min_val = 10000000;
     for(auto nb : neighbors){
         int temp = arr(nb.first,nb.second);
-        if(temp<min_val){
+        if(temp<min_val && temp>0){
             min_val = temp;
         }
     }
@@ -49,7 +49,7 @@ inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<i
     std::pair<int,int> idx_min  = neighbors[0];
     for(auto nb : neighbors){
         int temp = arr(nb.first,nb.second);
-        if(temp<min_val){
+        if(temp<min_val && temp>0){
             min_val = temp;
             idx_min = nb;
         }
@@ -67,11 +67,28 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     
     //get a map(hash table) that stores if each cell has or has not been visited.  
     std::unordered_map<int,bool> visited;
+
+    // array that will store wavefront values
+    amp::DenseArray2D<int> wave(dims.first, dims.second);
+
+    //initialize visited and wave
+    Eigen::Vector2d q_check;
     for(int k=0; k<(dims.first*dims.second);k++){
-        visited[k] = false;
+        std::pair<int,int> ij = unwrapIdx(k,dims.second);
+
+        // if obstacle, visited=true and set equal to 1
+        if(grid_cspace(ij.first, ij.second)){
+            visited[k] = true;
+            wave(ij.first, ij.second) = INT_MAX;
+
+        // Else: free space, set to 0
+        }else{
+            visited[k] = false;
+            wave(ij.first, ij.second) = 0;
+        }
+
     }
 
-    amp::DenseArray2D<int> wave(dims.first, dims.second);
     
     std::list<int> queue; //fill with cell numbers (i*rowsize+j)
                         // will have to go back and forth from cell nmber to idx
@@ -83,9 +100,15 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     std::pair<int,int> idx_goal;
     idx_goal.first = H::numToIdx(q_goal[0],x0_bounds.first,x0_bounds.second,dims.first);
     idx_goal.second = H::numToIdx(q_goal[1],x1_bounds.first,x1_bounds.second,dims.second);
-    queue.push_back(wrapIdxs(idx_goal.first, idx_goal.second, dims.second));
+    wave(idx_goal.first, idx_goal.second)=2;
 
     std::pair<int,int> idx;
+
+    //need to start loop not on the first cell
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(idx_goal.first,idx_goal.second,dims);
+    visited[wrapIdxs(idx_goal.first, idx_goal.second, dims.second)] = true;
+    queue.push_back(wrapIdxs(neighbors[0].first, neighbors[0].second, dims.second));
+
     while(!queue.empty()){
         int curr = queue.front();
         queue.pop_front();
@@ -113,12 +136,13 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     std::pair<int,int> idx_path;
     idx_path.first = H::numToIdx(q_init[0],x0_bounds.first,x0_bounds.second,dims.first);
     idx_path.second = H::numToIdx(q_init[1],x1_bounds.first,x1_bounds.second,dims.second);
-    while(idx!=idx_goal){
+    
+    while(idx_path!=idx_goal){
         q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
         q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
         path.waypoints.push_back(q);
 
-        idx_path = minNeighborIdx(idx.first,idx.second,wave);
+        idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave);
     }
 
 
@@ -134,8 +158,8 @@ std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(co
     _x1_bounds[0] = environment.y_min;
     _x1_bounds[1] = environment.y_max;
     
-    _sz_x0 = floor(abs(environment.x_max-environment.x_min)/0.25);
-    _sz_x1 = floor(abs(environment.y_max-environment.y_min)/0.25);
+    _sz_x0 = floor(abs(environment.x_max-environment.x_min)/_cell_width);
+    _sz_x1 = floor(abs(environment.y_max-environment.y_min)/_cell_width);
     auto grid_ptr = std::make_unique<CSpace2D>(environment.x_min,
             environment.x_max,
             environment.y_min,
