@@ -7,7 +7,7 @@
 class myWaveFront : public amp::PointWaveFrontAlgorithm{
     public:
 
-    myWaveFront():_cell_width(2.0){};
+    myWaveFront():_cell_width(.25){};
 
     //Functions I am overiding
     virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override;
