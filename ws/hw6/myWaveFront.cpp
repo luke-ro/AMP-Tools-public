@@ -35,7 +35,7 @@ inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr){
     int min_val = 10000000;
     for(auto nb : neighbors){
         int temp = arr(nb.first,nb.second);
-        if(temp<min_val && temp>0){
+        if(temp<min_val && temp>1){
             min_val = temp;
         }
     }
@@ -49,7 +49,7 @@ inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<i
     std::pair<int,int> idx_min  = neighbors[0];
     for(auto nb : neighbors){
         int temp = arr(nb.first,nb.second);
-        if(temp<min_val && temp>0){
+        if(temp<min_val && temp>1){
             min_val = temp;
             idx_min = nb;
         }
@@ -79,7 +79,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         // if obstacle, visited=true and set equal to 1
         if(grid_cspace(ij.first, ij.second)){
             visited[k] = true;
-            wave(ij.first, ij.second) = INT_MAX;
+            wave(ij.first, ij.second) = 1;
 
         // Else: free space, set to 0
         }else{
@@ -104,6 +104,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
 
     std::pair<int,int> idx;
 
+    // the way that I am starting this loop could cause a bug if the first node is an obstacle
     //need to start loop not on the first cell
     std::vector<std::pair<int,int>> neighbors = getAdjCells(idx_goal.first,idx_goal.second,dims);
     visited[wrapIdxs(idx_goal.first, idx_goal.second, dims.second)] = true;
@@ -130,6 +131,13 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     }
     std::cout << "here" << "\n";
 
+    // for(int j=dims.second-1;j>=0;j--){
+    //     for(int i=0;i<dims.first;i++){
+    //         std::cout<<wave(i,j) <<", ";
+    //     }
+    //     std::cout<<"\n";
+    // }
+
     // plan through it
     amp::Path2D path;
     Eigen::Vector2d q;
@@ -141,10 +149,10 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
         q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
         path.waypoints.push_back(q);
-
+        int te = wave(idx_path.first, idx_path.second);
         idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave);
     }
-
+    path.waypoints.push_back(q_goal);
 
     return path;
 }

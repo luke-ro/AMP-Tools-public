@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     wf_path =  wf.planInCSpace(ws.q_init, ws.q_goal, *grid_ptr);
 
     //make plots
-    amp::Visualizer::makeFigure(amp::HW2::getWorkspace2(),wf_path);
+    amp::Visualizer::makeFigure(ws,wf_path);
     amp::Visualizer::makeFigure(*grid_ptr);
     amp::Visualizer::showFigures();
     return 0;
