@@ -22,7 +22,7 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
         cells.push_back(std::pair<int,int>(i,j-1));
     }
     
-    if(j<dims.second){
+    if(j<dims.second-1){
         cells.push_back(std::pair<int,int>(i,j+1));
     }
 
@@ -83,7 +83,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     std::pair<int,int> idx_goal;
     idx_goal.first = H::numToIdx(q_goal[0],x0_bounds.first,x0_bounds.second,dims.first);
     idx_goal.second = H::numToIdx(q_goal[1],x1_bounds.first,x1_bounds.second,dims.second);
-    queue.push_back(wrapIdxs(idx_goal.first, idx_goal.second, dims.first));
+    queue.push_back(wrapIdxs(idx_goal.first, idx_goal.second, dims.second));
 
     std::pair<int,int> idx;
     while(!queue.empty()){
@@ -92,18 +92,20 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
 
         // This is where the cell needs to have its value inserted.
         // Just add one to the minimum neighboring value? 
-        idx = unwrapIdx(curr,dims.first);
+        idx = unwrapIdx(curr,dims.second);
         wave(idx.first,idx.second) = 1+minNeighbor(idx.first, idx.second, wave);
 
         int k;
         for(auto adj : getAdjCells(idx.first, idx.second, dims)){
-            k = wrapIdxs(adj.first, adj.second, dims.first);
+            k = wrapIdxs(adj.first, adj.second, dims.second);
+            std::pair<int,int> test = unwrapIdx(k,dims.second);
             if(!visited[k]){
                 visited[k] = true;
                 queue.push_back(k);
             }
         }
     }
+    std::cout << "here" << "\n";
 
     // plan through it
     amp::Path2D path;
