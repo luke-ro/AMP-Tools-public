@@ -60,7 +60,7 @@ namespace H{
 
     ///@brief continuous number to index
     inline int numToIdx(double num, double num_min, double num_max, int len_arr)
-    {return num/(num_max-num_min)*len_arr;}
+    {return (num-num_min)/(num_max-num_min)*len_arr;}
 
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
