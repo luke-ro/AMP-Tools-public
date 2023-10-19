@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 
     /*** 2a ***/
     Eigen::Vector2d base {0,0};
-    amp::ManipulatorState state_2a = {pi/6, pi/3, 7*pi/4};
+    Eigen::Vector3d state_2a = {pi/6, pi/3, 7*pi/4};
     std::vector<double> lengths_2a = {0.5, 1.0, 0.5};
     Arm2L manip_2a(base,lengths_2a);
     amp::Visualizer::makeFigure(manip_2a, state_2a);

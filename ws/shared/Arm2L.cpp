@@ -68,9 +68,9 @@ amp::ManipulatorState Arm2L::getConfigurationFromIK(const Eigen::Vector2d& end_e
     angs.push_back(atan2(stheta2,ctheta2));
     angs.push_back(Rotate::ang(j2,end_effector_location)-angs[0]-angs[1]);
 
-    std::vector<double> to_ret;
+    Eigen::VectorXd to_ret(3);
     for (int i=0;  i<m_link_lengths.size(); i++){
-        to_ret.push_back(angs[i]);
+        to_ret[i] = angs[i];
     }
 
 

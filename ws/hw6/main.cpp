@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     myWFPoint wf;
     // srand(time(NULL));
     int seed = time(NULL); //failed 1697687252
+    // int seed = 1697687252;
     std::cout<<"seed: "<< seed<<"\n";
     amp::Problem2D ws =  amp::HW2::getWorkspace2();
     auto grid_ptr = wf.constructDiscretizedWorkspace(ws);
