@@ -49,9 +49,13 @@ CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const am
 
 
 bool CSpace2D::checkColConfig(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env, double theta1, double theta2){
-    std::vector<double> state;
-    state.push_back(theta1);
-    state.push_back(theta2);
+    // std::vector<double> state;
+    // state.push_back(theta1);
+    // state.push_back(theta2);
+
+    Eigen::VectorXd state(2);
+    state[0] = theta1;
+    state[1] = theta2;
 
     std::vector<Eigen::Vector2d> joints;
     // joints[0] = manipulator.getJointLocation(state, 0);
