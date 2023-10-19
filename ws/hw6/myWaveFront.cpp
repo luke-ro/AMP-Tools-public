@@ -93,8 +93,8 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     std::list<int> queue; //fill with cell numbers (i*rowsize+j)
                         // will have to go back and forth from cell nmber to idx
 
-    // int idx0_init = H::numToIdx(q_init[0],_x0_bounds[0],_x0_bounds[1],_sz_x0);
-    // int idx1_init = H::numToIdx(q_init[1],_x1_bounds[0],_x1_bounds[1],_sz_x1);
+    // int idx0_init = H::numToIdx(q_init[0],_x0_bounds[0],_x0_bounds[1],sz_x0);
+    // int idx1_init = H::numToIdx(q_init[1],_x1_bounds[0],_x1_bounds[1],sz_x1);
 
     //Assume that we get an index somehow?
     std::pair<int,int> idx_goal;
@@ -161,25 +161,26 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
 /**
  * @brief Constructs a discrete occupancy grid based on an environmnet
 */
-std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(const amp::Environment2D& environment){
-    _x0_bounds[0] = environment.x_min;
-    _x0_bounds[1] = environment.x_max;
-    _x1_bounds[0] = environment.y_min;
-    _x1_bounds[1] = environment.y_max;
+std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(const amp::Environment2D& environment, double cell_width){
+    Eigen::Vector2d x0_bounds, x1_bounds;
+    x0_bounds[0] = environment.x_min;
+    x0_bounds[1] = environment.x_max;
+    x1_bounds[0] = environment.y_min;
+    x1_bounds[1] = environment.y_max;
     
-    _sz_x0 = floor(abs(environment.x_max-environment.x_min)/_cell_width);
-    _sz_x1 = floor(abs(environment.y_max-environment.y_min)/_cell_width);
+    int sz_x0 = floor(abs(environment.x_max-environment.x_min)/cell_width);
+    int sz_x1 = floor(abs(environment.y_max-environment.y_min)/cell_width);
     auto grid_ptr = std::make_unique<CSpace2D>(environment.x_min,
             environment.x_max,
             environment.y_min,
             environment.y_max,
-            _sz_x0,_sz_x1);
+            sz_x0,sz_x1);
 
     Eigen::Vector2d q_ij;
-    for(int i=0; i<_sz_x0; i++){
-        q_ij[0] = H::idxToNum(i, _sz_x0, environment.x_min, environment.x_max);
-        for(int j=0; j<_sz_x1; j++){
-            q_ij[1] = H::idxToNum(j, _sz_x1, environment.y_min, environment.y_max);   
+    for(int i=0; i<sz_x0; i++){
+        q_ij[0] = H::idxToNum(i, sz_x0, environment.x_min, environment.x_max);
+        for(int j=0; j<sz_x1; j++){
+            q_ij[1] = H::idxToNum(j, sz_x1, environment.y_min, environment.y_max);   
             if(H::checkCollsionEnv(environment,q_ij)){
                 (*grid_ptr)(i,j) = true;
             }else{
@@ -190,9 +191,9 @@ std::unique_ptr<amp::GridCSpace2D> myWaveFront::constructDiscretizedWorkspace(co
 
     std::pair<int,int> idx_pt;
     for(auto pt : H::getAllPgVerts(environment)){
-        idx_pt.first = H::numToIdx(pt[0],environment.x_min,environment.x_max,_sz_x0);
-        idx_pt.second = H::numToIdx(pt[1],environment.y_min,environment.y_max,_sz_x1);
-        std::cout<<idx_pt.first<<", "<<idx_pt.second<<"\n";
+        idx_pt.first = H::numToIdx(pt[0],environment.x_min,environment.x_max,sz_x0);
+        idx_pt.second = H::numToIdx(pt[1],environment.y_min,environment.y_max,sz_x1);
+        // std::cout<<idx_pt.first<<", "<<idx_pt.second<<"\n";
         (*grid_ptr)(idx_pt.first,idx_pt.second) = true;
     }
 
