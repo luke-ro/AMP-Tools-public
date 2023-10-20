@@ -16,7 +16,7 @@
 #include "time.h"
 
 int main(int argc, char** argv) {
-    if(true){
+    if(false){
         //test wavefron
         myWFPoint wf;
         // srand(time(NULL));
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
         Eigen::Vector2d base {0,0};
         std::vector<double> lengths_3 = {1.0, 1.0};
         Arm2L manip_3(base, lengths_3); 
-        CSpace2D gridcon(0, 2*3.1415, 0, 2*3.1415, 50, 50);
+        CSpace2D gridcon(0, 2*3.1415, 0, 2*3.1415, 100, 100);
 
         amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
 
