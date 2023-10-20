@@ -22,7 +22,7 @@ class myWFManip: public amp::ManipulatorWaveFrontAlgorithm{
     // myWFManip(double width): _cell_width(width){}
     
     virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override{
-        return myWaveFront::planInCSpace(q_init, q_goal, grid_cspace, false);
+        return myWaveFront::planInCSpace(q_init, q_goal, grid_cspace, true);
     }
 
     // virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override{

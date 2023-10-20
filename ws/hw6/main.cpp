@@ -18,7 +18,7 @@
 #include "myAStar.h"
 
 int main(int argc, char** argv) {
-    
+if(false){
         //test wavefron
         myWFPoint wf;
         // srand(time(NULL));
@@ -44,18 +44,18 @@ int main(int argc, char** argv) {
     
 
 
-    
+}
             /*** 2 ***/
         Eigen::Vector2d base {0,0};
         std::vector<double> lengths_3 = {1.0, 1.0};
         Arm2L manip_3(base, lengths_3); 
         CSpace2D gridcon(0, 2*3.1415, 0, 2*3.1415, 100, 100);
 
-        amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
+        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
 
-        amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
+        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
         
-        amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
+        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
         
         // Grade method
         // MyGridCon* gridcon_grade;
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
         Arm2L lm(link_lengths);
 
         // get env
-        amp::Environment2D arm_env = amp::HW4::getEx3Workspace2();
+        amp::Environment2D arm_env = amp::HW4::getEx3Workspace3();
         amp::Problem2D arm_prob;
         arm_prob.obstacles = arm_env.obstacles;
         arm_prob.x_max = 5;
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 
         // Plan through Arm CSPace
         std::shared_ptr<MyGridCon> grid_constructor;
-        myWFManip wf_manip(grid_constructor);
+        myWFManip wf_manip(grid_constructor, 1.0);
 
         // generate and plan in the cspace
         auto cspace_manip = gridcon.genCSpace(manip_3,arm_env);
