@@ -66,7 +66,7 @@ namespace H{
 
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
-    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min + ((cont_max-cont_min)/double(len_arr)/2);}
+    {return ((double(idx)+0.5)/(len_arr)*(cont_max-cont_min)) + cont_min;}
 
     ///@brief returns a random collision free point within the environment bounds
     inline Eigen::Vector2d randomValidSample(const amp::Problem2D& problem, int n=20);

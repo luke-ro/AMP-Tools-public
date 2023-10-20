@@ -62,8 +62,8 @@ inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<i
 */
 amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace){
     std::pair<int,int> dims = grid_cspace.size();
-    std::pair<int,int>  x0_bounds = grid_cspace.x0Bounds();
-    std::pair<int,int>  x1_bounds = grid_cspace.x1Bounds();
+    std::pair<double,double>  x0_bounds = grid_cspace.x0Bounds();
+    std::pair<double,double>  x1_bounds = grid_cspace.x1Bounds();
     
     //get a map(hash table) that stores if each cell has or has not been visited.  
     std::unordered_map<int,bool> visited;
@@ -131,12 +131,12 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     }
     std::cout << "here" << "\n";
 
-    // for(int j=dims.second-1;j>=0;j--){
-    //     for(int i=0;i<dims.first;i++){
-    //         std::cout<<wave(i,j) <<", ";
-    //     }
-    //     std::cout<<"\n";
-    // }
+    for(int j=dims.second-1;j>=0;j--){
+        for(int i=0;i<dims.first;i++){
+            std::cout<<wave(i,j) <<", ";
+        }
+        std::cout<<"\n";
+    }
 
     // plan through it
     amp::Path2D path;
@@ -152,6 +152,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         path.waypoints.push_back(q);
         std::cout<<q[0]<<", "<<q[1]<< ", "<<idx_path.first<<", "<<idx_path.second<<"\n";
         int te = wave(idx_path.first, idx_path.second);
+        int occ = grid_cspace(idx_path.first,idx_path.second);
         idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave);
     }
     path.waypoints.push_back(q_goal);
