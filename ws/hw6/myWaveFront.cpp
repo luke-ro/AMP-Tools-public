@@ -13,14 +13,14 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
     
     std::vector<std::pair<int,int>> cells;
     if(wrap){
-        if(i=0){
+        if(i==0){
             cells.push_back(std::pair<int,int>(dims.first-1,j));
         }else{
-            cells.push_back(std::pair<int,int>(i,j));
+            cells.push_back(std::pair<int,int>(i-1,j));
         }
 
-        if(j=0){
-            cells.push_back(std::pair<int,int>(i,dims.second));
+        if(j==0){
+            cells.push_back(std::pair<int,int>(i,dims.second-1));
         }else{
             cells.push_back(std::pair<int,int>(i,j-1));
         }
@@ -46,6 +46,11 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
     if(j<dims.second-1){
         cells.push_back(std::pair<int,int>(i,j+1));
     }
+
+    for(int i=0;i<cells.size();i++){
+        std::cout<<cells[i].first<<", "<<cells[i].second <<std::endl;
+    }
+    std::cout<<std::endl;
 
     return cells;
 }
@@ -129,7 +134,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     //need to start loop not on the first cell
     std::vector<std::pair<int,int>> neighbors = getAdjCells(idx_goal.first, idx_goal.second, dims, wrap);
     visited[wrapIdxs(idx_goal.first, idx_goal.second, dims.second)] = true;
-    queue.push_back(wrapIdxs(neighbors[0].first, neighbors[0].second, dims.second));
+    for(auto nei : neighbors) queue.push_back(wrapIdxs(nei.first, nei.second, dims.second));
 
     while(!queue.empty()){
         int curr = queue.front();
@@ -138,6 +143,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         // This is where the cell needs to have its value inserted.
         // Just add one to the minimum neighboring value? 
         idx = unwrapIdx(curr,dims.second);
+        int wave_val = wave(idx.first, idx.second);
         wave(idx.first,idx.second) = 1+minNeighbor(idx.first, idx.second, wave, wrap);
 
         int k;
@@ -176,6 +182,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         int occ = grid_cspace(idx_path.first,idx_path.second);
         idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave,wrap);
     }
+    path.waypoints.push_back(q);
     path.waypoints.push_back(q_goal);
 
     return path;
