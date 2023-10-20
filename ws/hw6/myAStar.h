@@ -16,7 +16,7 @@ inline bool contains(const std::list<T>& l, T var){
 }
 
 
-inline void priorityAdd(std::list<amp::Node> arr, std::unordered_map<amp::Node,double> vals, int idx){
+inline void priorityAdd(std::list<amp::Node>& arr, std::unordered_map<amp::Node,double> vals, int idx){
     for(std::list<amp::Node>::iterator i=arr.begin(); i!=arr.end(); i++){
         if (vals[idx]<vals[*i]){
             arr.insert(i,idx);
@@ -63,7 +63,7 @@ amp::AStar::GraphSearchResult myAStar::search(const amp::ShortestPathProblem& pr
 
         int i=0; //this is needed to match index between edges and children nodes
         for(auto ch : problem.graph->children(curr)){{
-            double tentative_gscore = gScore[ch] + problem.graph->outgoingEdges(curr)[i]; //score to curr + score of curr to child
+            double tentative_gscore = gScore[curr] + problem.graph->outgoingEdges(curr)[i]; //score to curr + score of curr to child
 
             if(tentative_gscore<gScore[ch]){
                 //This path is better than any previous
@@ -90,5 +90,6 @@ amp::AStar::GraphSearchResult myAStar::backTrackPath(std::unordered_map<amp::Nod
         path.node_path.push_front(curr);
         curr = parents[curr];
     }
+    path.node_path.push_front(curr);
     return path;
 }
