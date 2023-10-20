@@ -98,9 +98,14 @@ if(false){
     
         //my astar
         myAStar as;
+        amp::AStar::GraphSearchResult astar_res = as.search(amp::HW6::getEx3SPP(), amp::HW6::getEx3Heuristic());
+        for(int i=0; i<astar_res.node_path.size();i++){
+            std::cout<<astar_res.node_path.back()<<"\n";
+            astar_res.node_path.pop_back();
+        }
+        
 
     // static int grade(amp::PointMotionPlanner2D& , amp::LinkManipulatorMotionPlanner2D&, amp::AStar&, email, argc, argv);
     // amp::HW6::grade( wf, wf_manip, as, "luke.roberson@colorado.edu", argc, argv);
-    amp::Visualizer::showFigures();
     return 0;
 }
