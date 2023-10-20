@@ -99,7 +99,8 @@ if(false){
         //my astar
         myAStar as;
         amp::AStar::GraphSearchResult astar_res = as.search(amp::HW6::getEx3SPP(), amp::HW6::getEx3Heuristic());
-        for(int i=0; i<astar_res.node_path.size();i++){
+        int sz = astar_res.node_path.size();
+        for(int i=0; i<sz; i++){
             std::cout<<astar_res.node_path.back()<<"\n";
             astar_res.node_path.pop_back();
         }
