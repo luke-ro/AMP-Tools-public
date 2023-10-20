@@ -60,13 +60,13 @@ namespace H{
 
     ///@brief continuous number to index
     inline int numToIdx(double num, double num_min, double num_max, int len_arr){
-        int idx = (num-num_min)/(num_max-num_min)*len_arr; 
+        int idx = floor((num-num_min)/(num_max-num_min)*len_arr); 
         if(idx>=len_arr) return len_arr-1;
         else return idx; }
 
     ///@brief index to continous number
     inline double idxToNum(int idx, int len_arr, double cont_min, double cont_max)
-    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min + ((cont_max-cont_min)/double(len_arr));}
+    {return (double(idx)/len_arr*(cont_max-cont_min)) + cont_min + ((cont_max-cont_min)/double(len_arr)/2);}
 
     ///@brief returns a random collision free point within the environment bounds
     inline Eigen::Vector2d randomValidSample(const amp::Problem2D& problem, int n=20);

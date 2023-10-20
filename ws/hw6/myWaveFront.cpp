@@ -150,6 +150,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
         q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
         path.waypoints.push_back(q);
+        std::cout<<q[0]<<", "<<q[1]<< ", "<<idx_path.first<<", "<<idx_path.second<<"\n";
         int te = wave(idx_path.first, idx_path.second);
         idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave);
     }
