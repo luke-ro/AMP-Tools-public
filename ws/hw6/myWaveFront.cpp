@@ -8,8 +8,29 @@ inline std::pair<int,int> unwrapIdx(int k, int rowlength){
     return std::pair<int,int>(k/rowlength,k%rowlength);
 }
 
-inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,int> dims){
+inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,int> dims, bool wrap=false){
+    
+    
     std::vector<std::pair<int,int>> cells;
+    if(wrap){
+        if(i=0){
+            cells.push_back(std::pair<int,int>(dims.first-1,j));
+        }else{
+            cells.push_back(std::pair<int,int>(i,j));
+        }
+
+        if(j=0){
+            cells.push_back(std::pair<int,int>(i,dims.second));
+        }else{
+            cells.push_back(std::pair<int,int>(i,j-1));
+        }
+        
+        cells.push_back(std::pair<int,int>(i,(j+1)%dims.second));
+        cells.push_back(std::pair<int,int>((i+1)%dims.first,j));
+
+        return cells;
+    }
+
     if(i>0){
         cells.push_back(std::pair<int,int>(i-1,j));
     }
@@ -29,9 +50,9 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
     return cells;
 }
 
-inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr){
+inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr, bool wrap=false){
     std::pair<int,int> dims = arr.size();
-    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims);
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims, wrap);
     int min_val = 10000000;
     for(auto nb : neighbors){
         int temp = arr(nb.first,nb.second);
@@ -42,9 +63,9 @@ inline int minNeighbor(int i, int j, const amp::DenseArray2D<int>& arr){
     return min_val;
 }
 
-inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<int>& arr){
+inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<int>& arr, bool wrap=false){
     std::pair<int,int> dims = arr.size();
-    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims);
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(i, j, dims, wrap);
     int min_val = 1000000;
     std::pair<int,int> idx_min  = neighbors[0];
     for(auto nb : neighbors){
@@ -60,7 +81,7 @@ inline std::pair<int,int> minNeighborIdx(int i, int j, const amp::DenseArray2D<i
 /**
  * @brief plans through a discrete world using wavefron
 */
-amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace){
+amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool wrap){
     std::pair<int,int> dims = grid_cspace.size();
     std::pair<double,double>  x0_bounds = grid_cspace.x0Bounds();
     std::pair<double,double>  x1_bounds = grid_cspace.x1Bounds();
@@ -106,7 +127,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
 
     // the way that I am starting this loop could cause a bug if the first node is an obstacle
     //need to start loop not on the first cell
-    std::vector<std::pair<int,int>> neighbors = getAdjCells(idx_goal.first,idx_goal.second,dims);
+    std::vector<std::pair<int,int>> neighbors = getAdjCells(idx_goal.first, idx_goal.second, dims, wrap);
     visited[wrapIdxs(idx_goal.first, idx_goal.second, dims.second)] = true;
     queue.push_back(wrapIdxs(neighbors[0].first, neighbors[0].second, dims.second));
 
@@ -117,7 +138,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         // This is where the cell needs to have its value inserted.
         // Just add one to the minimum neighboring value? 
         idx = unwrapIdx(curr,dims.second);
-        wave(idx.first,idx.second) = 1+minNeighbor(idx.first, idx.second, wave);
+        wave(idx.first,idx.second) = 1+minNeighbor(idx.first, idx.second, wave, wrap);
 
         int k;
         for(auto adj : getAdjCells(idx.first, idx.second, dims)){
@@ -153,7 +174,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
         std::cout<<q[0]<<", "<<q[1]<< ", "<<idx_path.first<<", "<<idx_path.second<<"\n";
         int te = wave(idx_path.first, idx_path.second);
         int occ = grid_cspace(idx_path.first,idx_path.second);
-        idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave);
+        idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave,wrap);
     }
     path.waypoints.push_back(q_goal);
 

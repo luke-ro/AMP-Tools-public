@@ -16,8 +16,8 @@ CSpace2D::CSpace2D(double x0_min, double x0_max, double x1_min, double x1_max, i
 std::pair<std::size_t, std::size_t> CSpace2D::getCellFromPoint(double x0, double x1) const{
 
     return std::pair(
-        H::numToIdx(x0,x0_len,m_x0_bounds.first,m_x0_bounds.second),
-        H::numToIdx(x1,x1_len,m_x1_bounds.first,m_x1_bounds.second)
+            H::numToIdx(x0,x0_len,m_x0_bounds.first,m_x0_bounds.second),
+            H::numToIdx(x1,x1_len,m_x1_bounds.first,m_x1_bounds.second)
         );
 }
         
@@ -32,6 +32,7 @@ std::pair<std::size_t, std::size_t> CSpace2D::getCellFromPoint(double x0, double
 CSpace2D CSpace2D::genCSpace(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env){
     // need to fill c_arr
     CSpace2D temp_cspace(m_x0_bounds.first, m_x0_bounds.second, m_x1_bounds.first, m_x1_bounds.second, x0_len, x1_len);
+    // CSpace2D temp_cspace(m_x0_bounds.first, m_x0_bounds.second, m_x1_bounds.first, m_x1_bounds.second, x0_len, x1_len);
     std::pair<int,int> bounds = c_arr.size();
 
     for(int i=0; i<bounds.first; i++){

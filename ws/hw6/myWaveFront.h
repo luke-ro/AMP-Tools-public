@@ -1,3 +1,5 @@
+#pragma once
+
 #include "AMPCore.h"
 #include "limits.h"
 #include "Helpers.h"
@@ -10,7 +12,7 @@ class myWaveFront{
     myWaveFront():_cell_width(.25){};
 
     //Functions I am overiding
-    static amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace);
+    static amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool wrap=false);
     static std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment, double cell_width);
 
     private:
