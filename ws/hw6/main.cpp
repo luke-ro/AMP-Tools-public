@@ -10,13 +10,15 @@
 #include "hw/HW6.h"
 
 #include "myWFPoint.h"
+#include "myWFManip.h"
 #include "CSpace2D.h"
 #include "Helpers.h"
+#include "MyGridCon.h"
 #include "Arm2L.h"
-#include "time.h"
+#include "myAStar.h"
 
 int main(int argc, char** argv) {
-    if(false){
+    
         //test wavefron
         myWFPoint wf;
         // srand(time(NULL));
@@ -39,10 +41,10 @@ int main(int argc, char** argv) {
         amp::Visualizer::makeFigure(*grid_ptr);
         amp::Visualizer::makeFigure(rand_prob, rand_path);
         // amp::Visualizer::showFigures();
-    }
+    
 
 
-    {
+    
             /*** 2 ***/
         Eigen::Vector2d base {0,0};
         std::vector<double> lengths_3 = {1.0, 1.0};
@@ -59,8 +61,6 @@ int main(int argc, char** argv) {
         // MyGridCon* gridcon_grade;
         // amp::HW4::grade<Arm2L>(*gridcon_grade, "luke.roberson@colorado.edu", argc, argv);
 
-        // Plan through Arm CSPace
-        myWFPoint wf;
 
         // make arm
         std::vector<double> link_lengths = {1.0, 1.0};
@@ -82,16 +82,25 @@ int main(int argc, char** argv) {
         Eigen::Vector2d test = lm.getJointLocation(q_init,2);
         amp::ManipulatorState q_goal = lm.getConfigurationFromIK(end_eff_goal);
 
+        // Plan through Arm CSPace
+        std::shared_ptr<MyGridCon> grid_constructor;
+        myWFManip wf_manip(grid_constructor);
+
         // generate and plan in the cspace
         auto cspace_manip = gridcon.genCSpace(manip_3,arm_env);
-        amp::Path2D arm_path =  wf.planInCSpace(q_init, q_goal, cspace_manip);
+        amp::Path2D arm_path =  wf_manip.planInCSpace(q_init, q_goal, cspace_manip);
 
         // plot
         amp::Visualizer::makeFigure(cspace_manip,arm_path);
         amp::Visualizer::makeFigure(arm_prob,lm,arm_path);
 
 
-    }
+    
+        //my astar
+        myAStar as;
+
+    // static int grade(amp::PointMotionPlanner2D& , amp::LinkManipulatorMotionPlanner2D&, amp::AStar&, email, argc, argv);
+    // amp::HW6::grade( wf, wf_manip, as, "luke.roberson@colorado.edu", argc, argv);
     amp::Visualizer::showFigures();
     return 0;
 }
