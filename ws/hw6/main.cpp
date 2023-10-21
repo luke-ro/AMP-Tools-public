@@ -18,7 +18,7 @@
 #include "myAStar.h"
 
 int main(int argc, char** argv) {
-if(false){
+
         //test wavefron
         myWFPoint wf;
         // srand(time(NULL));
@@ -44,22 +44,12 @@ if(false){
     
 
 
-}
+
             /*** 2 ***/
         Eigen::Vector2d base {0,0};
         std::vector<double> lengths_3 = {1.0, 1.0};
         Arm2L manip_3(base, lengths_3); 
-        CSpace2D gridcon(0, 2*3.1415, 0, 2*3.1415, 100, 100);
-
-        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace1()));
-
-        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace2()));
-        
-        // amp::Visualizer::makeFigure(gridcon.genCSpace(manip_3,amp::HW4::getEx3Workspace3()));
-        
-        // Grade method
-        // MyGridCon* gridcon_grade;
-        // amp::HW4::grade<Arm2L>(*gridcon_grade, "luke.roberson@colorado.edu", argc, argv);
+        // CSpace2D gridcon(0, 2*3.1415, 0, 2*3.1415, 100, 100);
 
 
         // make arm
@@ -67,32 +57,36 @@ if(false){
         Arm2L lm(link_lengths);
 
         // get env
-        amp::Environment2D arm_env = amp::HW4::getEx3Workspace3();
-        amp::Problem2D arm_prob;
-        arm_prob.obstacles = arm_env.obstacles;
-        arm_prob.x_max = 5;
-        arm_prob.x_min = -5;
-        arm_prob.y_max = 5;
-        arm_prob.y_min = -5;
+        // amp::Environment2D arm_env = amp::HW4::getEx3Workspace1();
+        amp::Problem2D arm_prob = amp::HW6::getHW4Problem2();
 
         // figure out arm q_inti and q_goal
         Eigen::Vector2d end_eff_init {-2,0};
         Eigen::Vector2d end_eff_goal {2,0};
         amp::ManipulatorState q_init = lm.getConfigurationFromIK(end_eff_init);
-        Eigen::Vector2d test = lm.getJointLocation(q_init,2);
         amp::ManipulatorState q_goal = lm.getConfigurationFromIK(end_eff_goal);
 
         // Plan through Arm CSPace
-        std::shared_ptr<MyGridCon> grid_constructor;
-        myWFManip wf_manip(grid_constructor, 1.0);
+        // auto grid_constructor = std::make_unique<MyGridCon>();
+        // std::unique_ptr<MyGridCon> grid_constructor (new MyGridCon());
+        MyGridCon grid_constructor(25,25);
+        myWFManip wf_manip(grid_constructor);
 
         // generate and plan in the cspace
-        auto cspace_manip = gridcon.genCSpace(manip_3,arm_env);
-        amp::Path2D arm_path =  wf_manip.planInCSpace(q_init, q_goal, cspace_manip);
+        // auto cspace_manip = gridcon.genCSpace(manip_3,arm_env);
+        auto cspace_manip = grid_constructor.construct(manip_3,arm_prob);
+        amp::Path2D arm_path =  wf_manip.planInCSpace(q_init, q_goal, *cspace_manip);
+
+        //Random 
+        amp::Path2D path_rand; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+        amp::Problem2D random_prob; 
+        std::vector<Eigen::Vector2d> collision_points;
+        bool random_trial_success = amp::HW6::generateAndCheck(wf_manip,manip_3,path_rand,random_prob,collision_points);
 
         // plot
-        amp::Visualizer::makeFigure(cspace_manip,arm_path);
+        amp::Visualizer::makeFigure(*cspace_manip,arm_path);
         amp::Visualizer::makeFigure(arm_prob,lm,arm_path);
+        amp::Visualizer::makeFigure(random_prob,lm,path_rand);
 
 
     
@@ -105,8 +99,9 @@ if(false){
             astar_res.node_path.pop_back();
         }
         
+        amp::Visualizer::showFigures();
 
     // static int grade(amp::PointMotionPlanner2D& , amp::LinkManipulatorMotionPlanner2D&, amp::AStar&, email, argc, argv);
-    // amp::HW6::grade( wf, wf_manip, as, "luke.roberson@colorado.edu", argc, argv);
+    amp::HW6::grade( wf, wf_manip, as, "luke.roberson@colorado.edu", argc, argv);
     return 0;
 }

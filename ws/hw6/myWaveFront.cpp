@@ -28,25 +28,26 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
         cells.push_back(std::pair<int,int>(i,(j+1)%dims.second));
         cells.push_back(std::pair<int,int>((i+1)%dims.first,j));
 
-        return cells;
+    }else{
+
+        if(i>0){
+            cells.push_back(std::pair<int,int>(i-1,j));
+        }
+
+        if(i<dims.first-1){
+            cells.push_back(std::pair<int,int>(i+1,j));
+        }
+
+        if(j>0){
+            cells.push_back(std::pair<int,int>(i,j-1));
+        }
+        
+        if(j<dims.second-1){
+            cells.push_back(std::pair<int,int>(i,j+1));
+        }
     }
 
-    if(i>0){
-        cells.push_back(std::pair<int,int>(i-1,j));
-    }
-
-    if(i<dims.first-1){
-        cells.push_back(std::pair<int,int>(i+1,j));
-    }
-
-    if(j>0){
-        cells.push_back(std::pair<int,int>(i,j-1));
-    }
-    
-    if(j<dims.second-1){
-        cells.push_back(std::pair<int,int>(i,j+1));
-    }
-
+    std::cout<<"ij "<< i << ", "<<j<<"\n";
     for(int i=0;i<cells.size();i++){
         std::cout<<cells[i].first<<", "<<cells[i].second <<std::endl;
     }
@@ -101,7 +102,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     Eigen::Vector2d q_check;
     for(int k=0; k<(dims.first*dims.second);k++){
         std::pair<int,int> ij = unwrapIdx(k,dims.second);
-
+        std::cout<<"wf 105 size, ij: "<< dims.first<<", "<<dims.second<<", "<< ij.first<<", "<<ij.second<<"\n";
         // if obstacle, visited=true and set equal to 1
         if(grid_cspace(ij.first, ij.second)){
             visited[k] = true;
@@ -156,14 +157,14 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
             }
         }
     }
-    std::cout << "here" << "\n";
+    // std::cout << "here" << "\n";
 
-    for(int j=dims.second-1;j>=0;j--){
-        for(int i=0;i<dims.first;i++){
-            std::cout<<wave(i,j) <<", ";
-        }
-        std::cout<<"\n";
-    }
+    // for(int j=dims.second-1;j>=0;j--){
+    //     for(int i=0;i<dims.first;i++){
+    //         std::cout<<wave(i,j) <<", ";
+    //     }
+    //     std::cout<<"\n";
+    // }
 
     // plan through it
     amp::Path2D path;
@@ -173,11 +174,12 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     idx_path.first = H::numToIdx(q_init[0],x0_bounds.first,x0_bounds.second,dims.first);
     idx_path.second = H::numToIdx(q_init[1],x1_bounds.first,x1_bounds.second,dims.second);
     
-    while(idx_path!=idx_goal){
+    int i=0;
+    while(idx_path!=idx_goal && i++<dims.first*dims.second){
         q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
         q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
         path.waypoints.push_back(q);
-        std::cout<<q[0]<<", "<<q[1]<< ", "<<idx_path.first<<", "<<idx_path.second<<"\n";
+        // std::cout<<q[0]<<", "<<q[1]<< ", "<<idx_path.first<<", "<<idx_path.second<<"\n";
         int te = wave(idx_path.first, idx_path.second);
         int occ = grid_cspace(idx_path.first,idx_path.second);
         idx_path = minNeighborIdx(idx_path.first,idx_path.second,wave,wrap);
