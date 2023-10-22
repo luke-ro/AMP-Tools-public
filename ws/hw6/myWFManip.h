@@ -5,6 +5,8 @@
 #include "CSpace2D.h"
 #include "myWaveFront.h"
 #include "MyGridCon.h"      
+#include "hw/HW4.h"
+#include "Arm2L.h"
 
 inline double wrap_0_2pi(double ang){
     double pi = 3.1415;
@@ -35,6 +37,22 @@ class myWFManip: public amp::ManipulatorWaveFrontAlgorithm{
     virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override{
         Eigen::Vector2d q_init_wrap {wrap_0_2pi(q_init[0]),wrap_0_2pi(q_init[1])};
         Eigen::Vector2d q_goal_wrap {wrap_0_2pi(q_goal[0]),wrap_0_2pi(q_goal[1])};
+        std::cout<<"planning in cpsace with q_init: "<<q_init_wrap[0]<<", "<<q_init_wrap[1]<<", q_goal: "<<q_goal_wrap[0]<<", "<<q_goal_wrap[1]<<"\n";
+
+        std::vector<double> lengths {1.0,1.0};
+        Arm2L manip(lengths);
+
+        Eigen::Vector2d temp =  manip.getJointLocation(q_init_wrap,2);
+        Eigen::Vector2d temp2 =  manip.getJointLocation(q_goal_wrap,2);
+        Eigen::Vector2d temp_state = manip.getConfigurationFromIK(Eigen::Vector2d(0.3,-.3));
+        Eigen::Vector2d temp3 =  manip.getJointLocation(temp_state,2);
+
+
+        std::cout<<"q_init: "<<q_init[0]<<", "<<q_init[1]<< ", loc "<<temp[0]<<", "<<temp[1]<<"\n";
+        
+
+        //check to see if q_init in collision?
+
 
         return myWaveFront::planInCSpace(q_init_wrap, q_goal_wrap, grid_cspace, true);
     }

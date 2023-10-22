@@ -31,7 +31,7 @@ class myAStar : public amp::AStar{
     public:
 
     virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override;
-    amp::AStar::GraphSearchResult backTrackPath(std::unordered_map<amp::Node,amp::Node> parents, amp::Node node);
+    amp::AStar::GraphSearchResult backTrackPath(std::shared_ptr<amp::Graph<double>>  gph, std::unordered_map<amp::Node,amp::Node> parents, amp::Node node);
 
 };
 
@@ -58,7 +58,9 @@ amp::AStar::GraphSearchResult myAStar::search(const amp::ShortestPathProblem& pr
         frontier.pop_front();
 
         if (curr==problem.goal_node){
-            return backTrackPath(parent_of,curr);
+            amp::AStar::GraphSearchResult to_ret = backTrackPath(problem.graph,parent_of, curr);
+            to_ret.success = true;
+            return to_ret;
         }
 
         int i=0; //this is needed to match index between edges and children nodes
@@ -78,18 +80,33 @@ amp::AStar::GraphSearchResult myAStar::search(const amp::ShortestPathProblem& pr
         }i++;}
 
     }
+
     std::cout<<"AStar completed without reaching goal.";
-    return backTrackPath(parent_of, curr);
+    return amp::AStar::GraphSearchResult();
 }
 
 // returns path from node to graph start using the parents array
-amp::AStar::GraphSearchResult myAStar::backTrackPath(std::unordered_map<amp::Node,amp::Node> parents, amp::Node node){
+amp::AStar::GraphSearchResult myAStar::backTrackPath(std::shared_ptr<amp::Graph<double>> gph, std::unordered_map<amp::Node,amp::Node> parents, amp::Node node){
     amp::AStar::GraphSearchResult path;
     amp::Node curr = node;
-    while(parents.find(curr) != parents.end()){ //if the key does not exist it is the start node (i.e. does not have a parent)
+    double cost=0;
+    do{ //if the key does not exist it is the start node (i.e. does not have a parent)
         path.node_path.push_front(curr);
-        curr = parents[curr];
-    }
+        amp::Node parent = parents[curr];
+        std::vector<amp::Node> children = gph->children(parent);
+        std::vector<double> outgoing_edges = gph->outgoingEdges(parent);
+        for(int i=0;i<children.size();i++){
+            if(children[i]==curr){
+                cost += outgoing_edges[i];
+                break;
+            }
+        }
+
+        curr = parent;
+    }while(parents.find(curr) != parents.end());
+    
     path.node_path.push_front(curr);
+    // std::reverse(path.node_path.begin(),path.node_path.end());
+    path.path_cost = cost;
     return path;
 }

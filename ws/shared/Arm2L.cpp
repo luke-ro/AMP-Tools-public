@@ -42,26 +42,33 @@ amp::ManipulatorState Arm2L::getConfigurationFromIK(const Eigen::Vector2d& end_e
         return amp::ManipulatorState ();
     }
     
-    //Find solution circle
-    Eigen::Vector2d circ_x_lims = {end_effector_location[0]-m_link_lengths[2], end_effector_location[0]+m_link_lengths[2]};
-    Eigen::Vector2d circ_y_lims = {end_effector_location[1]-m_link_lengths[2], end_effector_location[1]+m_link_lengths[2]};
-    double circ_r2 = pow(circ_x_lims[1]-circ_x_lims[0],2);
+    Eigen::Vector2d j2;
 
-    //lambda func for the solution circle
-    auto f_sol_circ = [end_effector_location,circ_r2](double x){return sqrt(circ_r2-pow(x-end_effector_location[0],2))+end_effector_location[1];}; 
+    if(m_link_lengths.size()==3){
+        //Find solution circle
+        Eigen::Vector2d circ_x_lims = {end_effector_location[0]-m_link_lengths[2], end_effector_location[0]+m_link_lengths[2]};
+        Eigen::Vector2d circ_y_lims = {end_effector_location[1]-m_link_lengths[2], end_effector_location[1]+m_link_lengths[2]};
+        double circ_r2 = pow(circ_x_lims[1]-circ_x_lims[0],2);
 
-    // this should give the point 
-    double angle = Rotate::ang(end_effector_location, m_base_location);
-    Eigen::Vector2d j2 {end_effector_location[0]+m_link_lengths[2]*cos(angle),
-                        end_effector_location[1]+m_link_lengths[2]*sin(angle)};
+        //lambda func for the solution circle
+        auto f_sol_circ = [end_effector_location,circ_r2](double x){return sqrt(circ_r2-pow(x-end_effector_location[0],2))+end_effector_location[1];}; 
+
+        // this should give the point 
+        double angle = Rotate::ang(end_effector_location, m_base_location);
+        j2[0] = end_effector_location[0]+m_link_lengths[2]*cos(angle);
+        j2[1] = end_effector_location[1]+m_link_lengths[2]*sin(angle);
+    }else{
+        j2 = end_effector_location;
+    }
+    
 
     // 2 link problem
     double l1 = m_link_lengths[0];
     double l2 = m_link_lengths[1];
     double ctheta2 = 1.0/(2.0*l1*l2)*(((j2[0]*j2[0])+(j2[1]*j2[1]))-((l1*l1) + (l2*l2)));
-    double stheta2 = sqrt(1.0-(ctheta2*ctheta2));
-    double ctheta1 = 1.0/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[0]*(l1+(l2*ctheta2))+(j2[1]*l2*sqrt(1-(ctheta2))));
-    double stheta1 = 1.0/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[1]*(l1+(l2*ctheta2))-(j2[0]*l2*sqrt(1-(ctheta2))));
+    double stheta2 = sqrt(1.0 -(ctheta2*ctheta2));
+    double ctheta1 = 1.0/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[0]*(l1+(l2*ctheta2))+(j2[1]*l2*sqrt(1-(ctheta2*ctheta2))));
+    double stheta1 = 1.0/((j2[0]*j2[0])+(j2[1]*j2[1]))*(j2[1]*(l1+(l2*ctheta2))-(j2[0]*l2*sqrt(1-(ctheta2*ctheta2))));
 
     std::vector<double> angs;
     angs.push_back(atan2(stheta1,ctheta1));

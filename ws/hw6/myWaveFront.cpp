@@ -47,11 +47,11 @@ inline std::vector<std::pair<int,int>> getAdjCells(int i, int j, std::pair<int,i
         }
     }
 
-    std::cout<<"ij "<< i << ", "<<j<<"\n";
-    for(int i=0;i<cells.size();i++){
-        std::cout<<cells[i].first<<", "<<cells[i].second <<std::endl;
-    }
-    std::cout<<std::endl;
+    // std::cout<<"ij "<< i << ", "<<j<<"\n";
+    // for(int i=0;i<cells.size();i++){
+    //     std::cout<<cells[i].first<<", "<<cells[i].second <<std::endl;
+    // }
+    // std::cout<<std::endl;
 
     return cells;
 }
@@ -102,7 +102,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     Eigen::Vector2d q_check;
     for(int k=0; k<(dims.first*dims.second);k++){
         std::pair<int,int> ij = unwrapIdx(k,dims.second);
-        std::cout<<"wf 105 size, ij: "<< dims.first<<", "<<dims.second<<", "<< ij.first<<", "<<ij.second<<"\n";
+        // std::cout<<"wf 105 size, ij: "<< dims.first<<", "<<dims.second<<", "<< ij.first<<", "<<ij.second<<"\n";
         // if obstacle, visited=true and set equal to 1
         if(grid_cspace(ij.first, ij.second)){
             visited[k] = true;
@@ -176,6 +176,7 @@ amp::Path2D myWaveFront::planInCSpace(const Eigen::Vector2d& q_init, const Eigen
     
     int i=0;
     while(idx_path!=idx_goal && i++<dims.first*dims.second){
+    // while(idx_path!=idx_goal){
         q[0] = H::idxToNum(idx_path.first,dims.first,x0_bounds.first,x0_bounds.second);
         q[1] = H::idxToNum(idx_path.second,dims.second,x1_bounds.first,x1_bounds.second);
         path.waypoints.push_back(q);
