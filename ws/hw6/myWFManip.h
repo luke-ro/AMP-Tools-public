@@ -54,7 +54,9 @@ class myWFManip: public amp::ManipulatorWaveFrontAlgorithm{
         //check to see if q_init in collision?
 
 
-        return myWaveFront::planInCSpace(q_init_wrap, q_goal_wrap, grid_cspace, true);
+        amp::Path2D path = myWaveFront::planInCSpace(q_init_wrap, q_goal_wrap, grid_cspace, true);
+        amp::unwrapPath(path,Eigen::Vector2d(0.0,0.0), Eigen::Vector2d(2.0*3.1415,2.0*3.1415));
+        return path;
     }
 
     // virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override{
