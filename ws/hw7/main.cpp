@@ -10,8 +10,16 @@
 #include "hw/HW6.h"
 #include "hw/HW7.h"
 
-int main(){
-    amp::HW7::hint();
+#include "myPRM2D.h"
 
+int main(){
+    amp::Problem2D prob_hw5_ws1 = amp::HW5::getWorkspace1();
+    amp::Problem2D prob_hw2_ws1 = amp::HW2::getWorkspace1();
+    myPRM2D prm;
+    amp::Path2D path1 = prm.plan(prob_hw2_ws1);
+
+    amp::Visualizer::makeFigure(prob_hw2_ws1, path1);
+
+    amp::Visualizer::showFigures();
     return 0;
 }
