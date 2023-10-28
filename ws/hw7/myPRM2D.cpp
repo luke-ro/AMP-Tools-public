@@ -16,7 +16,7 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
     node_locs.push_back(problem.q_goal);
     for(int i=0; i<_N_MAX; i++){
         sample = H::sampleSpace(problem);
-        if(H::checkCollsionEnv(problem,sample)){
+        if(!H::checkCollsionEnv(problem,sample)){
             node_locs.push_back(sample);
         }
     }
@@ -28,14 +28,16 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
     amp::LookupSearchHeuristic heur;
     
     double dist;
-    {int i=0;
-    for(auto loc : node_locs){
+    int i=0;
+    for(auto loc : node_locs){{
         heur.heuristic_values[i]=(loc-problem.q_goal).norm();
         std::vector<amp::Node> neighbors = H::getNeighbors(node_locs, loc, _neigh_radius, i);
         for(int j=0; j<neighbors.size(); j++){
             dist = (node_locs[i]-node_locs[j]).norm();
-            spp.graph->connect(i,j,dist);
-            spp.graph->connect(j,i,dist);
+            if(H::freeBtwPoints(problem, node_locs[i], node_locs[j], int(dist*20.0))){
+                spp.graph->connect(j,i,dist);
+                spp.graph->connect(i,j,dist);
+            }
         }
     }i++;}
 
