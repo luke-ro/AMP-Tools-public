@@ -82,6 +82,8 @@ namespace H{
     inline std::vector<Eigen::Vector2d> getAllPgVerts(const amp::Environment2D& env);
 
     inline Eigen::Vector2d sampleSpace(amp::Problem2D prob);
+
+    inline std::vector<amp::Node> getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start=0);
 }
 
 
@@ -465,4 +467,20 @@ inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
     v[0] = amp::RNG::randd(prob.x_min, prob.x_max);
     v[1] = amp::RNG::randd(prob.y_min, prob.y_max);
     return v;
+}
+
+
+inline std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start){
+    std::vector<amp::Node> neighbors;
+    
+    // {int i = start; 
+    // for(Eigen::Vector2d* cand = points[start]; cand!=points.end(); cand++){
+    for(int i=start; i<points.size(); i++){
+        if((points[i]-p).norm()<r){
+            neighbors.push_back(i);
+        }
+    }
+    // }i++;}
+
+    return neighbors;
 }
