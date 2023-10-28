@@ -8,7 +8,6 @@
 #include "Helpers.h"
 #include "hw/HW6.h"
 #include "CSpace2D.h"
-#include "myWaveFront.h"
 
 template<class T>
 inline bool contains(const std::list<T>& l, T var){
