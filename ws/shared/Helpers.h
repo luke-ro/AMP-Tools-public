@@ -80,6 +80,8 @@ namespace H{
     inline double pathDistane(const amp::Path2D& path, int i_start, int i_end);
 
     inline std::vector<Eigen::Vector2d> getAllPgVerts(const amp::Environment2D& env);
+
+    inline Eigen::Vector2d sampleSpace(amp::Problem2D prob);
 }
 
 
@@ -457,4 +459,10 @@ inline std::vector<Eigen::Vector2d> H::getAllPgVerts(const amp::Environment2D& e
     return all_pts;
 }
 
-
+// made this already???
+inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
+    Eigen::Vector2d v;
+    v[0] = amp::RNG::randd(prob.x_min, prob.x_max);
+    v[1] = amp::RNG::randd(prob.y_min, prob.y_max);
+    return v;
+}
