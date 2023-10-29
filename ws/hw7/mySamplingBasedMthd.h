@@ -6,7 +6,7 @@
 #include "myAStar.h"
 #include "Helpers.h"
 
-class mySamplingBasedMthd : public amp::PRM2D{
+class mySamplingBasedMthd{
     public:
 
     mySamplingBasedMthd(int N=1000, double r=1.0, bool smoothing=true, bool save=false):
