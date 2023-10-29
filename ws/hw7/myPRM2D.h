@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 #include "AMPCore.h"
 #include "hw/HW7.h"
 

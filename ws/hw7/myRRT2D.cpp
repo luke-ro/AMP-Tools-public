@@ -1,6 +1,6 @@
 #include "myRRT2D.h"
 
-amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
+amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
     // initialize q_init and q_goalS
     amp::ShortestPathProblem spp;
     auto ptr = std::make_shared<amp::Graph<double>>();
@@ -17,7 +17,7 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
         smoothPath(problem,path);
 
     if(_save_data){
-        _node_locs = node_locs;
+        // _node_locs = node_locs;
         _graph_ptr = spp.graph;
     }else{
         _node_locs.clear();
