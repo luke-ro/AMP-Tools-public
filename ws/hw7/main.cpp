@@ -13,6 +13,15 @@
 #include "myPRM2D.h"
 
 int main(){
+    // int t = time(NULL);
+    int t = 1698538574;
+    amp::RNG::seed(t);
+    std::cout<<"seed: "<<t<<"\n";
+
+    srand(0);
+
+
+
     amp::Problem2D prob_hw5_ws1 = amp::HW5::getWorkspace1();
     amp::Problem2D prob_hw2_ws1 = amp::HW2::getWorkspace1();
     myPRM2D prm;

@@ -21,7 +21,6 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
         }
     }
     
-
     // connect samples within some distance of eachother
         // check if path is free, then connect
     // add heuristic to nodes
@@ -33,10 +32,11 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
         heur.heuristic_values[i]=(loc-problem.q_goal).norm();
         std::vector<amp::Node> neighbors = H::getNeighbors(node_locs, loc, _neigh_radius, i);
         for(int j=0; j<neighbors.size(); j++){
-            dist = (node_locs[i]-node_locs[j]).norm();
-            if(H::freeBtwPoints(problem, node_locs[i], node_locs[j], int(dist*20.0))){
-                spp.graph->connect(j,i,dist);
-                spp.graph->connect(i,j,dist);
+            dist = (node_locs[i]-node_locs[neighbors[j]]).norm();
+            bool fbp = H::freeBtwPoints(problem, node_locs[i], node_locs[neighbors[j]], int(dist*20.0));
+            if(H::freeBtwPoints(problem, node_locs[i], node_locs[neighbors[j]], int(dist*20.0))){
+                spp.graph->connect(neighbors[j],i,dist);
+                spp.graph->connect(i,neighbors[j],dist);
             }
         }
     }i++;}
