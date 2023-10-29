@@ -73,12 +73,40 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
                     i = j;
                     j = temp;
                 }
-                std::cout<<"Erasing from ["<<i<<", "<<j<<") len: "<<path.waypoints.size()<<"\n";
+                // std::cout<<"Erasing from ["<<i<<", "<<j<<") len: "<<path.waypoints.size()<<"\n";
                 path.waypoints.erase(path.waypoints.begin()+i+1,path.waypoints.begin()+j);                  ;
             }
         }
+    }
+
+    if(_save_data){
+        _node_locs = node_locs;
+        _graph_ptr = spp.graph;
+    }else{
+        _node_locs.clear();
+        // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear();
+
     }
     
     return path;
 
 }
+
+
+
+    void myPRM2D::getPRMData(std::shared_ptr<amp::Graph<double>>& g_ptr, std::map<amp::Node, Eigen::Vector2d>& m){
+        if(!_save_data){
+            std::cout<<"getPRMData() called but _save_data set to false.\n";
+            g_ptr = _graph_ptr; 
+            m[0] = Eigen::Vector2d();
+            return;
+        }
+        
+        g_ptr = _graph_ptr; 
+
+        {int i=0;
+        for(auto p : _node_locs){
+            m[i] = p;
+        i++;}}
+        return;
+    }
