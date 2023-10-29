@@ -426,8 +426,9 @@ inline Eigen::Vector2d H::randomSample(const amp::Problem2D& problem){
 }
 
 inline bool H::freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
-    for(auto p : linspace2D(p1,p2,n)){
-        if(checkCollsionEnv(problem,p)){
+    std::vector<Eigen::Vector2d>  vec = linspace2D(p1,p2,n);
+    for(int i=0; i <vec.size(); i++){
+        if(checkCollsionEnv(problem,vec[i])){
             return false;
         }
     }
@@ -471,16 +472,24 @@ inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
 
 
 inline std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start){
-    std::vector<amp::Node> neighbors;
+    std::vector<uint32_t> neighbors;
     
     // {int i = start; 
     // for(Eigen::Vector2d* cand = points[start]; cand!=points.end(); cand++){
     for(int i=start; i<points.size(); i++){
+        double temp = (points[i]-p).norm();
         if((points[i]-p).norm()<r){
             neighbors.push_back(i);
         }
     }
     // }i++;}
 
+    // for(auto n = neighbors.begin(); n!=neighbors.end(); n++){
+    //     if(points[*n]==p){
+    //         neighbors.erase(n);
+    //         break;
+    //     }
+    // }
+    neighbors.erase(neighbors.begin());
     return neighbors;
 }
