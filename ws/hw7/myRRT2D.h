@@ -7,7 +7,7 @@
 #include "Helpers.h"
 #include "mySamplingBasedMthd.h"
 
-class myPRM2D : public mySamplingBasedMthd : public amp::RRT2D{
+class myRRT2D : public mySamplingBasedMthd, public amp::GoalBiasRRT2D{
     public:
 
 

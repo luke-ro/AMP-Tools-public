@@ -19,7 +19,12 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
             node_locs.push_back(sample);
         }
     }
-    
+
+    for(int i=0; i<node_locs.size(); i++){
+        spp.graph->connect(i,i,std::numeric_limits<double>::max());
+    }
+
+    std::cout<<"There were "<<node_locs.size()-2<<" succesful samples out of "<<_N_MAX<<"\n";
     // connect samples within some distance of eachother
         // check if path is free, then connect
     // add heuristic to nodes
