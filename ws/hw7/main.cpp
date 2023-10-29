@@ -24,7 +24,13 @@ int main(){
 
 
     amp::Problem2D prob_hw5_ws1 = amp::HW5::getWorkspace1();
+    prob_hw5_ws1.x_min = -1;
+    prob_hw5_ws1.x_max = 11;
+    prob_hw5_ws1.y_min = -3;
+    prob_hw5_ws1.y_max = 3;
     amp::Problem2D prob_hw2_ws1 = amp::HW2::getWorkspace1();
+    amp::Problem2D prob_hw2_ws2 = amp::HW2::getWorkspace2();
+
 
 
     std::vector<std::pair<int,double>> nr_sets(8);
@@ -55,40 +61,46 @@ int main(){
 
     amp::Path2D path1;
 
-    bool smooth = true;
-    // for(auto nr : nr_sets){
-    //     std::vector<double> num_valid={0.0};
-    //     std::vector<double> lengths;
-    //     std::vector<double> times;
-    //     for(int i=0; i<5; i++){
-    //         std::vector<double> data;
-    //         myPRM2D prm(nr.first,nr.second,smooth);
+    /*** Q1a ***/
+    bool smooth = false;
+    for(auto nr : nr_sets){
+        std::vector<double> num_valid={0.0};
+        std::vector<double> lengths;
+        std::vector<double> times;
+        for(int i=0; i<100; i++){
+            std::vector<double> data;
+            myPRM2D prm(nr.first,nr.second,smooth);
 
-    //         // start time
-    //         auto start = std::chrono::high_resolution_clock::now();
-    //         path1 = prm.plan(prob_hw5_ws1);
-    //         auto end = std::chrono::high_resolution_clock::now();
-    //         // end time
+            // start time
+            auto start = std::chrono::high_resolution_clock::now();
+            path1 = prm.plan(prob_hw5_ws1);
+            auto end = std::chrono::high_resolution_clock::now();
+            // end time
 
-    //         // get time diff
-    //         std::chrono::duration<double> duration = end - start;
+            // get time diff
+            std::chrono::duration<double> duration = end - start;
             
-    //         bool valid = amp::HW7::check(path1,prob_hw5_ws1);
+            bool valid = amp::HW7::check(path1,prob_hw5_ws1);
 
-    //         num_valid[0] += double(valid);
-    //         lengths.push_back(path1.length());
-    //         times.push_back(double(duration.count()));
-    //     }
+            num_valid[0] += double(valid);
+            if(valid) lengths.push_back(path1.length());
+            times.push_back(double(duration.count()));
+        }
 
 
-    //     data_sols.push_back(num_valid);
-    //     data_length.push_back(lengths);
-    //     data_time.push_back(times);
-    // }
-
-    // amp::Visualizer::makeBoxPlot(data_length,labels,"Lengths","","");
-    // amp::Visualizer::makeBoxPlot(data_time,labels,"Times","","");
-    // amp::Visualizer::makeBoxPlot(data_sols,labels,"Valid Solutions","","");
+        data_sols.push_back(num_valid);
+        data_length.push_back(lengths);
+        data_time.push_back(times);
+    }
+    if(smooth){
+        amp::Visualizer::makeBoxPlot(data_length,labels,"Lengths {smoothing: on}","","");
+        amp::Visualizer::makeBoxPlot(data_time,labels,"Times {smoothing: on}","","");
+        amp::Visualizer::makeBoxPlot(data_sols,labels,"Valid Solutions {smoothing: on}","","");
+    }else{
+        amp::Visualizer::makeBoxPlot(data_length,labels,"Lengths {smoothing: off}","","");
+        amp::Visualizer::makeBoxPlot(data_time,labels,"Times {smoothing: off}","","");
+        amp::Visualizer::makeBoxPlot(data_sols,labels,"Valid Solutions {smoothing: off}","","");
+    }
 
 // static void makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, 
 //                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string());
@@ -98,7 +110,7 @@ int main(){
 
     std::shared_ptr<amp::Graph<double>> ptr;
     std::map<amp::Node, Eigen::Vector2d> node_map;
-    prm.getPRMData(ptr,node_map);
+    prm.getData(ptr,node_map);
     amp::Visualizer::makeFigure(prob_hw2_ws1,*ptr,node_map);
 
     amp::Visualizer::showFigures();

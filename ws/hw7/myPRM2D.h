@@ -19,7 +19,7 @@ class myPRM2D : public amp::PRM2D{
 
     virtual amp::Path2D plan(const amp::Problem2D& problem) override;
 
-    void getPRMData(std::shared_ptr<amp::Graph<double>>& g_ptr, std::map<amp::Node, Eigen::Vector2d>& m);
+    void getData(std::shared_ptr<amp::Graph<double>>& g_ptr, std::map<amp::Node, Eigen::Vector2d>& m);
   
 
     private:
