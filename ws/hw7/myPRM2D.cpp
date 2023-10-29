@@ -45,12 +45,40 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
         // A*
     myAStar star;
     amp::AStar::GraphSearchResult gsr = star.search(spp, heur);
+
     
     amp::Path2D path;
     for(auto n : gsr.node_path){
         path.waypoints.push_back(node_locs[n]);
     }
 
+    int len_start = path.waypoints.size();
+    if(_smoothing && len_start>2){
+        int i,j;
+        for(int k=0; k<len_start*2; k++){
+            int len = path.waypoints.size();
+            // std::cout<<"one iteration\n";
+            i = amp::RNG::randi(0,len);
+            j = amp::RNG::randi(0,len);
+            if(abs(j-i)<=1)
+                continue;
+
+            Eigen::Vector2d p1 = path.waypoints[i];
+            Eigen::Vector2d p2 = path.waypoints[j];
+            dist = (p1-p2).norm();
+            if(H::freeBtwPoints(problem, p1, p2, int(dist*10.0))){
+                //remove nodes between i and j
+                if(j<i){
+                    int temp = i;
+                    i = j;
+                    j = temp;
+                }
+                std::cout<<"Erasing from ["<<i<<", "<<j<<") len: "<<path.waypoints.size()<<"\n";
+                path.waypoints.erase(path.waypoints.begin()+i+1,path.waypoints.begin()+j);                  ;
+            }
+        }
+    }
+    
     return path;
 
 }
