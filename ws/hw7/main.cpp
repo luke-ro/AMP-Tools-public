@@ -17,9 +17,11 @@
 
 const bool RUN_Q1A = false;
 const bool RUN_Q1B = false;
-const bool RUN_Q2A = true;
+const bool RUN_Q2A = false;
+const bool RUN_MISC = false;
+const bool RUN_GRADER = true;
 
-int main(){
+int main(int argc, char** argv){
     // int t = time(NULL);
     int t = 1698538574;
     amp::RNG::seed(t);
@@ -30,6 +32,10 @@ int main(){
     amp::Problem2D prob_hw2_ws1 = amp::HW2::getWorkspace1();
     amp::Problem2D prob_hw2_ws2 = amp::HW2::getWorkspace2();
     amp::Problem2D prob_hw5_ws1 = amp::HW5::getWorkspace1();
+    prob_hw5_ws1.x_min = -1;
+    prob_hw5_ws1.x_max = 11;
+    prob_hw5_ws1.y_min = -3;
+    prob_hw5_ws1.y_max = 3;
 
     // std::vector<Eigen::Vector2d> locs_vec(5);
     // locs_vec[0] = Eigen::Vector2d(0,0);
@@ -43,10 +49,6 @@ int main(){
     /*** Q1a ***/
     if(RUN_Q1A){
         
-        prob_hw5_ws1.x_min = -1;
-        prob_hw5_ws1.x_max = 11;
-        prob_hw5_ws1.y_min = -3;
-        prob_hw5_ws1.y_max = 3;
 
         std::vector<std::pair<int,double>> nr_sets(8);
         nr_sets[0] = std::pair<int,double>(200,0.5);
@@ -115,6 +117,19 @@ int main(){
             amp::Visualizer::makeBoxPlot(data_time,labels,"Times {smoothing: off}","","");
             amp::Visualizer::makeBoxPlot(data_sols,labels,"Valid Solutions {smoothing: off}","","");
         }
+
+            myPRM2D prm1a(200,1.0,false,true);
+            amp::Path2D path1a;
+            int k=0;
+            path1a= prm1a.plan(prob_hw5_ws1);
+            amp::HW7::check(path1a,prob_hw5_ws1);
+            amp::Visualizer::makeFigure(prob_hw5_ws1, path1a);
+            std::cout<<"1a pathlength: "<<path1a.length()<<"\n";
+
+            std::shared_ptr<amp::Graph<double>> ptr1a;
+            std::map<amp::Node, Eigen::Vector2d> node_map1a;
+            prm1a.getData(ptr1a,node_map1a);
+            amp::Visualizer::makeFigure(prob_hw5_ws1,*ptr1a,node_map1a);
     }
     //END Q1A
 
@@ -149,7 +164,7 @@ int main(){
         amp::Path2D path;
 
         bool smooth = true;
-        amp::Problem2D prob = prob_hw2_ws1;
+        amp::Problem2D prob = prob_hw2_ws2;
         for(auto nr : nr_sets){
             std::vector<double> num_valid={0.0};
             std::vector<double> lengths;
@@ -190,7 +205,7 @@ int main(){
         }
 
 
-                std::vector<amp::Problem2D> probs1b(2);
+        std::vector<amp::Problem2D> probs1b(2);
         probs1b[1] = prob_hw2_ws1;
         probs1b[0] = prob_hw2_ws2;
 
@@ -198,9 +213,10 @@ int main(){
             myPRM2D prm1b(200,2.0,false,true);
             amp::Path2D path1b;
             int k=0;
-            do{
+            // do{
                 path1b= prm1b.plan(prob);
-            }while(!amp::HW7::check(path1b,prob) && k++<100);
+            // }while(!amp::HW7::check(path1b,prob) && k++<100);
+            amp::HW7::check(path1b,prob);
             amp::Visualizer::makeFigure(prob, path1b);
             std::cout<<"1b pathlength: "<<path1b.length()<<"\n";
 
@@ -208,6 +224,7 @@ int main(){
             std::map<amp::Node, Eigen::Vector2d> node_map1b;
             prm1b.getData(ptr1b,node_map1b);
             amp::Visualizer::makeFigure(prob,*ptr1b,node_map1b);
+
         }
 
     }
@@ -242,7 +259,7 @@ int main(){
         std::list<std::vector<double>> data_time;
 
         amp::Path2D path;
-/*
+
         bool smooth = true;
         amp::Problem2D prob = prob_hw2_ws1;
         for(auto prob : probs2a){
@@ -263,7 +280,6 @@ int main(){
                 std::chrono::duration<double> duration = end - start;
                 
                 bool valid = amp::HW7::check(path,prob);
-
                 num_valid[0] += double(valid);
                 if(valid) lengths.push_back(path.length());
                 times.push_back(double(duration.count()));
@@ -274,43 +290,48 @@ int main(){
             data_length.push_back(lengths);
             data_time.push_back(times);
         }
-        std::vector<std::string> labels = {"HW2 WS1", "HW2 WS2"};
+        std::vector<std::string> labels = {"HW2 WS1","HW2 WS2"};
         amp::Visualizer::makeBoxPlot(data_length,labels,"RRT Lengths {smoothing: off}","","");
         amp::Visualizer::makeBoxPlot(data_time,labels,"RRT Times {smoothing: off}","","");
         amp::Visualizer::makeBoxPlot(data_sols,labels,"RRT Valid Solutions {smoothing: off}","","");
 
-
-*/
     }
 
 // static void makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, 
 //                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string());
 
+    if(RUN_MISC){
+        amp::Problem2D prob_empty;
+        std::vector<Eigen::Vector2d> verts(4);
+        verts[0] = Eigen::Vector2d(2,5);
+        verts[1] = Eigen::Vector2d(2,4);
+        verts[2] = Eigen::Vector2d(8,4);
+        verts[3] = Eigen::Vector2d(8,5);
+        amp::Obstacle2D obs(verts);
+        prob_empty.obstacles.push_back(obs);
+        prob_empty.q_goal = Eigen::Vector2d(9,9);
+        
+        bool test = H::freeBtwPointsLine(prob_empty, Eigen::Vector2d(6.25,5.01), Eigen::Vector2d(7.6,5.3));
+        std::cout<<"test: "<<test<<"\n";
 
-    amp::Problem2D prob_empty;
-    std::vector<Eigen::Vector2d> verts(4);
-    verts[0] = Eigen::Vector2d(2,5);
-    verts[1] = Eigen::Vector2d(2,4);
-    verts[2] = Eigen::Vector2d(8,4);
-    verts[3] = Eigen::Vector2d(8,5);
-    amp::Obstacle2D obs(verts);
-    prob_empty.obstacles.push_back(obs);
-    prob_empty.q_goal = Eigen::Vector2d(9,9);
-    
-    bool test = H::freeBtwPointsLine(prob_empty, Eigen::Vector2d(6.25,5.01), Eigen::Vector2d(7.6,5.3));
-    std::cout<<"test: "<<test<<"\n";
+        myPRM2D prm(600,1,true,true);
+        amp::Path2D path = prm.plan(prob_empty);
+        amp::Visualizer::makeFigure(prob_empty, path);
 
-    myPRM2D prm(600,1,true,true);
-    amp::Path2D path = prm.plan(prob_empty);
-    amp::Visualizer::makeFigure(prob_empty, path);
+        std::shared_ptr<amp::Graph<double>> ptr;
+        std::map<amp::Node, Eigen::Vector2d> node_map;
+        prm.getData(ptr,node_map);
+        amp::Visualizer::makeFigure(prob_empty,*ptr,node_map);
+    }
 
-    std::shared_ptr<amp::Graph<double>> ptr;
-    std::map<amp::Node, Eigen::Vector2d> node_map;
-    prm.getData(ptr,node_map);
-    amp::Visualizer::makeFigure(prob_empty,*ptr,node_map);
+    if(RUN_GRADER){
+        myPRM2D prm(500, 2.5, false, false);
+        myRRT2D rrt(5000, 0.5, 0.05, 0.25, false, false);
+        amp::HW7::grade(prm,rrt,"luke.roberson@colorado.edu",argc,argv);
+    }
 
+    if(!RUN_GRADER)
+        amp::Visualizer::showFigures();
 
-
-    amp::Visualizer::showFigures();
     return 0;
 }
