@@ -1,6 +1,8 @@
 #pragma once
 #include "AMPCore.h"
 #include "Rotate.h"
+#include <algorithm>
+#include <limits>
 
 namespace H{
 
@@ -74,6 +76,7 @@ namespace H{
     inline Eigen::Vector2d randomSample(const amp::Problem2D& problem);
 
     inline bool freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n);
+    inline bool freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2);
 
     inline Eigen::Vector2d noise2d(double max);
 
@@ -84,6 +87,16 @@ namespace H{
     inline Eigen::Vector2d sampleSpace(amp::Problem2D prob);
 
     inline std::vector<amp::Node> getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start=0);
+
+    inline uint32_t getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p);
+
+
+    inline bool linesIntersect(Eigen::Vector2d p1, Eigen::Vector2d p2, Eigen::Vector2d q1, Eigen::Vector2d q2);
+
+    inline bool onSegment(Eigen::Vector2d p, Eigen::Vector2d q, Eigen::Vector2d r);
+
+    inline int pointsOrientation(Eigen::Vector2d p, Eigen::Vector2d q, Eigen::Vector2d r);
+
 }
 
 
@@ -473,23 +486,90 @@ inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
 
 inline std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start){
     std::vector<uint32_t> neighbors;
-    
-    // {int i = start; 
-    // for(Eigen::Vector2d* cand = points[start]; cand!=points.end(); cand++){
     for(int i=start; i<points.size(); i++){
         double temp = (points[i]-p).norm();
         if((points[i]-p).norm()<r){
             neighbors.push_back(i);
         }
     }
-    // }i++;}
-
-    // for(auto n = neighbors.begin(); n!=neighbors.end(); n++){
-    //     if(points[*n]==p){
-    //         neighbors.erase(n);
-    //         break;
-    //     }
-    // }
     neighbors.erase(neighbors.begin());
     return neighbors;
+}
+
+inline uint32_t H::getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p){
+    uint32_t nearest = 0;
+    double min_dist = std::numeric_limits<double>::max();
+    for(int i=0; i<points.size(); i++){
+        double dist = (points[i]-p).norm();
+        if(dist<min_dist && dist>0){ //check for >0 to not return same point
+            nearest = i;
+            min_dist = dist;
+        }
+    }
+    return nearest;
+}
+
+// This function and functions that is call were adapted from 
+// https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+inline bool H::freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
+    Eigen::Vector2d q1,q2;
+    for(auto pg : problem.obstacles){
+        // printf("`insidePolygon` AT %2.2f, %2.2f", q[0],q[1]);
+        //iterate through edges
+        int num_verts = pg.verticesCCW().size();
+        for(int i=0;i<num_verts;i++){
+            // get the current edge's vertices 
+            q1 = pg.verticesCCW()[i];
+            q2 = pg.verticesCCW()[(i+1)%num_verts]; //gets the next vertex (and wraps to the begining)
+
+            if(linesIntersect(p1,p2,q1,q2))
+                return false;
+
+
+        }
+    }
+    return true;
+}
+
+bool H::linesIntersect(Eigen::Vector2d p1, Eigen::Vector2d p2, Eigen::Vector2d q1, Eigen::Vector2d q2){
+    int o1 = pointsOrientation(p1, p2, q1); 
+    int o2 = pointsOrientation(p1, p2, q2); 
+    int o3 = pointsOrientation(q1, q2, p1); 
+    int o4 = pointsOrientation(q1, q2, p2); 
+
+    if (o1 != o2 && o3 != o4) 
+        return true; 
+
+    // p1, q1 and p2 are collinear and p2 lies on segment p1q1 
+    if (o1 == 0 && onSegment(p1, q1, p2)) return true; 
+  
+    // p1, q1 and q2 are collinear and q2 lies on segment p1q1 
+    if (o2 == 0 && onSegment(p1, q2, p2)) return true; 
+  
+    // p2, q2 and p1 are collinear and p1 lies on segment p2q2 
+    if (o3 == 0 && onSegment(q1, p1, q2)) return true; 
+  
+     // p2, q2 and q1 are collinear and q1 lies on segment p2q2 
+    if (o4 == 0 && onSegment(q1, p2, q2)) return true; 
+  
+    return false; // Doesn't fall in any of the above cases 
+}
+
+bool H::onSegment(Eigen::Vector2d p, Eigen::Vector2d q, Eigen::Vector2d r){
+
+    if (q[0] <= std::max(p[0], r[0]) && q[0] >= std::min(p[0], r[0]) && 
+        q[1] <= std::max(p[1], r[1]) && q[1] >= std::min(p[1], r[1])){
+        return true; 
+    }
+  
+    return false; 
+} 
+
+int H::pointsOrientation(Eigen::Vector2d p, Eigen::Vector2d q, Eigen::Vector2d r){
+    double val = (q[1] - p[1]) * (r[0] - q[0]) - 
+              (q[0] - p[0]) * (r[1] - q[1]); 
+  
+    if (val == 0) return 0;  // collinear 
+  
+    return (val > 0)? 1: 2; // clock or counterclock wise 
 }

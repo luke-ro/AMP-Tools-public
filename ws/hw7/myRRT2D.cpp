@@ -9,9 +9,61 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
     spp.goal_node = amp::Node(1);
     
     
-    //RRT stuff
+    std::vector<Eigen::Vector2d> node_vec(1); 
+    node_vec[0] = problem.q_init;
+
+    std::unordered_map<uint32_t,uint32_t> parents;
     
+
+    //RRT stuff
+    Eigen::Vector2d q_sample;
+    Eigen::Vector2d q_near;
+    Eigen::Vector2d q_candidate,edge_candidate; //point that sampled point gets cut down to 
+
+    bool success=false;
+    int loops=0;
+    int i=0;
+    do{
+        q_sample = H::sampleSpace(problem);
+        uint32_t idx_near= H::getNearestNeighbor(node_vec,q_sample);
+        q_near = node_vec[idx_near];
+
+        //cut down path to radius _radius
+        edge_candidate = q_sample-q_near;
+        if(edge_candidate.norm()>_radius)
+            edge_candidate = edge_candidate*_radius/edge_candidate.norm();
+
+        q_candidate = q_near + edge_candidate;
+        
+        if(H::freeBtwPointsLine(problem,q_near,q_candidate)){
+            node_vec.push_back(q_candidate);
+            parents[i]=idx_near;
+            i++;
+
+            if((q_candidate-problem.q_goal).norm()>_epsilon){
+                success=true;
+                break;
+            }
+        }
+
+    }while(loops++<_N_MAX);
+    
+    if(success && q_candidate!=problem.q_goal){
+        node_vec.push_back(problem.q_goal);
+        parents[i] = i-1;
+    }
+    
+    if(!success){
+        std::cout<<"RRT did not find the goal\n";
+    }
+
     amp::Path2D path;
+    uint32_t curr = node_vec.size()-1;
+    while(parents.find(curr) != parents.end()){
+        path.waypoints.push_back(node_vec[curr]);
+        curr = parents[curr];
+    }
+    path.waypoints.push_back(node_vec[curr]);
 
     if(_smoothing)
         smoothPath(problem,path);
