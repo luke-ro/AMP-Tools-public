@@ -24,7 +24,12 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
     int loops=0;
     int i=1;
     do{
-        q_sample = H::sampleSpace(problem);
+        
+        if(amp::RNG::randf()<_p_goal)
+            q_sample = problem.q_goal;
+        else 
+            q_sample = H::sampleSpace(problem);
+            
         uint32_t idx_near= H::getNearestNeighbor(node_vec,q_sample);
         q_near = node_vec[idx_near];
 
