@@ -216,8 +216,8 @@ int main(){
     /*** Q2A ***/
     if(RUN_Q2A){
         std::vector<amp::Problem2D>probs2a(2);
-        probs2a[1] = prob_hw2_ws1;
-        probs2a[0] = prob_hw2_ws2;
+        probs2a[0] = prob_hw2_ws1;
+        probs2a[1] = prob_hw2_ws2;
 
         for(auto prob : probs2a){
             myRRT2D rrt2a(5000, 0.5, 0.05, 0.25, false, true);
@@ -231,8 +231,56 @@ int main(){
             std::shared_ptr<amp::Graph<double>> ptr2a;
             std::map<amp::Node, Eigen::Vector2d> node_map2a;
             rrt2a.getData(ptr2a,node_map2a);
+            amp::HW7::check(path2a,prob);
             amp::Visualizer::makeFigure(prob,*ptr2a,node_map2a);
+
         }
+
+        // 100 trials
+        std::list<std::vector<double>> data_sols;
+        std::list<std::vector<double>> data_length;
+        std::list<std::vector<double>> data_time;
+
+        amp::Path2D path;
+/*
+        bool smooth = true;
+        amp::Problem2D prob = prob_hw2_ws1;
+        for(auto prob : probs2a){
+            std::vector<double> num_valid={0.0};
+            std::vector<double> lengths;
+            std::vector<double> times;
+            for(int i=0; i<100; i++){
+                std::vector<double> data;
+                myRRT2D rrt(5000, 0.5, 0.05, 0.25, false, true);
+
+                // start time
+                auto start = std::chrono::high_resolution_clock::now();
+                path = rrt.plan(prob);
+                auto end = std::chrono::high_resolution_clock::now();
+                // end time
+
+                // get time diff
+                std::chrono::duration<double> duration = end - start;
+                
+                bool valid = amp::HW7::check(path,prob);
+
+                num_valid[0] += double(valid);
+                if(valid) lengths.push_back(path.length());
+                times.push_back(double(duration.count()));
+            }
+
+
+            data_sols.push_back(num_valid);
+            data_length.push_back(lengths);
+            data_time.push_back(times);
+        }
+        std::vector<std::string> labels = {"HW2 WS1", "HW2 WS2"};
+        amp::Visualizer::makeBoxPlot(data_length,labels,"RRT Lengths {smoothing: off}","","");
+        amp::Visualizer::makeBoxPlot(data_time,labels,"RRT Times {smoothing: off}","","");
+        amp::Visualizer::makeBoxPlot(data_sols,labels,"RRT Valid Solutions {smoothing: off}","","");
+
+
+*/
     }
 
 // static void makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, 

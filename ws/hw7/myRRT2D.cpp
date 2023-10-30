@@ -22,7 +22,7 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
 
     bool success=false;
     int loops=0;
-    int i=0;
+    int i=1;
     do{
         q_sample = H::sampleSpace(problem);
         uint32_t idx_near= H::getNearestNeighbor(node_vec,q_sample);
@@ -39,21 +39,20 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
             // std::cout<<"adding point to RRT\n";
             node_vec.push_back(q_candidate);
             parents[i]=idx_near;
-            i++; 
             spp.graph->connect(idx_near,i,edge_candidate.norm());
+            i++; 
 
             if((q_candidate-problem.q_goal).norm()<_epsilon){
                 success=true;
+                if(q_candidate!=problem.q_goal){
+                    node_vec.push_back(problem.q_goal);
+                    parents[i] = i-1;
+                }
                 break;
             }
         }
 
     }while(loops++<_N_MAX);
-    
-    if(success && q_candidate!=problem.q_goal){
-        node_vec.push_back(problem.q_goal);
-        parents[i] = i-1;
-    }
     
     if(!success){
         std::cout<<"RRT did not find the goal\n";
@@ -66,6 +65,9 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
         curr = parents[curr];
     }
     path.waypoints.push_back(node_vec[curr]);
+    std::reverse(path.waypoints.begin(),path.waypoints.end());
+    // path.waypoints.push_front(problem.q_init);
+    // path.waypoints.insert(path.waypoints.begin(), problem.q_init);
 
     if(_smoothing)
         smoothPath(problem,path);
