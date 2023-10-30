@@ -36,11 +36,13 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
         q_candidate = q_near + edge_candidate;
         
         if(H::freeBtwPointsLine(problem,q_near,q_candidate)){
+            // std::cout<<"adding point to RRT\n";
             node_vec.push_back(q_candidate);
             parents[i]=idx_near;
-            i++;
+            i++; 
+            spp.graph->connect(idx_near,i,edge_candidate.norm());
 
-            if((q_candidate-problem.q_goal).norm()>_epsilon){
+            if((q_candidate-problem.q_goal).norm()<_epsilon){
                 success=true;
                 break;
             }
@@ -69,7 +71,7 @@ amp::Path2D myRRT2D::plan(const amp::Problem2D& problem){
         smoothPath(problem,path);
 
     if(_save_data){
-        // _node_locs = node_locs;
+        _node_locs = node_vec;
         _graph_ptr = spp.graph;
     }else{
         _node_locs.clear();

@@ -12,10 +12,12 @@
 #include "hw/HW7.h"
 
 #include "myPRM2D.h"
+#include "myRRT2D.h"
 #include "Helpers.h"
 
 const bool RUN_Q1A = false;
-const bool RUN_Q1B = true;
+const bool RUN_Q1B = false;
+const bool RUN_Q2A = true;
 
 int main(){
     // int t = time(NULL);
@@ -210,6 +212,28 @@ int main(){
 
     }
     //END Q1B
+
+    /*** Q2A ***/
+    if(RUN_Q2A){
+        std::vector<amp::Problem2D>probs2a(2);
+        probs2a[1] = prob_hw2_ws1;
+        probs2a[0] = prob_hw2_ws2;
+
+        for(auto prob : probs2a){
+            myRRT2D rrt2a(5000, 0.5, 0.05, 0.25, false, true);
+            amp::Path2D path2a;
+            int k=0;
+            path2a= rrt2a.plan(prob);
+
+            amp::Visualizer::makeFigure(prob, path2a);
+            std::cout<<"2a pathlength: "<<path2a.length()<<"\n";
+
+            std::shared_ptr<amp::Graph<double>> ptr2a;
+            std::map<amp::Node, Eigen::Vector2d> node_map2a;
+            rrt2a.getData(ptr2a,node_map2a);
+            amp::Visualizer::makeFigure(prob,*ptr2a,node_map2a);
+        }
+    }
 
 // static void makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, 
 //                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string());
