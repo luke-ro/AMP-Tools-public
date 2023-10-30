@@ -34,7 +34,7 @@ void mySamplingBasedMthd::smoothPath(const amp::Problem2D& prob, amp::Path2D& pa
             Eigen::Vector2d p1 = path.waypoints[i];
             Eigen::Vector2d p2 = path.waypoints[j];
             dist = (p1-p2).norm();
-            if(H::freeBtwPoints(prob, p1, p2, int(dist*10.0))){
+            if(H::freeBtwPointsLine(prob, p1, p2)){
                 //remove nodes between i and j
                 if(j<i){
                     int temp = i;

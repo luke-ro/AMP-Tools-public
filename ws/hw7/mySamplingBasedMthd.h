@@ -11,7 +11,7 @@ class mySamplingBasedMthd{
 
     mySamplingBasedMthd(int N=1000, double r=1.0, bool smoothing=true, bool save=false):
         _N_MAX(N),
-        _neigh_radius(r),
+        _radius(r),
         _smoothing(smoothing),
         _save_data(save){}
 
@@ -26,7 +26,7 @@ class mySamplingBasedMthd{
     std::shared_ptr<amp::Graph<double>> _graph_ptr;
 
     const int _N_MAX;
-    const double _neigh_radius;
+    const double _radius;
     const bool _smoothing;
     bool _save_data;
 };

@@ -30,15 +30,20 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
     // add heuristic to nodes
     amp::LookupSearchHeuristic heur;
     
+    // Connect tree
     double dist;
     int i=0;
     for(auto loc : node_locs){{
+        //Add heiristic to node
         heur.heuristic_values[i]=(loc-problem.q_goal).norm();
-        std::vector<amp::Node> neighbors = H::getNeighbors(node_locs, loc, _neigh_radius, i);
+
+        //get neighbors within radius _neigh_radius
+        std::vector<amp::Node> neighbors = H::getNeighbors(node_locs, loc, _radius, i);
         for(int j=0; j<neighbors.size(); j++){
             dist = (node_locs[i]-node_locs[neighbors[j]]).norm();
-            bool fbp = H::freeBtwPoints(problem, node_locs[i], node_locs[neighbors[j]], int(dist*20.0));
-            if(H::freeBtwPoints(problem, node_locs[i], node_locs[neighbors[j]], int(dist*20.0))){
+            
+            // If the line between node and neighbor is free, connect 2 ways
+            if(H::freeBtwPointsLine(problem, node_locs[i], node_locs[neighbors[j]])){
                 spp.graph->connect(neighbors[j],i,dist);
                 spp.graph->connect(i,neighbors[j],dist);
             }
@@ -50,21 +55,23 @@ amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
     myAStar star;
     amp::AStar::GraphSearchResult gsr = star.search(spp, heur);
 
-    
+    //turn into a path
     amp::Path2D path;
     for(auto n : gsr.node_path){
         path.waypoints.push_back(node_locs[n]);
     }
 
+    // smooth the path if _smoothing is set
     if(_smoothing)
         smoothPath(problem,path);
 
+    // save data for retrival later
     if(_save_data){
         _node_locs = node_locs;
         _graph_ptr = spp.graph;
     }else{
         _node_locs.clear();
-        // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear();
+        // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear(); // <-bug
     }
     
     return path;
