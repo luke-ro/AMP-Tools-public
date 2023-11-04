@@ -89,6 +89,8 @@ namespace H{
     inline std::vector<amp::Node> getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start=0);
 
     inline uint32_t getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p);
+    
+    inline uint32_t getNearestNeighbor(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p);
 
 
     inline bool linesIntersect(Eigen::Vector2d p1, Eigen::Vector2d p2, Eigen::Vector2d q1, Eigen::Vector2d q2);
@@ -508,6 +510,20 @@ inline uint32_t H::getNearestNeighbor(const std::vector<Eigen::Vector2d>& points
     }
     return nearest;
 }
+
+inline uint32_t H::getNearestNeighborNd(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p){
+    uint32_t nearest = 0;
+    double min_dist = std::numeric_limits<double>::max();
+    for(int i=0; i<points.size(); i++){
+        double dist = (points[i]-p).norm();
+        if(dist<min_dist && dist>0){ //check for >0 to not return same point
+            nearest = i;
+            min_dist = dist;
+        }
+    }
+    return nearest;
+}
+
 
 // This function and functions that is call were adapted from 
 // https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
