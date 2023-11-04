@@ -118,18 +118,18 @@ int main(int argc, char** argv){
             amp::Visualizer::makeBoxPlot(data_sols,labels,"Valid Solutions {smoothing: off}","","");
         }
 
-            myPRM2D prm1a(200,1.0,false,true);
-            amp::Path2D path1a;
-            int k=0;
-            path1a= prm1a.plan(prob_hw5_ws1);
-            amp::HW7::check(path1a,prob_hw5_ws1);
-            amp::Visualizer::makeFigure(prob_hw5_ws1, path1a);
-            std::cout<<"1a pathlength: "<<path1a.length()<<"\n";
+        myPRM2D prm1a(1000,2.0,false,true);
+        amp::Path2D path1a;
+        int k=0;
+        path1a= prm1a.plan(prob_hw2_ws2);
+        amp::HW7::check(path1a,prob_hw2_ws2);
+        amp::Visualizer::makeFigure(prob_hw2_ws2, path1a);
+        std::cout<<"1a pathlength: "<<path1a.length()<<"\n";
 
-            std::shared_ptr<amp::Graph<double>> ptr1a;
-            std::map<amp::Node, Eigen::Vector2d> node_map1a;
-            prm1a.getData(ptr1a,node_map1a);
-            amp::Visualizer::makeFigure(prob_hw5_ws1,*ptr1a,node_map1a);
+        std::shared_ptr<amp::Graph<double>> ptr1a;
+        std::map<amp::Node, Eigen::Vector2d> node_map1a;
+        prm1a.getData(ptr1a,node_map1a);
+        amp::Visualizer::makeFigure(prob_hw2_ws2,*ptr1a,node_map1a);
     }
     //END Q1A
 
@@ -325,7 +325,7 @@ int main(int argc, char** argv){
     }
 
     if(RUN_GRADER){
-        myPRM2D prm(500, 2.5, false, false);
+        myPRM2D prm(1000, 2.0, false, false);
         myRRT2D rrt(5000, 0.5, 0.05, 0.25, false, false);
         amp::HW7::grade(prm,rrt,"luke.roberson@colorado.edu",argc,argv);
     }
