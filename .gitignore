@@ -10,3 +10,8 @@
 /.env.sh
 /grade.sh
 /file_dump/
+
+# stuff that luke has added
+*.zip
+.vscode/*
+ws/build/*
