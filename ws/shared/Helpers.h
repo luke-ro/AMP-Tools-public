@@ -1,8 +1,12 @@
 #pragma once
+
 #include "AMPCore.h"
-#include "Rotate.h"
 #include <algorithm>
 #include <limits>
+
+//my stuff
+#include "Rotate.h"
+#include "myCSpace2d.h"
 
 namespace H{
 
@@ -78,13 +82,14 @@ namespace H{
     inline bool freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n);
     inline bool freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2);
 
+    
     inline Eigen::Vector2d noise2d(double max);
 
     inline double pathDistane(const amp::Path2D& path, int i_start, int i_end);
 
     inline std::vector<Eigen::Vector2d> getAllPgVerts(const amp::Environment2D& env);
 
-    inline Eigen::Vector2d sampleSpace(amp::Problem2D prob);
+    inline Eigen::Vector2d sampleSpace(amp::Environment2D prob);
 
     inline std::vector<amp::Node> getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start=0);
 
@@ -103,19 +108,18 @@ namespace H{
 
 
 
-
 // returns true if val is between the values specified by x1 and x2 exlusive
-inline bool H::isBetwOpen(double val, double x1, double x2){
+bool H::isBetwOpen(double val, double x1, double x2){
     return (val>std::min(x1,x2)) && (val<std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1 and x2 inclusive
-inline bool H::isBetwClosed(double val, double x1, double x2){
+bool H::isBetwClosed(double val, double x1, double x2){
     return (val>=std::min(x1,x2)) && (val<=std::max(x1,x2));
 }
 
 // returns true if val is between the values specified by x1(inclusive) and x2 (exclusive)
-inline bool H::isBetwLeftClosed(double val, double x1, double x2){
+bool H::isBetwLeftClosed(double val, double x1, double x2){
     if (x1<x2){
         return (val>=x1) && (val<x2);
     }else if(x1>x2){
@@ -125,7 +129,7 @@ inline bool H::isBetwLeftClosed(double val, double x1, double x2){
     }
 }
 
-inline bool H::insidePolygon1(const amp::Polygon& pg, const Eigen::Vector2d& q){
+bool H::insidePolygon1(const amp::Polygon& pg, const Eigen::Vector2d& q){
         //reset number of intersections for each obstacle
     int num_intersections = 0;
 
@@ -183,7 +187,7 @@ inline bool H::insidePolygon1(const amp::Polygon& pg, const Eigen::Vector2d& q){
     return false;
 }
 
-inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
+bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
         //reset number of intersections for each obstacle
     int num_intersections = 0;
 
@@ -213,7 +217,7 @@ inline bool H::insidePolygon(const amp::Polygon& pg, const Eigen::Vector2d& q){
  * @param env the dataframe that contains the workspace ans obstacles
  * @param q the 2D point to check
 */
-inline bool H::checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2d& q){
+bool H::checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vector2d& q){
     // iterate through obstacles
     for(auto obs : env.obstacles){
         if (insidePolygon(obs,q)){
@@ -233,7 +237,7 @@ inline bool H::checkCollsionEnv(const amp::Environment2D& env, const Eigen::Vect
 *  taken from https://stackoverflow.com/questions/27028226/python-linspace-in-c
 */
 template<typename T>
-inline std::vector<double> H::linspace(T start_in, T end_in, int num_in)
+std::vector<double> H::linspace(T start_in, T end_in, int num_in)
 {
 
   std::vector<double> linspaced;
@@ -260,7 +264,7 @@ inline std::vector<double> H::linspace(T start_in, T end_in, int num_in)
   return linspaced;
 }
 
-inline std::vector<Eigen::Vector2d> H::linspace2D(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
+std::vector<Eigen::Vector2d> H::linspace2D(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
     std::vector<double> x1 = linspace(p1[0],p2[0],n);
     std::vector<double> x2 = linspace(p1[1],p2[1],n);
 
@@ -283,7 +287,7 @@ inline std::vector<Eigen::Vector2d> H::linspace2D(const Eigen::Vector2d& p1, con
  * @param
  * @return 
 */
-inline Eigen::Vector2d H::obstaclesClosePt(const amp::Environment2D& env, const Eigen::Vector2d& q){
+Eigen::Vector2d H::obstaclesClosePt(const amp::Environment2D& env, const Eigen::Vector2d& q){
     Eigen::Vector2d min_pt {std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity()};
     double min_mag {std::numeric_limits<double>::infinity()};
 
@@ -304,7 +308,7 @@ inline Eigen::Vector2d H::obstaclesClosePt(const amp::Environment2D& env, const 
 /**
  * @brief gets index of closest vertex
 */
-inline int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
+int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
     int idx = 0;
     double min_dist = std::numeric_limits<double>::infinity();
     double cur_dist;
@@ -325,7 +329,7 @@ inline int H::closestVertex(amp::Polygon pg, Eigen::Vector2d q){
  * @param q point to find closest point to 
  * @return 2d coordinates of closest point on pg
 */
-inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
+Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q){
     // get the closest vertex
     int v_close = closestVertex(pg,q);
     int v_left;
@@ -392,7 +396,7 @@ inline Eigen::Vector2d H::pgNearestPt(amp::Polygon pg, const Eigen::Vector2d& q)
  * @param q query point
  * @return true if q is to the left or on line
 */
-inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q){
+bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, const Eigen::Vector2d& q){
     // calculate the line for the edge
     double m = (p2[1]-p1[1])/(p2[0]-p1[0]);
     auto f_of_x = [m,p1](double x){return (m*(x-p1[0]))+p1[1];}; 
@@ -422,7 +426,7 @@ inline bool H::isLeftOfLine(const Eigen::Vector2d& p1, const Eigen::Vector2d& p2
 /**
  * 
 */
-inline Eigen::Vector2d H::randomValidSample(const amp::Problem2D& problem, int n){
+Eigen::Vector2d H::randomValidSample(const amp::Problem2D& problem, int n){
     Eigen::Vector2d pt;
     for(int i=0;i<n;i++){
         pt[0] = (((double)rand()/(double)RAND_MAX)*(problem.x_max-problem.x_min)) + problem.x_min;
@@ -433,14 +437,14 @@ inline Eigen::Vector2d H::randomValidSample(const amp::Problem2D& problem, int n
     }
 }
 
-inline Eigen::Vector2d H::randomSample(const amp::Problem2D& problem){
+Eigen::Vector2d H::randomSample(const amp::Problem2D& problem){
     Eigen::Vector2d pt;
     pt[0] = (((double)rand()/(double)RAND_MAX)*(problem.x_max-problem.x_min)) + problem.x_min;
     pt[1] = (((double)rand()/(double)RAND_MAX)*(problem.y_max-problem.y_min)) + problem.y_min;
     return pt;
 }
 
-inline bool H::freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
+bool H::freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2, int n){
     std::vector<Eigen::Vector2d>  vec = linspace2D(p1,p2,n);
     for(int i=0; i <vec.size(); i++){
         if(checkCollsionEnv(problem,vec[i])){
@@ -451,14 +455,14 @@ inline bool H::freeBtwPoints(const amp::Problem2D& problem,const Eigen::Vector2d
     return true;
 }
 
-inline Eigen::Vector2d H::noise2d(double max){
+Eigen::Vector2d H::noise2d(double max){
     Eigen::Vector2d vec;
     vec[0] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
     vec[1] = max*(((double)rand()/(double)RAND_MAX))-(0.5*max);
     return vec;
 }
 
-inline double H::pathDistane(const amp::Path2D& path, int i_start, int i_end){
+double H::pathDistane(const amp::Path2D& path, int i_start, int i_end){
     double dist=0;
     for(int i=i_start; i<i_end; i++){
         // Eigen::Vector2d r = (path.waypoints[i]-path.waypoints[i+1]).norm();
@@ -467,7 +471,7 @@ inline double H::pathDistane(const amp::Path2D& path, int i_start, int i_end){
     return dist;
 }
 
-inline std::vector<Eigen::Vector2d> H::getAllPgVerts(const amp::Environment2D& env){
+std::vector<Eigen::Vector2d> H::getAllPgVerts(const amp::Environment2D& env){
     std::vector<Eigen::Vector2d> all_pts;
     for (auto pg : env.obstacles){
         for(auto pt : pg.verticesCCW()){
@@ -478,7 +482,7 @@ inline std::vector<Eigen::Vector2d> H::getAllPgVerts(const amp::Environment2D& e
 }
 
 // made this already???
-inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
+Eigen::Vector2d H::sampleSpace(amp::Environment2D prob){
     Eigen::Vector2d v;
     v[0] = amp::RNG::randd(prob.x_min, prob.x_max);
     v[1] = amp::RNG::randd(prob.y_min, prob.y_max);
@@ -486,7 +490,7 @@ inline Eigen::Vector2d H::sampleSpace(amp::Problem2D prob){
 }
 
 
-inline std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start){
+std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p, double r, int start){
     std::vector<uint32_t> neighbors;
     for(int i=start; i<points.size(); i++){
         double temp = (points[i]-p).norm();
@@ -498,7 +502,7 @@ inline std::vector<amp::Node> H::getNeighbors(const std::vector<Eigen::Vector2d>
     return neighbors;
 }
 
-inline uint32_t H::getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p){
+uint32_t H::getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p){
     uint32_t nearest = 0;
     double min_dist = std::numeric_limits<double>::max();
     for(int i=0; i<points.size(); i++){
@@ -511,7 +515,7 @@ inline uint32_t H::getNearestNeighbor(const std::vector<Eigen::Vector2d>& points
     return nearest;
 }
 
-inline uint32_t H::getNearestNeighborNd(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p){
+uint32_t H::getNearestNeighborNd(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p){
     uint32_t nearest = 0;
     double min_dist = std::numeric_limits<double>::max();
     for(int i=0; i<points.size(); i++){
@@ -527,7 +531,7 @@ inline uint32_t H::getNearestNeighborNd(const std::vector<Eigen::VectorXd>& poin
 
 // This function and functions that is call were adapted from 
 // https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-inline bool H::freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
+bool H::freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vector2d& p1, const Eigen::Vector2d& p2){
     Eigen::Vector2d q1,q2;
     for(auto pg : problem.obstacles){
         // printf("`insidePolygon` AT %2.2f, %2.2f", q[0],q[1]);
@@ -546,6 +550,8 @@ inline bool H::freeBtwPointsLine(const amp::Problem2D& problem,const Eigen::Vect
     }
     return true;
 }
+
+
 
 bool H::linesIntersect(Eigen::Vector2d p1, Eigen::Vector2d p2, Eigen::Vector2d q1, Eigen::Vector2d q2){
     int o1 = pointsOrientation(p1, p2, q1); 
