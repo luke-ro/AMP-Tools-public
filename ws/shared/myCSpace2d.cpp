@@ -18,8 +18,8 @@ void myCSpace2d::constructFromCircleAgent(const amp::Environment2D& env, const a
 
 std::pair<std::size_t, std::size_t> myCSpace2d::getCellFromPoint(double x0, double x1) const{
     return std::pair(
-        H::numToIdx(x0,_n0,m_x0_bounds.first,m_x0_bounds.second),
-        H::numToIdx(x1,_n1,m_x1_bounds.first,m_x1_bounds.second)
+        H::numToIdx(x0,m_x0_bounds.first,m_x0_bounds.second,_n0),
+        H::numToIdx(x1,m_x1_bounds.first,m_x1_bounds.second,_n1)
     );
 }
         
@@ -40,8 +40,10 @@ bool myCSpace2d::freeBtwPoints(Eigen::Vector2d p1, Eigen::Vector2d p2){
     std::vector<Eigen::Vector2d> sample_points = H::linspace2D(p1,p2,n);
 
     for(auto pt : sample_points){
-        if(inCollision(pt[0],pt[1]))
+        if(inCollision(pt[0],pt[1])){
+            std::cout<<"Collision detected myCSpace2D\n";
             return false;
+        }
     }
 
     return true;
