@@ -4,6 +4,7 @@ double norm2d(double x1, double x2){
     return sqrt((x1*x1)+(x2*x2));
 }
 
+/*
 amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& problem){
     // MultiAgentProblem2D-> std::vector<CircularAgentProperties> agent_properties
     //                    -> inline std::size_t numAgents() const {return agent_properties.size();}      
@@ -149,7 +150,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     }
     
 }
-
+*/
 
 /*
 Must return a MultiAgentPath2D

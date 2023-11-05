@@ -90,7 +90,7 @@ namespace H{
 
     inline uint32_t getNearestNeighbor(const std::vector<Eigen::Vector2d>& points, Eigen::Vector2d p);
     
-    inline uint32_t getNearestNeighbor(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p);
+    inline uint32_t getNearestNeighborNd(const std::vector<Eigen::VectorXd>& points, Eigen::VectorXd p);
 
 
     inline bool linesIntersect(Eigen::Vector2d p1, Eigen::Vector2d p2, Eigen::Vector2d q1, Eigen::Vector2d q2);

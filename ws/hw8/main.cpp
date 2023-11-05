@@ -10,26 +10,39 @@
 #include "hw/HW5.h"
 #include "hw/HW6.h"
 #include "hw/HW7.h"
+#include "hw/HW8.h"
 
 #include "myPRM2D.h"
 #include "myRRT2D.h"
+#include "myCSpace2d.h"
 #include "Helpers.h"
 
 const bool RUN_Q1 = false;
-const bool RUN_MISC = false;
-const bool RUN_GRADER = true;
+const bool RUN_MISC = true;
+const bool RUN_GRADER = false;
 
 int main(int argc, char** argv){
     
     if(RUN_Q1){
+        
+
+    }
+
+    if(RUN_MISC){
+        // test of cspace constructor
+        amp::Environment2D env_hw8_ws1 = amp::HW8::getWorkspace1();
+        myCSpace2d cspace(100,100,0,10,0,10);
+        amp::CircularAgentProperties agent_props;
+        cspace.constructFromCircleAgent(env_hw8_ws1,agent_props);
+        amp::Visualizer::makeFigure(cspace);
+        amp::Visualizer::makeFigure(env_hw8_ws1);
 
     }
 
     if(RUN_GRADER){
-        myPRM2D prm(1000, 2.0, false, false);
-        myRRT2D rrt(5000, 0.5, 0.05, 0.25, false, false);
-        amp::HW7::grade(prm,rrt,"luke.roberson@colorado.edu",argc,argv);
+
     }
+
 
     if(!RUN_GRADER)
         amp::Visualizer::showFigures();
