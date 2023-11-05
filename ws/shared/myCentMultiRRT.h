@@ -18,6 +18,9 @@ class myCentMultiRRT : public mySamplingBasedMthd, public amp::MultiAgentCircleM
 
     virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override;
 
+    bool agentStepsFree(const amp::MultiAgentProblem2D& problem, int idx1, int idx2, Eigen::VectorXd q1, Eigen::VectorXd q2);
+
+
     private:
 
     double _p_goal;

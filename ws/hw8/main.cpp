@@ -12,19 +12,25 @@
 #include "hw/HW7.h"
 #include "hw/HW8.h"
 
-#include "myPRM2D.h"
-#include "myRRT2D.h"
+#include "myCentMultiRRT.h"
 #include "myCSpace2d.h"
 #include "Helpers.h"
 
-const bool RUN_Q1 = false;
-const bool RUN_MISC = true;
+const bool RUN_Q1 = true;
+const bool RUN_MISC = false;
 const bool RUN_GRADER = false;
 
 int main(int argc, char** argv){
     
     if(RUN_Q1){
-        
+        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1();
+        amp::Environment2D hw8_env1 = amp::HW8::getWorkspace1();
+        // std::vector<amp::CircularAgentProperties> agent_properties;
+        // amp::CircularAgentProperties.r
+
+        myCentMultiRRT centRRT(7500, 0.5, 0.05, 0.25);
+        amp::MultiAgentPath2D res = centRRT.plan(hw8_ws1);
+        amp::Visualizer::makeFigure(hw8_ws1, res);
 
     }
 
