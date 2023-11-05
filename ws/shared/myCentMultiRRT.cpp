@@ -4,7 +4,7 @@ double norm2d(double x1, double x2){
     return sqrt((x1*x1)+(x2*x2));
 }
 
-/*
+
 amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& problem){
     // MultiAgentProblem2D-> std::vector<CircularAgentProperties> agent_properties
     //                    -> inline std::size_t numAgents() const {return agent_properties.size();}      
@@ -21,42 +21,47 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     // amp::MultiAgentPath2D paths(problem.numAgents());
     
     // vector of rrts (vector for each agent of nodes) 
-    std::vector<Eigen::Matrix<double, 2*n_agents, 1>> noed_vec(n_agents); 
+    std::vector<Eigen::VectorXd> node_vec(n_agents); 
 
     // vector of parents for each agent
     std::unordered_map<uint32_t,uint32_t> parents(n_agents);
 
-
-    {int k = 0;
-    for(auto tree : trees){
-        tree.push_back(problem.agent_properties[k].q_init);
-        k++;
-    }}
-
-    // the state vector looks like:
-    // [[agent1_x, agent1_y],
-    //  [agent2_x, agent2_y],
-    //  ...
-    //  [agentn_x, agentn_y]]
-
-    //set goal and start config
-    Eigen::Matrix<double, 2*n_agents, 1> qs_init;
-    Eigen::Matrix<double, 2*n_agents, 1> qs_goal;
-
-    for(int k = 0; k<n_agents; k++){
-        qs_init(2*k) = problem.agent_properties[k].q_init[0];
-        qs_init(2*k+1) = problem.agent_properties[k].q_init[1];
-
-        qs_goal(2*k) = problem.agent_properties[k].q_goal[0];
-        qs_goal(2*k+1) = problem.agent_properties[k].q_goal[1];
+    //cspaces for every agent:
+    int sz0 = 100;
+    int sz1 = 100;
+    std::vector<myCSpace2d> cspaces;
+    for(int k=0;k<n_agents; k++){
+        myCSpace2d temp(sz0, sz1, problem.x_min, problem.x_max, problem.y_min, problem.y_max);
+        temp.constructFromCircleAgent(problem, problem.agent_properties[k]);
+        cspaces.push_back(temp);
     }
 
 
+
+    // the state vector looks like:
+    // [agent1_x, agent1_y, agent2_x, agent2_y, ... , agentn_x, agentn_y]
+
+    //set goal and start config
+    Eigen::VectorXd q_init(2*n_agents);
+    Eigen::VectorXd q_goal(2*n_agents);
+
+    for(int k = 0; k<n_agents; k++){
+        q_init(2*k) = problem.agent_properties[k].q_init[0];
+        q_init(2*k+1) = problem.agent_properties[k].q_init[1];
+
+        q_goal(2*k) = problem.agent_properties[k].q_goal[0];
+        q_goal(2*k+1) = problem.agent_properties[k].q_goal[1];
+    }
+
+    // push start config into node vec
+    node_vec.push_back(q_init);
+
+
     //RRT stuff
-    Eigen::Matrix<double, 2*n_agents, 1> q_sample;
-    Eigen::Matrix<double, 2*n_agents, 1> q_near;
-    Eigen::Matrix<double, 2*n_agents, 1> q_candidate;
-    Eigen::Matrix<double, 2*n_agents, 1> edge_candidate; //point that sampled point gets cut down to 
+    Eigen::VectorXd q_sample(2*n_agents);
+    Eigen::VectorXd q_near(2*n_agents);
+    Eigen::VectorXd q_candidate(2*n_agents);
+    Eigen::VectorXd edge_candidate(2*n_agents); //point that sampled point gets cut down to 
 
     bool success=false;
     int loops=0;
@@ -86,7 +91,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
             //     edge_candidate = edge_candidate*_radius/edge_candidate.norm();
             edge2d[0] = edge_candidate(2*k);
             edge2d[1] = edge_candidate(2*k+1);
-            if(norm2d(edge2d[0],edge2d[1]) > _radius){
+            if(edge2d.norm() > _radius){
                 edge2d = edge2d*_radius/edge2d.norm();
                 edge_candidate(2*k) = edge2d[0];
                 edge_candidate(2*k+1) = edge2d[1];
@@ -95,25 +100,49 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
 
         q_candidate = q_near + edge_candidate;
         
+        //variable to keep track of if there is a free path betw points
         bool edge_clear = true;
+
+        Eigen::Vector2d q_near_2d;
+        Eigen::Vector2d q_candidate_2d; 
         for(int k=0;k<n_agents; k++){
-            if(!H::freeBtwPointsGrid(cspace_vec[k],q_near,q_candidate)){
+            q_near_2d[0] = q_near[2*k];
+            q_near_2d[1] = q_near[2*k+1];
+            q_candidate_2d[0] = q_candidate[2*k];
+            q_candidate_2d[1] = q_candidate[2*k+1];
+
+            if(!cspaces[k].freeBtwPoints(q_near_2d,q_candidate_2d)){
                 edge_clear = false;
                 break;
             }
         }
 
-        if(H::freeBtwPointsLine(problem,q_near,q_candidate)){
+        // add node if all edges are clear
+        if(edge_clear){
             // std::cout<<"adding point to RRT\n";
             node_vec.push_back(q_candidate);
             parents[i]=idx_near;
-            spp.graph->connect(idx_near,i,edge_candidate.norm());
+            // spp.graph->connect(idx_near,i,edge_candidate.norm());
             i++; 
+            
+            //check if every agent is wihtin epsilon
+            bool within_epsilon = true;
+            Eigen::Vector2d temp_pt;
+            for(int k=0;k<n_agents; k++){
+                // if(edge_candidate.norm()>_radius)
+                //     edge_candidate = edge_candidate*_radius/edge_candidate.norm();
+                temp_pt[0] = q_candidate(2*k)-q_goal(2*k);
+                temp_pt[1] = q_candidate(2*k+1)-q_goal(2*k+1);
+                if(temp_pt.norm() > _epsilon){
+                    within_epsilon = false;
+                    break;
+                }
+            }
 
-            if((q_candidate-problem.q_goal).norm()<_epsilon){
+            if(within_epsilon){
                 success=true;
-                if(q_candidate!=problem.q_goal){
-                    node_vec.push_back(problem.q_goal);
+                if(q_candidate!=q_goal){
+                    node_vec.push_back(q_goal);
                     parents[i] = i-1;
                 }
                 break;
@@ -125,6 +154,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     if(!success){
         std::cout<<"RRT did not find the goal\n";
     }
+/*
 
     amp::Path2D path;
     uint32_t curr = node_vec.size()-1;
@@ -148,9 +178,9 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
         _node_locs.clear();
         // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear();
     }
-    
-}
 */
+}
+
 
 /*
 Must return a MultiAgentPath2D
