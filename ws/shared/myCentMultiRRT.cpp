@@ -25,8 +25,8 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     std::unordered_map<uint32_t,uint32_t> parents(n_agents);
 
     //cspaces for every agent:
-    int sz0 = 100;
-    int sz1 = 100;
+    int sz0 = 200;
+    int sz1 = 200;
     std::vector<myCSpace2d> cspaces;
     for(int k=0;k<n_agents; k++){
         myCSpace2d temp(sz0, sz1, problem.x_min, problem.x_max, problem.y_min, problem.y_max);
@@ -86,8 +86,6 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
         edge_candidate = q_sample-q_near;
         Eigen::Vector2d edge2d;
         for(int k=0;k<n_agents; k++){
-            // if(edge_candidate.norm()>_radius)
-            //     edge_candidate = edge_candidate*_radius/edge_candidate.norm();
             edge2d[0] = edge_candidate(2*k);
             edge2d[1] = edge_candidate(2*k+1);
             if(edge2d.norm() > _radius){
@@ -114,6 +112,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
 
             if(!cspaces[k].freeBtwPoints(q_near_2d,q_candidate_2d)){
                 edge_clear = false;
+                // std::cout<<"Edge failed in CSpace check.\n";
                 break;
             }
         }
@@ -125,6 +124,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
                     if(!agentStepsFree(problem, k, m, q_near,q_candidate)){
                         // std::cout<<"Collision detected.\n";
                         edge_clear = false;
+                        // std::cout<<"Edge failed in WSpace bot check.\n";
                         break;
                     }
                 }
@@ -222,7 +222,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
 
 bool myCentMultiRRT::agentStepsFree(const amp::MultiAgentProblem2D& problem, int idx1, int idx2, Eigen::VectorXd q1_nd, Eigen::VectorXd q2_nd){
     int n = 10;
-    double min_r = problem.agent_properties[idx1].radius + problem.agent_properties[idx2].radius;
+    double min_r = 1.0*(problem.agent_properties[idx1].radius + problem.agent_properties[idx2].radius);
     
     Eigen::Vector2d q1_agent1 {q1_nd(2*idx1),q1_nd(2*idx1+1)};
     Eigen::Vector2d q2_agent1 {q2_nd(2*idx1),q2_nd(2*idx1+1)};
