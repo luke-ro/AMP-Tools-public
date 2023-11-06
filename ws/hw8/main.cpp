@@ -181,7 +181,7 @@ int main(int argc, char** argv){
         // test.agent_paths = 
         // amp::HW8::check(res,hw8_ws1);
         myDecenMultiRRT RRT(7500, 0.5, 0.05, 0.25);
-        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(2);
+        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(4);
         amp::MultiAgentPath2D res;
         // {int i=0;
         // do{

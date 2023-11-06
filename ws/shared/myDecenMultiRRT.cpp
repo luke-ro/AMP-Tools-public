@@ -8,7 +8,7 @@ bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp:
     //loop through agents that already have plans
     for(int k=0;k<idx_agent; k++){
         int n = 10;
-        double min_r = 1.0*(prob.agent_properties[idx_agent].radius + prob.agent_properties[k].radius);
+        double min_r = 1.5*(prob.agent_properties[idx_agent].radius + prob.agent_properties[k].radius);
 
         //points for higher priority agent (agents with plans)
         Eigen::Vector2d q1_agent1;
@@ -71,6 +71,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
         Eigen::Vector2d q_near;
         Eigen::Vector2d q_candidate,edge_candidate; //point that sampled point gets cut down to 
 
+        std::vector<int> level{0};
         bool indi_success=false;
         int loops=0;
         int i=1;
@@ -95,7 +96,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
             // flag to keep track of if there is a free path betw points
             bool edge_clear = true;
 
-            if(!cspaces[k].freeBtwPoints(q_near,q_candidate)){
+            if(!cspaces[k].freeBtwPoints(q_near, q_candidate)){
                 edge_clear = false;
                 // std::cout<<"Edge failed in CSpace check.\n";
                 continue;
@@ -103,7 +104,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
 
 
             // check for collisions with agents who already have a plan
-            if(edge_clear && !stepFreeAtTime(problem, paths, q_near, q_candidate, k, i+1)){
+            if(edge_clear && !stepFreeAtTime(problem, paths, q_near, q_candidate, k, level[idx_near]+1)){
                 edge_clear = false;
                 continue;
             }
@@ -114,6 +115,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
                 // std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
                 node_vecs[k].push_back(q_candidate);
                 parents[k][i]=idx_near;
+                level.push_back(level[parents[k][i]]+1);
                 i++; 
 
                 if((q_candidate-problem.agent_properties[k].q_goal).norm()<_epsilon){
