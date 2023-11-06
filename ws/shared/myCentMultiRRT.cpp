@@ -113,7 +113,6 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
             q_candidate_2d[1] = q_candidate[2*k+1];
 
             if(!cspaces[k].freeBtwPoints(q_near_2d,q_candidate_2d)){
-                std::cout<<"Collision detected.\n";
                 edge_clear = false;
                 break;
             }
@@ -124,6 +123,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
             for(int k=0;k<n_agents-1; k++){
                 for(int m=k+1; m<n_agents; m++){
                     if(!agentStepsFree(problem, k, m, q_near,q_candidate)){
+                        // std::cout<<"Collision detected.\n";
                         edge_clear = false;
                         break;
                     }
@@ -214,6 +214,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     //     // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear();
     // }
     std::cout<<"RRT Tree Size: " << node_vec.size()<<"\n";
+    _tree_size = node_vec.size();
     return paths;
 }
 

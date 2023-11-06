@@ -23,25 +23,65 @@ const bool RUN_GRADER = false;
 int main(int argc, char** argv){
     
     if(RUN_Q1){
-        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1();
+    if(RUN_Q1){
+        amp::MultiAgentPath2D res;
         amp::Environment2D hw8_env1 = amp::HW8::getWorkspace1();
         // std::vector<amp::CircularAgentProperties> agent_properties;
         // amp::CircularAgentProperties.r
 
-        myCentMultiRRT centRRT(7500, 0.5, 0.05, 0.25);
-        amp::MultiAgentPath2D res = centRRT.plan(hw8_ws1);
+        std::vector<double> data_sizes;
+        std::vector<double> data_times;
+        std::list<std::vector<double>> data;
+
+        int num_agents = 2;
+        
+            amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(num_agents);
+            for(int i=0; i<100; i++){
+                std::cout<<i<<"\n";
+                myCentMultiRRT centRRT(7500, 0.5, 0.05, 0.25);
+
+                // start timer
+                auto start = std::chrono::high_resolution_clock::now();
+
+                //run the iteration of RRT
+                res = centRRT.plan(hw8_ws1);
+
+                // end timer
+                auto end = std::chrono::high_resolution_clock::now();
+
+                std::chrono::duration<double> duration = end - start;
+
+                int size = centRRT.getTreeSize();
+
+                data_times.push_back(double(duration.count()));
+                data_sizes.push_back(size);
+
+            }
+
+        data.push_back(data_times);
+        data.push_back(data_sizes);
+        std::vector<std::string> labels = {"Times","Sizes"};
+        amp::Visualizer::makeBoxPlot(data,labels,"m="+std::to_string(num_agents),"","");
+
         amp::Visualizer::makeFigure(hw8_ws1, res);
 
     }
 
+    }
+
     if(RUN_MISC){
-        // test of cspace constructor
-        amp::Environment2D env_hw8_ws1 = amp::HW8::getWorkspace1();
-        myCSpace2d cspace(100,100,0,10,0,10);
-        amp::CircularAgentProperties agent_props;
-        cspace.constructFromCircleAgent(env_hw8_ws1,agent_props);
-        amp::Visualizer::makeFigure(cspace);
-        amp::Visualizer::makeFigure(env_hw8_ws1);
+        // amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1();
+        // amp::MultiAgentPath2D test;
+        // test.numAgents = 2;
+        // std::vector<amp::Path2D> paths;
+        // amp::Path2D path1;
+        // path1.waypoints.push_back(hw8_ws1.agent_properties[0].q_init);
+        // path1.waypoints.push_back(hw8_ws1.agent_properties[0].q_goal);
+        // amp::Path2D path2;
+        // path1.waypoints.push_back(hw8_ws1.agent_properties[0].q_init);
+        // path1.waypoints.push_back(hw8_ws1.agent_properties[0].q_goal);
+        // test.agent_paths = 
+        // amp::HW8::check(res,hw8_ws1);
 
     }
 

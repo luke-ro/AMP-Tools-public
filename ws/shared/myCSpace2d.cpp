@@ -41,7 +41,7 @@ bool myCSpace2d::freeBtwPoints(Eigen::Vector2d p1, Eigen::Vector2d p2){
 
     for(auto pt : sample_points){
         if(inCollision(pt[0],pt[1])){
-            std::cout<<"Collision detected myCSpace2D\n";
+            // std::cout<<"Collision detected myCSpace2D\n";
             return false;
         }
     }

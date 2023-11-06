@@ -20,9 +20,11 @@ class myCentMultiRRT : public mySamplingBasedMthd, public amp::MultiAgentCircleM
 
     bool agentStepsFree(const amp::MultiAgentProblem2D& problem, int idx1, int idx2, Eigen::VectorXd q1, Eigen::VectorXd q2);
 
+    int getTreeSize(){return _tree_size;}
 
     private:
 
+    int _tree_size;
     double _p_goal;
     double _epsilon;
 };
