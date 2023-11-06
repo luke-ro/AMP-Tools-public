@@ -189,6 +189,7 @@ int main(int argc, char** argv){
         //     res = centRRT.plan(hw8_ws1);
         // }while(!amp::HW8::check(res,hw8_ws1));}
         res = RRT.plan(hw8_ws1);
+        amp::HW8::check(res,hw8_ws1);
         amp::Visualizer::makeFigure(hw8_ws1, res);
 
     }

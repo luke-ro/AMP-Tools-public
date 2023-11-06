@@ -1,6 +1,6 @@
 #include "myDecenMultiRRT.h"
 
-bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp::Path2D>& paths, Eigen::Vector2d q1,Eigen::Vector2d q2, int idx_agent, int idx_time){
+bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp::Path2D>& paths, Eigen::Vector2d q1, Eigen::Vector2d q2, int idx_agent, int idx_time){
     // the agent being checked
     Eigen::Vector2d q1_agent2 = q1;
     Eigen::Vector2d q2_agent2 = q2;
@@ -18,7 +18,7 @@ bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp:
         int sz_agent1 = paths[k].waypoints.size();
         if(sz_agent1-1<idx_time){
             q1_agent1 = paths[k].waypoints[sz_agent1-1];
-            q1_agent2 = paths[k].waypoints[sz_agent1-1];
+            q2_agent1 = paths[k].waypoints[sz_agent1-1];
         }else{
             q1_agent1 = paths[k].waypoints[idx_time-1];
             q2_agent1 = paths[k].waypoints[idx_time];
@@ -30,6 +30,7 @@ bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp:
 
         for(int i = 0; i<n; i++){
             if((path_agent1[i]-path_agent2[i]).norm() < min_r){
+                std::cout<<"failed stepFreeAtTime: "<<q1_agent2[0]<<", "<<q1_agent2[1]<<"\n";
                 return false;
             }
         }
@@ -110,7 +111,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
 
 
             if(edge_clear){
-                std::cout<<"adding point to RRT\n";
+                // std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
                 node_vecs[k].push_back(q_candidate);
                 parents[k][i]=idx_near;
                 i++; 
@@ -126,12 +127,7 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
             }
 
         }while(loops++<_N_MAX);
-        if(!indi_success){
-            std::cout<<"RRT did not find the goal\n";
-            overall_success = false;
-            break;
-        }
-
+        std::cout<<"loops: "<<loops<<"\n";
         // need to create the path for each robot
         amp::Path2D path;
         uint32_t curr = node_vecs[k].size()-1;
@@ -142,6 +138,12 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
         path.waypoints.push_back(node_vecs[k][curr]);
         std::reverse(path.waypoints.begin(),path.waypoints.end());
         paths[k] = path;
+
+        if(!indi_success){
+            std::cout<<"RRT did not find the goal\n";
+            overall_success = false;
+            break;
+        }
     }
     
 
