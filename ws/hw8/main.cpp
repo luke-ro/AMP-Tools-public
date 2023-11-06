@@ -19,8 +19,8 @@
 
 const bool RUN_Q1 = false;
 const bool RUN_Q2 = false;
-const bool RUN_MISC = true;
-const bool RUN_GRADER = false;
+const bool RUN_MISC = false;
+const bool RUN_GRADER = true;
 
 double mean(std::vector<double> vec){
     double sum=0;
@@ -112,13 +112,13 @@ int main(int argc, char** argv){
  
 
         
-        for(int num_agents=2; num_agents<=2; num_agents++){
+        for(int num_agents=2; num_agents<=6; num_agents++){
             std::vector<double> sizes;
             std::vector<double> times;
 
             amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(num_agents);
             int valid_count=0;
-            for(int i=0; i<1; i++){
+            for(int i=0; i<100; i++){
         
                 std::cout<<num_agents<<"\n";
                 myDecenMultiRRT centRRT(7500, 0.5, 0.05, 0.25);
@@ -181,7 +181,7 @@ int main(int argc, char** argv){
         // test.agent_paths = 
         // amp::HW8::check(res,hw8_ws1);
         myDecenMultiRRT RRT(7500, 0.5, 0.05, 0.25);
-        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(4);
+        amp::MultiAgentProblem2D hw8_ws1 = amp::HW8::getWorkspace1(2);
         amp::MultiAgentPath2D res;
         // {int i=0;
         // do{
@@ -195,6 +195,11 @@ int main(int argc, char** argv){
     }
 
     if(RUN_GRADER){
+        myCentMultiRRT centRRT(7500, 0.5, 0.05, 0.25);
+        myDecenMultiRRT decenRRT(7500, 0.5, 0.05, 0.25);
+        // static int grade(CentralizedMultiAgentRRT& c_ma_algo, DecentralizedMultiAgentRRT& dc_ma_algo, const std::string& email, int argc, char** argv);
+        // amp::HW8::grade(centRRT, decenRRT, "Luke.Roberson@colorado.edu", argc, argv);
+        amp::HW8::grade<myCentMultiRRT,myDecenMultiRRT>("Luke.Roberson@colorado.edu", argc, argv);
 
     }
 

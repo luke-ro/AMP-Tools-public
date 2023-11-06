@@ -30,7 +30,7 @@ bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp:
 
         for(int i = 0; i<n; i++){
             if((path_agent1[i]-path_agent2[i]).norm() < min_r){
-                std::cout<<"failed stepFreeAtTime: "<<q1_agent2[0]<<", "<<q1_agent2[1]<<"\n";
+                // std::cout<<"failed stepFreeAtTime: "<<q1_agent2[0]<<", "<<q1_agent2[1]<<"\n";
                 return false;
             }
         }
@@ -40,6 +40,7 @@ bool stepFreeAtTime(const amp::MultiAgentProblem2D& prob, const std::vector<amp:
 
 amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& problem){
     int n_agents = problem.agent_properties.size();
+
 
     std::vector<amp::Path2D> paths(n_agents);
     std::vector<std::vector<Eigen::Vector2d>> node_vecs(n_agents); 
@@ -52,6 +53,8 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
 
     //parent node lookup table for each agent
     std::vector<std::unordered_map<uint32_t,uint32_t>> parents(n_agents);
+
+    _tree_size =0;
 
     // create cspaces for every agent:
     int sz0 = 200;
@@ -129,7 +132,10 @@ amp::MultiAgentPath2D myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& prob
             }
 
         }while(loops++<_N_MAX);
-        std::cout<<"loops: "<<loops<<"\n";
+
+        // update variable that tracks how many nodes 
+        _tree_size+=node_vecs[k].size();
+
         // need to create the path for each robot
         amp::Path2D path;
         uint32_t curr = node_vecs[k].size()-1;
