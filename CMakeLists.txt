@@ -92,6 +92,7 @@ set(AMP_INCLUDE_DIRS
 )
 
 set(AMP_DEPENDENCY_INCLUDE_DIRS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ompl/myheaders
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp/include
     ${EIGEN3_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
@@ -117,6 +118,8 @@ if (AMP_BUILD_LIB)
 else()
 
 endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ompl)
 
 add_subdirectory(scripts)
 add_subdirectory(include/public)
