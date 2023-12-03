@@ -1,0 +1,82 @@
+#include "myPRM2D.h"
+
+amp::Path2D myPRM2D::plan(const amp::Problem2D& problem){
+    // initialize q_init and q_goalS
+    amp::ShortestPathProblem spp;
+    auto ptr = std::make_shared<amp::Graph<double>>();
+    spp.graph = ptr;
+    spp.init_node = amp::Node(0);
+    spp.goal_node = amp::Node(1);
+    
+    // for some amount of samples, sample and add if free
+    Eigen::Vector2d sample;
+    std::vector<Eigen::Vector2d> node_locs;
+    node_locs.push_back(problem.q_init);
+    node_locs.push_back(problem.q_goal);
+    for(int i=0; i<_N_MAX; i++){
+        sample = H::sampleSpace(problem);
+        if(!H::checkCollsionEnv(problem,sample)){
+            node_locs.push_back(sample);
+        }
+    }
+
+    for(int i=0; i<node_locs.size(); i++){
+        spp.graph->connect(i,i,std::numeric_limits<double>::max());
+    }
+
+    std::cout<<"There were "<<node_locs.size()-2<<" succesful samples out of "<<_N_MAX<<"\n";
+    // connect samples within some distance of eachother
+        // check if path is free, then connect
+    // add heuristic to nodes
+    amp::LookupSearchHeuristic heur;
+    
+    // Connect tree
+    double dist;
+    int i=0;
+    for(auto loc : node_locs){{
+        //Add heiristic to node
+        heur.heuristic_values[i]=(loc-problem.q_goal).norm();
+
+        //get neighbors within radius _neigh_radius
+        std::vector<amp::Node> neighbors = H::getNeighbors(node_locs, loc, _radius, i);
+        for(int j=0; j<neighbors.size(); j++){
+            dist = (node_locs[i]-node_locs[neighbors[j]]).norm();
+            
+            // If the line between node and neighbor is free, connect 2 ways
+            if(H::freeBtwPointsLine(problem, node_locs[i], node_locs[neighbors[j]])){
+                spp.graph->connect(neighbors[j],i,dist);
+                spp.graph->connect(i,neighbors[j],dist);
+            }
+        }
+    }i++;}
+
+    // graph search
+        // A*
+    myAStar star;
+    amp::AStar::GraphSearchResult gsr = star.search(spp, heur);
+
+    //turn into a path
+    amp::Path2D path;
+    for(auto n : gsr.node_path){
+        path.waypoints.push_back(node_locs[n]);
+    }
+
+    // smooth the path if _smoothing is set
+    if(_smoothing)
+        smoothPath(problem,path);
+
+    // save data for retrival later
+    if(_save_data){
+        _node_locs = node_locs;
+        _graph_ptr = spp.graph;
+    }else{
+        _node_locs.clear();
+        // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear(); // <-bug
+    }
+    
+    return path;
+
+}
+
+
+
