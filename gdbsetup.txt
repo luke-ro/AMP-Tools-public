@@ -1,0 +1,1 @@
+set environment LD_LIBRARY_PATH /home/user/repos/AMP-Tools-public/install/ubuntu20/lib

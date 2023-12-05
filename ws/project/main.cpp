@@ -27,13 +27,13 @@ class World{
     public:
 
     amp::Problem2D problem;
-    std::vector<Agent*> agents;
+    std::vector<std::shared_ptr<Agent>> agents;
 
 };
 
 class isStateValid : public ob::StateValidityChecker{
     public:
-    isStateValid(const ob::SpaceInformationPtr &si, const World *w, const Agent *a):
+    isStateValid(const ob::SpaceInformationPtr &si, const std::shared_ptr<World> w, const std::shared_ptr<Agent> a):
         ob::StateValidityChecker(si),
         _w(w),
         _a(a){
@@ -52,16 +52,16 @@ class isStateValid : public ob::StateValidityChecker{
     private:
 
     const ob::SpaceInformation *_si;
-    const World* _w;
-    const Agent* _a;
+    const std::shared_ptr<World> _w;
+    const std::shared_ptr<Agent> _a;
 
 };
 
-og::SimpleSetupPtr geoSetup(const World *w){
+og::SimpleSetupPtr geoSetup(const std::shared_ptr<World> w){
     // create pointer to the ss work space? 
     auto ws(std::make_shared<ob::SE2StateSpace>());
 
-    Agent* a = w->agents[0];
+    std::shared_ptr<Agent> a = w->agents[0];
 
     //pointer to bouds object with 2 dimensions
     ob::RealVectorBounds bounds(2);
@@ -92,7 +92,7 @@ og::SimpleSetupPtr geoSetup(const World *w){
     return ss;
 }
 
-void planGeometric(const World* w){
+void planGeometric(const std::shared_ptr<World> w){
     
 
     // create simple setup pointer
@@ -111,22 +111,25 @@ void planGeometric(const World* w){
 
 int main(int argc, char ** argv)
 {   
-    amp::Environment2D ws = amp::HW4::getEx3Workspace1();
-    amp::Problem2D prob;
-    prob.obstacles = ws.obstacles;
-    prob.x_max = ws.x_max;
-    prob.x_min = ws.x_min;
-    prob.y_max = ws.y_max;
-    prob.y_min = ws.y_min;
-    prob.q_init = Eigen::Vector2d(0,0);
-    prob.q_goal = Eigen::Vector2d(4,4);
 
-    Agent* agent;
+    auto agent = std::make_shared<Agent>();
 
-    World* w;
-    w->problem = prob;
+    std::vector<std::shared_ptr<Agent>> test;
+    test.push_back(agent);
+
+    std::shared_ptr<World> w;
     w->agents.push_back(agent);
 
+    amp::Environment2D ws = amp::HW4::getEx3Workspace1();
+    w->problem.obstacles = ws.obstacles;
+    w->problem.x_max = ws.x_max;
+    w->problem.x_min = ws.x_min;
+    w->problem.y_max = ws.y_max;
+    w->problem.y_min = ws.y_min;
+    w->problem.q_init[0] = 0;
+    w->problem.q_init[1] = 0;
+    w->problem.q_goal[0] = 4;
+    w->problem.q_goal[1] = 4;
 
     // std::string plannerName = "RRT";
     OMPL_INFORM("Planning for OMPL Lecture Example using Gemoetric Planning with %s", "RRT");
