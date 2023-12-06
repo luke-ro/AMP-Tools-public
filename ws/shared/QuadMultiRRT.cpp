@@ -1,4 +1,4 @@
-#include "myDecenMultiRRT.h"
+#include "QuadMultiRRT.h"
 
 bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>& paths, Eigen::Vector2d q1, Eigen::Vector2d q2, int idx_agent, int idx_time){
     // the agent being checked
@@ -8,7 +8,7 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>
     //loop through agents that already have plans
     for(int k=0;k<idx_agent; k++){
         int n = 10;
-        double min_r = 1.5*(prob.agents[idx_agent].radius + prob.agent_properties[k].radius);
+        double min_r = 1.5*(prob.agents[idx_agent].radius + prob.agents[k].radius);
 
         //points for higher priority agent (agents with plans)
         Eigen::Vector2d q1_agent1;
@@ -41,20 +41,21 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>
 /**
  * @brief returns a random control input, Z (vert force), M (pitching moment)
 */
-Eigen::Vector2d randomControl(const QuadAgentProperties& agent){
-    std::uniform_real_distribution<double> dist(0,agent._max_motor_thrust);
+Eigen::Vector2d randomControl(QuadAgentProperties& agent){
+    std::uniform_real_distribution<double> dist(0,agent.max_motor_thrust);
     std::default_random_engine re;
     
     Eigen::Vector2d motor_commands(dist(re),dist(re));
-    return agent.motorCommandsToControl(motor_commands);
+    Eigen::Vector2d control = agent.motorCommandsToControl(motor_commands);
+    return control;
 }
 
-QuadAgentsTrajectories myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& problem){
-    int n_agents = problem.agent_properties.size();
+QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
+    int n_agents = problem.agents.size();
 
 
     QuadAgentsTrajectories paths(n_agents);
-    std::vector<std::vector<Eigen::Matrix<double,6,1>> node_vecs(n_agents); 
+    std::vector<std::vector<Eigen::Matrix<double,6,1>>> node_vecs(n_agents); 
     std::vector<std::vector<double>> timing_vecs(n_agents); 
 
     // initialize with agent's q_init
@@ -65,15 +66,14 @@ QuadAgentsTrajectories myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& pro
     //parent node lookup table for each agent
     std::vector<std::unordered_map<uint32_t,uint32_t>> parents(n_agents);
 
-    _tree_size = 0;
 
     // create cspaces for every agent:
     int sz0 = 200;
     int sz1 = 200;
     std::vector<myCSpace2d> cspaces;
     for(int k=0;k<n_agents; k++){
-        myCSpace2d temp(sz0, sz1, problem.x_min, problem.x_max, problem.y_min, problem.y_max);
-        temp.constructFromCircleAgent(problem, problem.agent_properties[k].radius);
+        myCSpace2d temp(sz0, sz1, problem.env.x_min, problem.env.x_max, problem.env.y_min, problem.env.y_max);
+        temp.constructFromCircleAgent(problem.env, problem.agents[k].radius);
         cspaces.push_back(temp);
         // amp::Visualizer::makeFigure(cspaces[k]);
     }
@@ -163,14 +163,14 @@ QuadAgentsTrajectories myDecenMultiRRT::plan(const amp::MultiAgentProblem2D& pro
             overall_success = false;
             break;
         }
-        */
        return paths;
     }
+        */
     
 
-    amp::MultiAgentPath2D agent_paths(n_agents);
-    agent_paths.valid = overall_success;
-    agent_paths.agent_paths = paths;
+    QuadAgentsTrajectories agent_paths(n_agents);
+    // agent_paths.valid = overall_success;
+    // agent_paths.agent_paths = paths;
 
     // path.waypoints.push_front(problem.q_init);
     // path.waypoints.insert(path.waypoints.begin(), problem.q_init);

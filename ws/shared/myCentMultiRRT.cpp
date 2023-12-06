@@ -30,7 +30,7 @@ amp::MultiAgentPath2D myCentMultiRRT::plan(const amp::MultiAgentProblem2D& probl
     std::vector<myCSpace2d> cspaces;
     for(int k=0;k<n_agents; k++){
         myCSpace2d temp(sz0, sz1, problem.x_min, problem.x_max, problem.y_min, problem.y_max);
-        temp.constructFromCircleAgent(problem, problem.agent_properties[k]);
+        temp.constructFromCircleAgent(problem, problem.agent_properties[k].radius);
         cspaces.push_back(temp);
         // amp::Visualizer::makeFigure(cspaces[k]);
     }

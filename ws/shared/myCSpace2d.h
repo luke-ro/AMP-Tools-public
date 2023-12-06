@@ -20,7 +20,7 @@ class myCSpace2d : public amp::GridCSpace2D{
     bool freeBtwPoints(Eigen::Vector2d p1, Eigen::Vector2d p2);
 
 
-    void constructFromCircleAgent(const amp::Environment2D& env, const amp::CircularAgentProperties& circular_agents);
+    void constructFromCircleAgent(const amp::Environment2D& env, double radius);
 
     int _n0;
     int _n1;

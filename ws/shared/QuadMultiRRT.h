@@ -19,7 +19,7 @@ class QuadMultiRRT{
         _epsilon (epsilon)
     {}
 
-    QuadAgentsPaths plan(const QuadProblem& problem);
+    QuadAgentsTrajectories plan(const QuadAgentProblem& problem);
 
     private:
 

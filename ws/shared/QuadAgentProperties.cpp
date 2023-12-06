@@ -21,17 +21,17 @@ Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1
     dx[0] = (cos(th)*u) + (sin(th)*w);
     dx[1] = -sin(th)*u + cos(th)*w;
     dx[2] = q;
-    dx[3] = -q*w + Fx/_m_tot  - _g*sin(th);
-    dx[4] = q*u + Fz/_m_tot + _g*cos(th);
-    dx[5] = pitch_moment/_Iy;
+    dx[3] = -q*w + Fx/m_tot  - g*sin(th);
+    dx[4] = q*u + Fz/m_tot + g*cos(th);
+    dx[5] = pitch_moment/Iy;
 
     return dx;
 }
 
-Eigen::Vector2d QuadAgentProperties::motorCommmandsToControl(Eigen::Vector2d motor_commands){
+Eigen::Vector2d QuadAgentProperties::motorCommandsToControl(Eigen::Vector2d motor_commands){
     Eigen::Vector2d control;
     control[0] = -(motor_commands[0] + motor_commands[1]);
-    control[1] = _l_arm*(motor_commands[1]-motor_commands[0]);
+    control[1] = l_arm*(motor_commands[1]-motor_commands[0]);
     return control;
 
 }
