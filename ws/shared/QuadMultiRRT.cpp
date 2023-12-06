@@ -50,7 +50,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
     // initialize with agent's q_init
     for(int k=0; k<n_agents; k++){
-        node_vecs[k].push_back(problem.start_states[k]);
+        node_vecs[k].push_back(problem.agents[k].q_init);
     }
 
     //parent node lookup table for each agent
@@ -67,15 +67,14 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
         cspaces.push_back(temp);
         // amp::Visualizer::makeFigure(cspaces[k]);
     }
-    /*
     bool overall_success = true;
     for(int k=0; k<n_agents; k++){
         //RRT stuff
-        Eigen::Vector2d q_sample;
-        Eigen::Vector2d q_near;
-        Eigen::Vector2d q_candidate,edge_candidate; //point that sampled point gets cut down to 
+        QuadState q_sample;
+        QuadState q_near;
+        QuadState q_candidate,edge_candidate; //point that sampled point gets cut down to 
 
-        std::vector<int> level{0};
+        std::vector<int> level{0}; //keeps track of how deep a node is in the tree
         bool indi_success=false;
         int loops=0;
         int i=1;
@@ -83,10 +82,11 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
         do{
             
             if(amp::RNG::randf()<_p_goal)
-                q_sample = problem.agent_properties[k].q_goal;
+                q_sample = problem.agents[k].q_goal;
             else 
-                q_sample = H::sampleSpace(problem);
+                q_sample = QuadAgentTools::sampleSpace(problem.env,problem.agents[k]);
                 
+    }while(1);}/*
             uint32_t idx_near= H::getNearestNeighbor(node_vecs[k],q_sample);
             q_near = node_vecs[k][idx_near];
 

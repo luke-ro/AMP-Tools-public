@@ -27,11 +27,3 @@ Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1
 
     return dx;
 }
-
-Eigen::Vector2d QuadAgentProperties::motorCommandsToControl(Eigen::Vector2d motor_commands){
-    Eigen::Vector2d control;
-    control[0] = -(motor_commands[0] + motor_commands[1]);
-    control[1] = l_arm*(motor_commands[1]-motor_commands[0]);
-    return control;
-
-}

@@ -9,6 +9,7 @@
 #include "Helpers.h"
 #include "mySamplingBasedMthd.h"
 #include "QuadAgentProperties.h"
+#include "QuadAgentTools.h"
 
 class QuadMultiRRT{
     public: 
