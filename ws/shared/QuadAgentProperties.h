@@ -20,6 +20,7 @@ class QuadAgentProperties{
     {}
 
     Eigen::Matrix<double,6,1> dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control);
+    Eigen::Vector2d randomControl();
     Eigen::Vector2d motorCommandsToControl(Eigen::Vector2d motor_commands);
     // Eigen::Matrix<double,6,1> getState(){return _x;}
 

@@ -38,17 +38,7 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>
     return true;
 }
 
-/**
- * @brief returns a random control input, Z (vert force), M (pitching moment)
-*/
-Eigen::Vector2d randomControl(QuadAgentProperties& agent){
-    std::uniform_real_distribution<double> dist(0,agent.max_motor_thrust);
-    std::default_random_engine re;
-    
-    Eigen::Vector2d motor_commands(dist(re),dist(re));
-    Eigen::Vector2d control = agent.motorCommandsToControl(motor_commands);
-    return control;
-}
+
 
 QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
     int n_agents = problem.agents.size();
