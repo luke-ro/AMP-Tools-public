@@ -1,6 +1,6 @@
 #include "myCSpace2d.h"
 
-void myCSpace2d::constructFromCircleAgent(const amp::Environment2D& env, const amp::CircularAgentProperties& circular_agent){
+void myCSpace2d::constructFromCircleAgent(const amp::Environment2D& env, const double& radius){
     Eigen::Vector2d point;
     Eigen::Vector2d near;
     double r = 1.1*circular_agent.radius;

@@ -1,10 +1,10 @@
-#include "QuadAgent.h"
+#include "QuadAgentProperties.h"
 
 // enum States {STATEu,STATE}
 
 
 
-Eigen::Matrix<double,6,1> QuadAgent::dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector3d control){
+Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control){
     // # x = x[0] # horizontal position inertial (not used)
     // # z = x[1] # vertical position inertial (not used)
     double th = x[2]; // pitch 
@@ -13,9 +13,9 @@ Eigen::Matrix<double,6,1> QuadAgent::dynamics(Eigen::Matrix<double,6,1> x, Eigen
     double q = x[5]; //# pitch rate
 
     //controls
-    double Fx = control[0]; //# force in x body
-    double Fz = control[1]; // force in z body
-    double pitch_moment = control[2]; //# moment about y 
+    double Fz = control[0]; // control force in z body
+    double Fx = 0.0;
+    double pitch_moment = control[1]; //# control moment about y 
 
     Eigen::Matrix<double,6,1> dx;
     dx[0] = (cos(th)*u) + (sin(th)*w);
@@ -26,4 +26,12 @@ Eigen::Matrix<double,6,1> QuadAgent::dynamics(Eigen::Matrix<double,6,1> x, Eigen
     dx[5] = pitch_moment/_Iy;
 
     return dx;
+}
+
+Eigen::Vector2d QuadAgentProperties::motorCommmandsToControl(Eigen::Vector2d motor_commands){
+    Eigen::Vector2d control;
+    control[0] = -(motor_commands[0] + motor_commands[1]);
+    control[1] = _l_arm*(motor_commands[1]-motor_commands[0]);
+    return control;
+
 }
