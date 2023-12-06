@@ -45,3 +45,65 @@ inline QuadState QuadAgentTools::sampleSpace(amp::Environment2D env, QuadAgentPr
     
     return rand_state;
 }
+
+/**
+ * @brief gets nearest nerighbor according to L2 norm of position
+*/
+uint32_t QuadAgentTools::getNearestNeighbor(std::vector<QuadStates> node_vec, QuadState state){
+    uint32_t nearest = 0;
+    double min_dist = std::numeric_limits<double>::max();
+    Eigen::Vector2d p_query(state(0),state(1));
+    Eigen::Vector2d p2;
+    for(int i=0; i<points.size(); i++){
+        p2(0) = node_vec[i](0);
+        p2(1) = node_vec[i](1);
+        // double dist = (p2-p_query).norm();
+        double dist = distFunc()
+        if(dist<min_dist && dist>0){ //check for >0 to not return same point
+            nearest = i;
+            min_dist = dist;
+        }
+    }
+    return nearest;
+}
+
+/**
+ * @brief Samples random control inputs to get trajectory
+*/
+inline QuadState QuadAgentTools::steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt){
+    int n_max=10;
+    Eigen::Vector2d control_rand = randomControl(agent);
+    QuadState q_min =  rk4(agent,state,control_rand,Dt);
+    double min_dist = distFunc(q_min,q_steer);
+
+    QuadState q_sample;
+    for(int i=0; i<n_max; i++){
+        control_rand = randomControl(agent);
+        q_sample = rk4(agent,state,control_rand,Dt);
+        double cur_dist = distFunc(q_sample,q_steer);
+        if(cur_dist<min_dist){
+            min_dist = cur_dist;
+            q_min = q_sample;
+        }
+
+    }
+    return q_min;
+}
+
+Eigen::Matrix<double,6,1> QuadAgentTools::rk4(const QuadAgentProperties& agent, const QuadState& y0, const Eigen::Vector2d& u, double dt){
+    Eigen::Matrix<double,6,1> k1 = agent.dynamics(y0, u);
+    Eigen::Matrix<double,6,1> k2 = agent.dynamics(y0+dt*k1/2, u);
+    Eigen::Matrix<double,6,1> k3 = agent.dynamics(y0+dt*k2/2, u);
+    Eigen::Matrix<double,6,1> k4 = agent.dynamics(y0+dt*k3, u);
+
+    Eigen::Matrix<double,6,1> y1 = y0 + (dt/6) * (k1 + (2*k2) + (2*k3) + k4);
+    return y1;
+}
+
+
+double QuadAgentTools::distFunc(QuadState q0, QuadState q1){
+    Eigen::Vector2d p0,p1;
+    p0<<q0(0),q0(1);
+    p1<<q1(0),q1(1);
+    return (p1-p0).norm();
+}

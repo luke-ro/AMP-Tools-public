@@ -17,4 +17,12 @@ namespace QuadAgentTools{
      * @brief samples the space given 
     */
     inline QuadState sampleSpace(amp::Environment2D env, QuadAgentProperties agent);
+
+    inline QuadState steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt);
+
+    Eigen::Matrix<double,6,1> rk4(const QuadAgentProperties& agent, const QuadState& y0, const Eigen::Vector2d& u, double dt);
+
+    double distFunc(QuadState q0, QuadState q1);
+
+
 }

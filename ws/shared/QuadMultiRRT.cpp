@@ -45,7 +45,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
 
     QuadAgentsTrajectories paths(n_agents);
-    std::vector<std::vector<Eigen::Matrix<double,6,1>>> node_vecs(n_agents); 
+    std::vector<std::vector<QuadStates>> node_vecs(n_agents); 
     std::vector<std::vector<double>> timing_vecs(n_agents); 
 
     // initialize with agent's q_init
@@ -86,26 +86,23 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             else 
                 q_sample = QuadAgentTools::sampleSpace(problem.env,problem.agents[k]);
                 
-    }while(1);}/*
-            uint32_t idx_near= H::getNearestNeighbor(node_vecs[k],q_sample);
+            uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample);
             q_near = node_vecs[k][idx_near];
 
-            //cut down path to radius _radius
-            edge_candidate = q_sample-q_near;
-            if(edge_candidate.norm()>_radius)
-                edge_candidate = edge_candidate*_radius/edge_candidate.norm();
-
-            q_candidate = q_near + edge_candidate;
+            q_candidate = QuadAgentTools::steer();
             
             // flag to keep track of if there is a free path betw points
             bool edge_clear = true;
-
-            if(!cspaces[k].freeBtwPoints(q_near, q_candidate)){
+            Eigen::Vector2d temp1,temp2;
+            temp1<<q_near(0),q_near(1);
+            temp2<<q_candidate(0),q_candidate(1);
+            if(!cspaces[k].freeBtwPoints(temp1, temp2)){
                 edge_clear = false;
                 // std::cout<<"Edge failed in CSpace check.\n";
                 continue;
             }
 
+    }while(1);}/*
 
             // check for collisions with agents who already have a plan
             if(edge_clear && !stepFreeAtTime(problem, paths, q_near, q_candidate, k, level[idx_near]+1)){
