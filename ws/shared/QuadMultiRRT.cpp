@@ -1,9 +1,13 @@
 #include "QuadMultiRRT.h"
 
-bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>& paths, Eigen::Vector2d q1, Eigen::Vector2d q2, int idx_agent, int idx_time){
+Eigen::Vector2d getPos(const QuadState& state){
+    return Eigen::Vector2d(state(0),state(1));
+}
+
+bool stepFreeAtTime(const QuadAgentProblem& prob, const QuadAgentsTrajectories& paths, const QuadState& q1, const QuadState& q2, int idx_agent, int idx_time){
     // the agent being checked
-    Eigen::Vector2d q1_agent2 = q1;
-    Eigen::Vector2d q2_agent2 = q2;
+    Eigen::Vector2d q1_agent2 = getPos(q1);
+    Eigen::Vector2d q2_agent2 = getPos(q2);
 
     //loop through agents that already have plans
     for(int k=0;k<idx_agent; k++){
@@ -15,18 +19,18 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const std::vector<amp::Path2D>
         Eigen::Vector2d q2_agent1;
         
         // check to make sure that the agent was moving at that time. 
-        int sz_agent1 = paths[k].waypoints.size();
+        int sz_agent1 = paths[k].size();
         if(sz_agent1-1<idx_time){
-            q1_agent1 = paths[k].waypoints[sz_agent1-1];
-            q2_agent1 = paths[k].waypoints[sz_agent1-1];
+            q1_agent1 = getPos(paths[k][sz_agent1-1]);
+            q2_agent1 = getPos(paths[k][sz_agent1-1]);
         }else{
-            q1_agent1 = paths[k].waypoints[idx_time-1];
-            q2_agent1 = paths[k].waypoints[idx_time];
+            q1_agent1 = getPos(paths[k][idx_time-1]);
+            q2_agent1 = getPos(paths[k][idx_time]);
         }
 
 
-        std::vector<Eigen::Vector2d> path_agent1  = H::linspace2D(q1_agent1,q2_agent1,n);
-        std::vector<Eigen::Vector2d> path_agent2  = H::linspace2D(q1_agent2,q2_agent2,n);
+        std::vector<Eigen::Vector2d> path_agent1  = H::linspace2D(q1_agent1, q2_agent1,n);
+        std::vector<Eigen::Vector2d> path_agent2  = H::linspace2D(q1_agent2, q2_agent2,n);
 
         for(int i = 0; i<n; i++){
             if((path_agent1[i]-path_agent2[i]).norm() < min_r){
@@ -102,7 +106,6 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 continue;
             }
 
-    }while(1);}/*
 
             // check for collisions with agents who already have a plan
             if(edge_clear && !stepFreeAtTime(problem, paths, q_near, q_candidate, k, level[idx_near]+1)){
@@ -119,30 +122,30 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 level.push_back(level[parents[k][i]]+1);
                 i++; 
 
-                if((q_candidate-problem.agent_properties[k].q_goal).norm()<_epsilon){
+                if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal) < _epsilon){
                     indi_success=true;
-                    if(q_candidate!=problem.agent_properties[k].q_goal){
-                        node_vecs[k].push_back(problem.agent_properties[k].q_goal);
+                    if(q_candidate!=problem.agents[k].q_goal){
+                        node_vecs[k].push_back(problem.agents[k].q_goal);
                         parents[k][i] = i-1;
                     }
                     break;
                 }
             }
 
-        }while(loops++<_N_MAX);
+        }while(loops++ < _N_MAX);
 
         // update variable that tracks how many nodes 
-        _tree_size+=node_vecs[k].size();
+        // _tree_size+=node_vecs[k].size();
 
-        // need to create the path for each robot
-        amp::Path2D path;
+        // need to create the path for current robot
+        QuadAgentTrajectory path;
         uint32_t curr = node_vecs[k].size()-1;
         while(parents[k].find(curr) != parents[k].end()){
-            path.waypoints.push_back(node_vecs[k][curr]);
+            path.push_back(node_vecs[k][curr]);
             curr = parents[k][curr];
         }
-        path.waypoints.push_back(node_vecs[k][curr]);
-        std::reverse(path.waypoints.begin(),path.waypoints.end());
+        path.push_back(node_vecs[k][curr]);
+        std::reverse(path.begin(),path.end());
         paths[k] = path;
 
         if(!indi_success){
@@ -150,28 +153,8 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             overall_success = false;
             break;
         }
-       return paths;
+
     }
-        */
     
-
-    QuadAgentsTrajectories agent_paths(n_agents);
-    // agent_paths.valid = overall_success;
-    // agent_paths.agent_paths = paths;
-
-    // path.waypoints.push_front(problem.q_init);
-    // path.waypoints.insert(path.waypoints.begin(), problem.q_init);
-
-    // if(_smoothing)
-    //     smoothPath(problem,path);
-
-    // if(_save_data){
-    //     _node_locs = node_vec;
-    //     _graph_ptr = spp.graph;
-    // }else{
-    //     _node_locs.clear();
-    //     // if(_graph_ptr->nodes().size()>1) _graph_ptr->clear();
-    // }
-    
-    return agent_paths;
+    return paths;
 }
