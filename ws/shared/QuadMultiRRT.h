@@ -16,6 +16,7 @@ class QuadMultiRRT{
 
     QuadMultiRRT(int N=10000, double Dt=0.1, double p_goal=0.05, double epsilon=0.25):
         _N (N),
+        _Dt (Dt),
         _p_goal (p_goal),
         _epsilon (epsilon)
     {}

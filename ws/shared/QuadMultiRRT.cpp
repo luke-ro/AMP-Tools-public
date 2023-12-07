@@ -45,7 +45,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
 
     QuadAgentsTrajectories paths(n_agents);
-    std::vector<std::vector<QuadStates>> node_vecs(n_agents); 
+    std::vector<std::vector<QuadState>> node_vecs(n_agents); 
     std::vector<std::vector<double>> timing_vecs(n_agents); 
 
     // initialize with agent's q_init
@@ -89,7 +89,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample);
             q_near = node_vecs[k][idx_near];
 
-            q_candidate = QuadAgentTools::steer();
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt);
             
             // flag to keep track of if there is a free path betw points
             bool edge_clear = true;

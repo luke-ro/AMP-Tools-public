@@ -4,7 +4,7 @@
 
 
 
-Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control){
+Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control) const{
     // # x = x[0] # horizontal position inertial (not used)
     // # z = x[1] # vertical position inertial (not used)
     double th = x[2]; // pitch 

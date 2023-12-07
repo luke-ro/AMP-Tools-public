@@ -23,7 +23,7 @@ class QuadAgentProperties{
     max_motor_thrust(2.0)
     {}
 
-    Eigen::Matrix<double,6,1> dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control);
+    Eigen::Matrix<double,6,1> dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control) const;
     Eigen::Vector2d randomControl();
     Eigen::Vector2d motorCommandsToControl(Eigen::Vector2d motor_commands);
     // Eigen::Matrix<double,6,1> getState(){return _x;}
