@@ -6,6 +6,7 @@
 #include "QuadAgentProperties.h"
 #include "QuadAgentTools.h"
 #include "QuadMultiRRT.h"
+#include "QuadOutput.h"
 
 QuadAgentProblem setupSimpleSingleAgentProblem(){
     QuadAgentProblem prob;
@@ -61,6 +62,8 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
     return amp_prob;
 }
 
+
+
 int main(int argc, char ** argv){
     QuadAgentProblem prob = setupSimpleSingleAgentProblem();
     QuadMultiRRT kdrrt(1000);
@@ -74,5 +77,7 @@ int main(int argc, char ** argv){
     std::cout<<"Num amp paths: "<< amp_paths.agent_paths.size() << "\n";
     std::cout<<"Num amp agents: " << amp_prob.agent_properties.size() << "\n";
 
-    amp::Visualizer::makeFigure(amp_prob,amp_paths);
+    QuadOutput::writeToFile(quad_trajectories);
+
+    // amp::Visualizer::makeFigure(amp_prob,amp_paths);
 }
