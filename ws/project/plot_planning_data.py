@@ -98,4 +98,4 @@ def animate_traj(traj,particles,surface=None,buffer=10,frame_time=30):
 if __name__ == "__main__":
     f = open("/home/user/repos/AMP-Tools-public/quad_planning_output.txt")
     data = json.load(f)
-    print(np.array(data["0"]["trajectory"]))
+    print(np.array(data["1"]["trajectory"]))

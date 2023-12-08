@@ -1,4 +1,7 @@
 #pragma once 
+
+#include <iostream>
+
 #include "AMPCore.h"
 
 #include "Helpers.h"
@@ -47,11 +50,9 @@ static Eigen::Vector2d QuadAgentTools::motorCommandsToControl(const QuadAgentPro
  * @brief returns a random control input, Z (vert force), M (pitching moment)
 */
 static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& agent){
-    std::uniform_real_distribution<double> dist(0,agent.max_motor_thrust);
-    std::default_random_engine re;
-    
-    Eigen::Vector2d motor_commands(dist(re),dist(re));
+    Eigen::Vector2d motor_commands(amp::RNG::randd(0, agent.max_motor_thrust),amp::RNG::randd(0, agent.max_motor_thrust));
     Eigen::Vector2d control = motorCommandsToControl(agent, motor_commands);
+    std::cout << control(0) << ", " << control(1) << "\n";
     return control;
 }
 
@@ -59,24 +60,24 @@ static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& 
  * @brief returns a randomly sampled state
 */
 static QuadState QuadAgentTools::sampleSpace(amp::Environment2D env, QuadAgentProperties agent){
-    std::uniform_real_distribution<double> x_pos(env.x_min, env.x_max);
-    std::uniform_real_distribution<double> y_pos(env.y_min, env.y_max);
-    std::uniform_real_distribution<double> theta(0.0, 2.0*3.1415);
-    std::uniform_real_distribution<double> vel_mag(-agent.max_vel, agent.max_vel);
-    std::uniform_real_distribution<double> pitch_rate(-agent.max_pitch_rate, agent.max_pitch_rate);
+    // std::uniform_real_distribution<double> x_pos(env.x_min, env.x_max);
+    // std::uniform_real_distribution<double> y_pos(env.y_min, env.y_max);
+    // std::uniform_real_distribution<double> theta(0.0, 2.0*3.1415);
+    // std::uniform_real_distribution<double> vel_mag(-agent.max_vel, agent.max_vel);
+    // std::uniform_real_distribution<double> pitch_rate(-agent.max_pitch_rate, agent.max_pitch_rate);
 
-    std::default_random_engine re;
+    // std::default_random_engine re;
 
-    Eigen::Vector2d vel(vel_mag(re),0); // generate random vel magnitude
-    vel = Rotate::rotatePoint(vel,theta(re),Eigen::Vector2d()); // split that vel into random direction
+    Eigen::Vector2d vel(amp::RNG::randf(-agent.max_vel,agent.max_vel), 0.0); // generate random vel magnitude
+    vel = Rotate::rotatePoint(vel,amp::RNG::randf(0.0,3.1415),Eigen::Vector2d()); // split that vel into random direction
 
     QuadState rand_state;
-    rand_state(0) = x_pos(re);
-    rand_state(1) = y_pos(re);
-    rand_state(2) = theta(re);
+    rand_state(0) = amp::RNG::randf(env.x_min, env.x_max);
+    rand_state(1) = amp::RNG::randf(env.y_min, env.y_max);
+    rand_state(2) = amp::RNG::randf(0.0, 2*3.1415);
     rand_state(3) = vel(0);
     rand_state(4) = vel(1);
-    rand_state(5) = pitch_rate(re);
+    rand_state(5) = amp::RNG::randf(-agent.max_pitch_rate, agent.max_pitch_rate);
     
     return rand_state;
 }
