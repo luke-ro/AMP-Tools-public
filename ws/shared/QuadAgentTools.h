@@ -31,6 +31,8 @@ namespace QuadAgentTools{
 
     static Eigen::Vector2d getPos(const QuadState& state);
 
+    
+    static bool withinBounds(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& x);
 }
 
 
@@ -113,7 +115,7 @@ static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const Quad
         control_rand = randomControl(agent);
         q_sample = rk4(agent,q0,control_rand,Dt);
         double cur_dist = distFunc(q_sample,q_steer);
-        if(cur_dist<min_dist){
+        if(cur_dist<min_dist && withinBounds(env,agent,q_sample)){
             min_dist = cur_dist;
             q_min = q_sample;
         }
@@ -138,4 +140,20 @@ static double QuadAgentTools::distFunc(QuadState q0, QuadState q1){
     p0<<q0(0),q0(1);
     p1<<q1(0),q1(1);
     return (p1-p0).norm();
+}
+
+/**
+ * @brief checks if a circular agent is within bounds
+*/
+static bool QuadAgentTools::withinBounds(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& x){
+    if(x(0) - agent.radius < env.x_min)
+        return false;
+    if(x(0) + agent.radius > env.x_max)
+        return false;
+    if(x(1) - agent.radius < env.y_min)
+        return false;
+    if(x(1) + agent.radius > env.y_max)
+        return false;
+
+    return true;
 }

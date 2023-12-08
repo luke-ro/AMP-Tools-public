@@ -1,13 +1,10 @@
 #include "QuadMultiRRT.h"
 
-Eigen::Vector2d getPos(const QuadState& state){
-    return Eigen::Vector2d(state(0),state(1));
-}
 
 bool stepFreeAtTime(const QuadAgentProblem& prob, const QuadAgentsTrajectories& paths, const QuadState& q1, const QuadState& q2, int idx_agent, int idx_time){
     // the agent being checked
-    Eigen::Vector2d q1_agent2 = getPos(q1);
-    Eigen::Vector2d q2_agent2 = getPos(q2);
+    Eigen::Vector2d q1_agent2 = QuadAgentTools::getPos(q1);
+    Eigen::Vector2d q2_agent2 = QuadAgentTools::getPos(q2);
 
     //loop through agents that already have plans
     for(int k=0;k<idx_agent; k++){
@@ -21,11 +18,11 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const QuadAgentsTrajectories& 
         // check to make sure that the agent was moving at that time. 
         int sz_agent1 = paths[k].size();
         if(sz_agent1-1<idx_time){
-            q1_agent1 = getPos(paths[k][sz_agent1-1]);
-            q2_agent1 = getPos(paths[k][sz_agent1-1]);
+            q1_agent1 = QuadAgentTools::getPos(paths[k][sz_agent1-1]);
+            q2_agent1 = QuadAgentTools::getPos(paths[k][sz_agent1-1]);
         }else{
-            q1_agent1 = getPos(paths[k][idx_time-1]);
-            q2_agent1 = getPos(paths[k][idx_time]);
+            q1_agent1 = QuadAgentTools::getPos(paths[k][idx_time-1]);
+            q2_agent1 = QuadAgentTools::getPos(paths[k][idx_time]);
         }
 
 
@@ -95,6 +92,9 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
             q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt);
             
+            if(!QuadAgentTools::withinBounds(problem.env, problem.agents[k], q_candidate))
+                continue;
+
             // flag to keep track of if there is a free path betw points
             bool edge_clear = true;
             Eigen::Vector2d temp1,temp2;
