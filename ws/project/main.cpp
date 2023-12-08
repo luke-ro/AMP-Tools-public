@@ -29,12 +29,14 @@ amp::MultiAgentPath2D trajectoriesToAmpMultiAgent(QuadAgentsTrajectories quad_tr
     int n = quad_trajs.size();
     amp::MultiAgentPath2D amp_paths(n);
 
+    std::cout<< "number of paths in trajectoriesTo... : "<< n<< "\n";
+
     for(int i=0; i<n; i++){
         amp::Path2D path;
         for(auto x : quad_trajs[i]){
             path.waypoints.push_back(Eigen::Vector2d(x(0),x(1)));
         }
-        amp_paths.agent_paths.push_back(path);
+        amp_paths.agent_paths[i] = path;
     }
     return amp_paths;
 }
@@ -61,10 +63,16 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 
 int main(int argc, char ** argv){
     QuadAgentProblem prob = setupSimpleSingleAgentProblem();
-    QuadMultiRRT kdrrt;
+    QuadMultiRRT kdrrt(1000);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
-    amp::MultiAgentPath2D amp_paths = trajectoriesToAmpMultiAgent(quad_trajectories);
 
+    std::cout<<"Num trajectories: "<< quad_trajectories.size() << "\n";
+
+    amp::MultiAgentPath2D amp_paths = trajectoriesToAmpMultiAgent(quad_trajectories);
     amp::MultiAgentProblem2D amp_prob = quadToAmpMultiProblem(prob);
+
+    std::cout<<"Num amp paths: "<< amp_paths.agent_paths.size() << "\n";
+    std::cout<<"Num amp agents: " << amp_prob.agent_properties.size() << "\n";
+
     amp::Visualizer::makeFigure(amp_prob,amp_paths);
 }
