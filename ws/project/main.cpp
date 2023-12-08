@@ -26,6 +26,35 @@ QuadAgentProblem setupSimpleSingleAgentProblem(){
     return prob;
 }
 
+QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents){
+    QuadAgentProblem prob;
+    prob.num_agents = num_agents;
+
+    prob.env = amp::HW4::getEx3Workspace1();
+
+    std::vector<QuadState> q_inits(5);
+    std::vector<QuadState> q_goals(5);
+
+    q_inits[0] << -2,-2,0,0,0,0;
+    q_inits[1] << -2,-1,0,0,0,0;
+    q_inits[2] << -2,0,0,0,0,0;
+    q_inits[3] << -2,1,0,0,0,0;
+    q_inits[4] << -2,2,0,0,0,0;
+
+    q_goals[0] << 2,2,0,0,0,0;
+    q_goals[1] << 2,1,0,0,0,0;
+    q_goals[2] << 2,0,0,0,0,0;
+    q_goals[3] << 2,-1,0,0,0,0;
+    q_goals[4] << 2,-2,0,0,0,0;
+
+    for(int i=0; i<num_agents; i++){
+        QuadAgentProperties agent(q_inits[i],q_goals[i]);
+        prob.agents.push_back(agent);
+    }
+
+    return prob;
+}
+
 amp::MultiAgentPath2D trajectoriesToAmpMultiAgent(QuadAgentsTrajectories quad_trajs){
     int n = quad_trajs.size();
     amp::MultiAgentPath2D amp_paths(n);
@@ -65,7 +94,7 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 
 
 int main(int argc, char ** argv){
-    QuadAgentProblem prob = setupSimpleSingleAgentProblem();
+    QuadAgentProblem prob = setupSimpleMultiAgentProblem(2);
     QuadMultiRRT kdrrt(1000);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
 

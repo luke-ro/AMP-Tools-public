@@ -18,13 +18,15 @@ static bool QuadOutput::writeToFile(QuadAgentsTrajectories trajectories){
     myfile<<"{\n";
     
     for(int i=0; i<num_agents; i++){
-        myfile<<"\"agent\":" + std::to_string(i) + ",\n";
+        myfile<<"\n\"" + std::to_string(i) + "\":\n";
+        myfile<<"\t{\n";
 
-        myfile<<"\t\"trajectory\":{\n";
-        myfile<<"\t";
+        // myfile<<"\t\t{\n";
+        myfile<<"\t\"trajectory\":";
         QuadOutput::writeTrajectoryJSON(myfile,trajectories[i]);
         myfile<<"\n\t}";
         if(i!=num_agents-1) myfile<<",";
+
     }
     
     myfile<<"\n}";
@@ -37,23 +39,29 @@ static bool QuadOutput::writeToFile(QuadAgentsTrajectories trajectories){
 static bool QuadOutput::writeTrajectoryJSON(std::ofstream& myfile, QuadAgentTrajectory traj){
     myfile<<"[";
     int i;
-    for(i=0; i<traj.size()-1; i++){
+    if(traj.size()>0){
+        for(i=0; i<traj.size()-1; i++){
+            QuadState x = traj[i]; 
+            myfile<<"[";
+            for(int j=0; j<x.rows()-1; j++){
+                myfile<<std::to_string(x(j))<<",";
+            }
+            myfile<<std::to_string(x(x.rows()-1));
+            myfile<<"],";
+        }
+
         QuadState x = traj[i]; 
         myfile<<"[";
         for(int j=0; j<x.rows()-1; j++){
             myfile<<std::to_string(x(j))<<",";
         }
         myfile<<std::to_string(x(x.rows()-1));
-        myfile<<"],";
+        myfile<<"]";
+    }else{
+        myfile<<"[]";
     }
 
-    QuadState x = traj[i]; 
-    myfile<<"[";
-    for(int j=0; j<x.rows()-1; j++){
-        myfile<<std::to_string(x(j))<<",";
-    }
-    myfile<<std::to_string(x(x.rows()-1));
-    myfile<<"]]";
+    myfile<<"]";
 
     return true;
 
