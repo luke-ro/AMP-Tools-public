@@ -26,12 +26,12 @@ namespace QuadAgentTools{
 
     static double distFunc(QuadState q0, QuadState q1);
 
-    Eigen::Vector2d getPos(const QuadState& state);
+    static Eigen::Vector2d getPos(const QuadState& state);
 
 }
 
 
-Eigen::Vector2d QuadAgentTools::getPos(const QuadState& state){
+static Eigen::Vector2d QuadAgentTools::getPos(const QuadState& state){
     return Eigen::Vector2d(state(0),state(1));
 }
 
