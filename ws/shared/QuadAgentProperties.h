@@ -20,12 +20,12 @@ class QuadAgentProperties{
     m_tot(m_arm_+m_motor_),
     Iy(2.0*m_arm_*pow(l_arm_,2) + (m_arm_*pow(2*l_arm_,2))/12),
     radius(2*l_arm_),
-    max_motor_thrust(2.0)
+    max_motor_thrust(3)
     {}
 
     Eigen::Matrix<double,6,1> dynamics(Eigen::Matrix<double,6,1> x, Eigen::Vector2d control) const;
-    Eigen::Vector2d randomControl();
-    Eigen::Vector2d motorCommandsToControl(Eigen::Vector2d motor_commands);
+    // Eigen::Vector2d randomControl();
+    // Eigen::Vector2d motorCommandsToControl(Eigen::Vector2d motor_commands);
     // Eigen::Matrix<double,6,1> getState(){return _x;}
 
     const QuadState q_init;

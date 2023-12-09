@@ -1,10 +1,5 @@
 file(GLOB HW_SUBDIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 
-# # if(AMP_BUILD_LIB
-find_package(Boost 1.70 REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-
-
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/shared")
     message("Found user-created libraries")
     file(GLOB USER_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
@@ -14,10 +9,6 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/shared")
         Eigen3::Eigen
         AMPCorePrivate
         AMPCorePublic
-        ompl::ompl
-        # Boost::filesystem
-        # Boost::system
-        # Boost::program_options
     )
     target_include_directories(user_library PUBLIC
         ${AMP_INCLUDE_DIRS}
@@ -35,10 +26,6 @@ foreach(SUBDIR ${HW_SUBDIRECTORIES})
             Eigen3::Eigen
             AMPCorePrivate
             AMPCorePublic
-            ompl::ompl
-            # Boost::filesystem
-            # Boost::system
-            # Boost::program_options
         )
         target_include_directories(${TARGET_NAME} PUBLIC
             ${AMP_INCLUDE_DIRS}

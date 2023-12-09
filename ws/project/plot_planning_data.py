@@ -86,5 +86,6 @@ if __name__ == "__main__":
     f = open("/home/user/repos/AMP-Tools-public/quad_planning_output.txt")
     data = json.load(f)
     traj1 = np.array(data["0"]["trajectory"])
-    anim = animate_traj(traj=traj1)
+    print(traj1)
+    anim = animate_traj(traj=traj1, frame_time=300)
     plt.show()

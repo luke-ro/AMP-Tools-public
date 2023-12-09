@@ -44,6 +44,19 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const QuadAgentsTrajectories& 
 QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
     int n_agents = problem.agents.size();
 
+    //init trees for plotting
+
+    std::vector<std::map<uint32_t,Eigen::Vector2d>> node_maps(n_agents);
+    std::vector<amp::ShortestPathProblem> spprobs(n_agents);
+    for(int k=0; k<n_agents; k++){
+        auto ptr = std::make_shared<amp::Graph<double>>();
+        spprobs[k].graph = ptr;
+        // spprobs[k].init_node = QuadAgentTools::getPos(problem.agents[k].q_init);
+        // spprobs[k].goal_node = QuadAgentTools::getPos(problem.agents[k].q_goal);
+
+        node_maps[k][0] = QuadAgentTools::getPos(problem.agents[k].q_init);
+    }
+
 
     QuadAgentsTrajectories paths(n_agents);
     std::vector<std::vector<QuadState>> node_vecs(n_agents); 
@@ -56,6 +69,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
     //parent node lookup table for each agent
     std::vector<std::unordered_map<uint32_t,uint32_t>> parents(n_agents);
+    
 
 
     // create cspaces for every agent:
@@ -89,9 +103,12 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 
             uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample);
             q_near = node_vecs[k][idx_near];
+            // std::cout<< "idx_near: " << idx_near << "\n";
 
-            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt);
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,5);
             
+            QuadAgentTools::printState(q_candidate);
+
             if(!QuadAgentTools::withinBounds(problem.env, problem.agents[k], q_candidate))
                 continue;
 
@@ -120,10 +137,15 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 node_vecs[k].push_back(q_candidate);
                 parents[k][i]=idx_near;
                 level.push_back(level[parents[k][i]]+1);
+
+                spprobs[k].graph->connect(idx_near,i, QuadAgentTools::distFunc(q_near,q_candidate));
+                node_maps[k][i] = QuadAgentTools::getPos(q_candidate);
+                
                 i++; 
 
                 if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal) < _epsilon){
                     indi_success=true;
+                    std::cout<<"FOUND GOAL\n";
                     if(q_candidate!=problem.agents[k].q_goal){
                         node_vecs[k].push_back(problem.agents[k].q_goal);
                         parents[k][i] = i-1;
@@ -134,6 +156,8 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
         }while(loops++ < _N_MAX);
 
+
+        
         // update variable that tracks how many nodes 
         // _tree_size+=node_vecs[k].size();
 
@@ -155,6 +179,9 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
         }
 
     }
+
+    _node_maps = node_maps;
+    _spprobs = spprobs;
     
     return paths;
 }
