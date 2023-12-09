@@ -56,7 +56,7 @@ def plotInstant(ax,y,particles,surface,xlim,ylim):
     return ax
 
 
-def animate_traj(traj,particles,surface=None,buffer=10,frame_time=30):
+def animate_traj(traj,buffer=10,frame_time=30):
     # https://www.geeksforgeeks.org/using-matplotlib-for-animations/
     fig,ax = plt.subplots()
     x_min = np.min(traj[:,0])-buffer
@@ -66,31 +66,18 @@ def animate_traj(traj,particles,surface=None,buffer=10,frame_time=30):
 
     x_quad,y_quad = plotquad_data(traj[0,:])
     line2 = ax.plot(x_quad,y_quad,label="Quadcopter",color="r")[0]
-    scat = ax.scatter(particles[0,:,0],particles[0,:,1],label="Particles",s=1)
-
-    if surface is not None:
-        x_sur = np.linspace(x_min,x_max,100)
-        y_sur = [surface(val) for val in x_sur]
-        ax.plot(x_sur,y_sur,label="Ground",color="g")
-        if np.max(y_sur)+buffer>z_max:
-            z_max=np.max(y_sur) + buffer
-        ax.fill_between(x_sur,y_sur,np.ones(100)*z_max,color="g",alpha = 0.5)
 
     ax.set(xlim=[x_min,x_max],ylim=[z_min,z_max],xlabel="x [m]",ylabel="y [m]")
     ax.invert_yaxis()
     ax.legend(loc="lower right")
 
     def update(i):
-        par_x = np.squeeze(particles[i,:,0])
-        par_z = np.squeeze(particles[i,:,1])
-        data = np.stack([par_x,par_z]).T
-        scat.set_offsets(data)
 
         x_quad,y_quad = plotquad_data(traj[i,:])
         line2.set_xdata(x_quad)
         line2.set_ydata(y_quad)
 
-        return(scat,line2)
+        return(line2)
     
     ani = FuncAnimation(fig=fig, func=update, frames = len(traj),interval=frame_time)
     return ani
@@ -98,4 +85,6 @@ def animate_traj(traj,particles,surface=None,buffer=10,frame_time=30):
 if __name__ == "__main__":
     f = open("/home/user/repos/AMP-Tools-public/quad_planning_output.txt")
     data = json.load(f)
-    print(np.array(data["1"]["trajectory"]))
+    traj1 = np.array(data["0"]["trajectory"])
+    anim = animate_traj(traj=traj1)
+    plt.show()
