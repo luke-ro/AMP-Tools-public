@@ -14,7 +14,7 @@ namespace QuadAgentTools{
     /**
      * @brief returns a random control input, Z (vert force), M (pitching moment)
     */
-    static Eigen::Vector2d randomControl(const QuadAgentProperties& agent);
+    static Eigen::Vector2d randomControl(const QuadAgentProperties& agent, Eigen::Vector2d& motor_control);
 
     static uint32_t getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state);
 
@@ -22,8 +22,9 @@ namespace QuadAgentTools{
      * @brief samples the space given 
     */
     static QuadState sampleSpace(amp::Environment2D env, QuadAgentProperties agent);
-
+    
     static QuadState steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt, int n);
+    static QuadState steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt, int n, Eigen::Vector2d& motor_control);
 
     static Eigen::Matrix<double,6,1> rk4(const QuadAgentProperties& agent, const QuadState& y0, const Eigen::Vector2d& u, double dt);
 
@@ -55,11 +56,11 @@ static Eigen::Vector2d QuadAgentTools::motorCommandsToControl(const QuadAgentPro
 /**
  * @brief returns a random control input, Z (vert force), M (pitching moment)
 */
-static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& agent){
-    // double thrust = amp::RNG::randd(0,2.0*agent.max_motor_thrust);
-    double thrust = amp::RNG::nrand()*2.0*agent.max_motor_thrust;
-    double diff = amp::RNG::nrand()*0.1;
-    Eigen::Vector2d motor_commands(thrust*0.5-diff, thrust*0.5+diff);
+static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& agent, Eigen::Vector2d& motor_commands){
+    double thrust = amp::RNG::randd(0,2.0*agent.max_motor_thrust);
+    // double thrust = amp::RNG::nrand()*2.0*agent.max_motor_thrust;
+    double diff = amp::RNG::nrand()*0.5;
+    motor_commands = Eigen::Vector2d(thrust*0.5-diff, thrust*0.5+diff);
     // Eigen::Vector2d motor_commands(amp::RNG::randd(0, agent.max_motor_thrust),amp::RNG::randd(0, agent.max_motor_thrust));
     Eigen::Vector2d control = motorCommandsToControl(agent, motor_commands);
     // std::cout << thrust << ", " << diff<<", "<< motor_commands(0) << ", " << motor_commands(1) << "\n";
@@ -109,26 +110,35 @@ static uint32_t QuadAgentTools::getNearestNeighbor(std::vector<QuadState> node_v
     return nearest;
 }
 
+
+static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt, int n){
+    Eigen::Vector2d trash_val;
+    return steer(env, agent, q0, q_steer, Dt, n, trash_val);
+}
+
 /**
  * @brief Samples random control inputs to get trajectory
 */
-static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt, int n){
+static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const QuadAgentProperties& agent, const QuadState& q0, const QuadState& q_steer, double Dt, int n, Eigen::Vector2d& motor_control){
     int n_max=n;
-    Eigen::Vector2d control_rand = randomControl(agent);
+    Eigen::Vector2d motor_control_min, temp_motor_control;
+    Eigen::Vector2d control_rand = randomControl(agent,motor_control_min);
     QuadState q_min =  rk4(agent,q0,control_rand,Dt);
     double min_dist = distFunc(q_min,q_steer);
 
     QuadState q_sample;
     for(int i=0; i<n_max; i++){
-        control_rand = randomControl(agent);
+        control_rand = randomControl(agent,temp_motor_control);
         q_sample = rk4(agent,q0,control_rand,Dt);
         double cur_dist = distFunc(q_sample,q_steer);
         if(cur_dist<min_dist && withinBounds(env,agent,q_sample)){
             min_dist = cur_dist;
             q_min = q_sample;
+            motor_control_min = temp_motor_control;
         }
 
     }
+    motor_control = motor_control_min;
     return q_min;
 }
 

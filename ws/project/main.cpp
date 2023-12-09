@@ -35,13 +35,13 @@ QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents){
     std::vector<QuadState> q_inits(5);
     std::vector<QuadState> q_goals(5);
 
-    q_inits[0] << -2,-2,0,0,0,0;
+    q_inits[0] << -2,2,0,0,0,0;
     q_inits[1] << -2,-1,0,0,0,0;
     q_inits[2] << -2,0,0,0,0,0;
     q_inits[3] << -2,1,0,0,0,0;
     q_inits[4] << -2,2,0,0,0,0;
 
-    q_goals[0] << -1,-2,0,0,0,0;
+    q_goals[0] << -2,-2,0,0,0,0;
     q_goals[1] << 2,1,0,0,0,0;
     q_goals[2] << 2,0,0,0,0,0;
     q_goals[3] << 2,-1,0,0,0,0;
@@ -95,7 +95,7 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 
 int main(int argc, char ** argv){
     QuadAgentProblem prob = setupSimpleMultiAgentProblem(1);
-    QuadMultiRRT kdrrt(10,.1);
+    QuadMultiRRT kdrrt(300,.1);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
 
     std::cout<<"Num trajectories: "<< quad_trajectories.size() << "\n";
@@ -117,7 +117,8 @@ int main(int argc, char ** argv){
     prob2d.x_max = 5;
     prob2d.y_min = -5;
     prob2d.y_max = 5;
-    amp::Visualizer::makeFigure(prob2d, *spps[0].graph, node_map[0]);
-
+    amp::Graph test = *(spps[0].graph);
+    amp::Visualizer::makeFigure(prob2d, test, node_map[0]);
+    amp::Visualizer::showFigures();
     // amp::Visualizer::makeFigure(amp_prob,amp_paths);
 }

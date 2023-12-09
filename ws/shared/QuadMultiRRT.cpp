@@ -105,7 +105,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             q_near = node_vecs[k][idx_near];
             // std::cout<< "idx_near: " << idx_near << "\n";
 
-            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,5);
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,1);
             
             QuadAgentTools::printState(q_candidate);
 
