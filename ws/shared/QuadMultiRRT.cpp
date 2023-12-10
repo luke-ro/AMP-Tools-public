@@ -59,12 +59,15 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
 
     QuadAgentsTrajectories paths(n_agents);
+    std::vector<std::vector<QuadControl>> controls(n_agents);
     std::vector<std::vector<QuadState>> node_vecs(n_agents); 
+    std::vector<std::vector<Eigen::Vector2d>> control_vecs(n_agents); 
     std::vector<std::vector<double>> timing_vecs(n_agents); 
 
     // initialize with agent's q_init
     for(int k=0; k<n_agents; k++){
         node_vecs[k].push_back(problem.agents[k].q_init);
+        control_vecs[k].push_back(Eigen::Vector2d());
     }
 
     //parent node lookup table for each agent
@@ -105,7 +108,8 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             q_near = node_vecs[k][idx_near];
             // std::cout<< "idx_near: " << idx_near << "\n";
 
-            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,1);
+            Eigen::Vector2d control;
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,1,control);
             
             QuadAgentTools::printState(q_candidate);
 
@@ -135,6 +139,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             if(edge_clear){
                 // std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
                 node_vecs[k].push_back(q_candidate);
+                control_vecs[k].push_back(control);
                 parents[k][i]=idx_near;
                 level.push_back(level[parents[k][i]]+1);
 
@@ -163,14 +168,17 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
         // need to create the path for current robot
         QuadAgentTrajectory path;
+        std::vector<QuadControl> control;
         uint32_t curr = node_vecs[k].size()-1;
         while(parents[k].find(curr) != parents[k].end()){
             path.push_back(node_vecs[k][curr]);
+            control.push_back(control_vecs[k][curr]);
             curr = parents[k][curr];
         }
         path.push_back(node_vecs[k][curr]);
         std::reverse(path.begin(),path.end());
         paths[k] = path;
+        controls[k] = control;
 
         if(!indi_success){
             std::cout<<"RRT did not find the goal\n";
@@ -182,6 +190,8 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
     _node_maps = node_maps;
     _spprobs = spprobs;
+
+    _controls = controls;
     
     return paths;
 }

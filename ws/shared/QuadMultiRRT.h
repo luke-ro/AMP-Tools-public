@@ -25,6 +25,7 @@ class QuadMultiRRT{
 
     std::vector<amp::ShortestPathProblem> getSPPS(){return _spprobs;}
     std::vector<std::map<uint32_t,Eigen::Vector2d>> getNodeMaps(){return _node_maps;}
+    std::vector<std::vector<Eigen::Vector2d>> getControlInputs(){return _controls;}
 
     private:
 
@@ -35,5 +36,6 @@ class QuadMultiRRT{
 
     std::vector<amp::ShortestPathProblem> _spprobs;
     std::vector<std::map<uint32_t,Eigen::Vector2d>> _node_maps;
+    std::vector<std::vector<Eigen::Vector2d>> _controls;
     
 };

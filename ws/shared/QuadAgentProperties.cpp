@@ -19,10 +19,10 @@ Eigen::Matrix<double,6,1> QuadAgentProperties::dynamics(Eigen::Matrix<double,6,1
 
     Eigen::Matrix<double,6,1> dx;
     dx[0] = (cos(th)*u) + (sin(th)*w);
-    dx[1] = -sin(th)*u + cos(th)*w;
+    dx[1] = (-sin(th)*u) + (cos(th)*w);
     dx[2] = q;
-    dx[3] = -q*w + Fx/m_tot  - g*sin(th);
-    dx[4] = q*u + Fz/m_tot + g*cos(th);
+    dx[3] = (-q*w) + (Fx/m_tot)  - (g*sin(th));
+    dx[4] = (q*u) + (Fz/m_tot) + (g*cos(th));
     dx[5] = pitch_moment/Iy;
 
     return dx;

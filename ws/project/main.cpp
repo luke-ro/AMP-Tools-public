@@ -95,7 +95,7 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 
 int main(int argc, char ** argv){
     QuadAgentProblem prob = setupSimpleMultiAgentProblem(1);
-    QuadMultiRRT kdrrt(300,.1);
+    QuadMultiRRT kdrrt(3000,.1);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
 
     std::cout<<"Num trajectories: "<< quad_trajectories.size() << "\n";
@@ -106,7 +106,8 @@ int main(int argc, char ** argv){
     std::cout<<"Num amp paths: "<< amp_paths.agent_paths.size() << "\n";
     std::cout<<"Num amp agents: " << amp_prob.agent_properties.size() << "\n";
 
-    QuadOutput::writeToFile(quad_trajectories);
+    auto quad_controls = kdrrt.getControlInputs();
+    QuadOutput::writeToFile(quad_trajectories, quad_controls);
 
     auto spps = kdrrt.getSPPS();
     auto node_map = kdrrt.getNodeMaps();

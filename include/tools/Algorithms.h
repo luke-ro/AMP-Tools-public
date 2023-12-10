@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include "tools/Environment.h" 
 #include "tools/Path.h" 
