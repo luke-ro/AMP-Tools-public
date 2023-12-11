@@ -55,6 +55,63 @@ def plotInstant(ax,y,particles,surface,xlim,ylim):
     ax.set(xlim=xlim,ylim=ylim,xlabel="x [m]",ylabel="y [m]")
     return ax
 
+def animateMultiAgentTraj(trajs, frame_time, buffer):
+    # https://www.geeksforgeeks.org/using-matplotlib-for-animations/
+    fig,ax = plt.subplots()
+
+    x_min = 1e9
+    x_max = -1e9
+    y_min = 1e9
+    y_max = -1e9
+    n_frames = 0
+
+    for key in trajs:
+        x_min_temp = np.min(trajs[key]["trajectory"][:,0])-buffer
+        x_max_temp = np.max(trajs[key]["trajectory"][:,0])+buffer
+        y_min_temp = np.min(trajs[key]["trajectory"][:,1])-buffer
+        y_max_temp = np.max(trajs[key]["trajectory"][:,1])+buffer
+
+        if(x_min_temp < x_min):
+            x_min = x_min_temp
+        if(x_max_temp > x_max):
+            x_max = x_max_temp
+        if(y_min_temp < y_min):
+            y_min = y_min_temp
+        if(y_max_temp > y_max):
+            y_max = y_max_temp
+
+        if len(trajs[key]["trajectory"])>n_frames:
+            n_frames = len(trajs[key]["trajectory"])
+
+    quad_lines=[]
+    for key in trajs:
+        x_quad,y_quad = plotquad_data(trajs[key]["trajectory"][0,:])
+        line2 = ax.plot(x_quad,y_quad,label="Quadcopter",color="r")[0]
+        quad_lines.append(line2)
+
+    ax.set(xlim=[x_min,x_max],ylim=[y_min,y_max],xlabel="x [m]",ylabel="y [m]")
+    ax.invert_yaxis()
+    ax.legend(loc="lower right")
+
+    def update(i):
+        for key in trajs:
+            try:
+                x_quad,y_quad = plotquad_data(trajs[key]["trajectory"][i,:])
+                quad_lines[key].set_xdata(x_quad)
+                quad_lines[key].set_ydata(y_quad)
+            except:
+                x_quad,y_quad = plotquad_data(trajs[key]["trajectory"][-1,:])
+                quad_lines[key].set_xdata(x_quad)
+                quad_lines[key].set_ydata(y_quad)
+
+        # x_quad,y_quad = plotquad_data(trajs[i,:])
+        # line2.set_xdata(x_quad)
+        # line2.set_ydata(y_quad)
+
+        return(quad_lines)
+    
+    ani = FuncAnimation(fig=fig, func=update, frames = n_frames,interval=frame_time)
+    return ani
 
 def animate_traj(traj,buffer=10,frame_time=30):
     # https://www.geeksforgeeks.org/using-matplotlib-for-animations/
@@ -85,7 +142,25 @@ def animate_traj(traj,buffer=10,frame_time=30):
 if __name__ == "__main__":
     f = open("/home/user/repos/AMP-Tools-public/quad_planning_output.txt")
     data = json.load(f)
-    traj1 = np.array(data["0"]["trajectory"])
-    print(traj1)
-    anim = animate_traj(traj=traj1, frame_time=300)
+
+    agent_data = data["agents"]
+
+    # change keys from strings to ints
+    for i in range(len(agent_data)):
+        agent_data[i] = agent_data[str(i)]
+        agent_data.pop(str(i))
+
+        agent_data[i]["trajectory"] = np.array(agent_data[i]["trajectory"])
+
+    anims = []
+    # for key in data:
+    #     traj1 = np.array(data[key]["trajectory"])
+    #     print(traj1)
+    #     anims.append(animate_traj(traj=traj1, frame_time=100))
+
+    multi_anim = animateMultiAgentTraj(agent_data, 100, 2)
+
+    multi_anim.save('multi_agent_animation.gif',  
+          writer = 'ffmpeg', fps = 4) 
+    
     plt.show()
