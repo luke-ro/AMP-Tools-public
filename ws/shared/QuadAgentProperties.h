@@ -41,7 +41,7 @@ class QuadAgentProperties{
     const double max_vel = 20; // [m/s]
     const double max_pitch_rate = 2.0*(2.0*3.1415); // [1/s]
     const double g = 9.81; // [m/s]
-    const double kd = 0.5;
+    const double kd = 0.1;
 };
 
 struct QuadAgentProblem{

@@ -98,6 +98,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
         int i=1;
         std::cout<<"Running kinodynamic RRT. k="<< k <<"\n";
         do{
+            std::cout<<"top of loop"<<"\n";
             
             if(amp::RNG::randf()<_p_goal)
                 q_sample = problem.agents[k].q_goal;
@@ -110,7 +111,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             // std::cout<< "idx_near: " << idx_near << "\n";
             
             if(QuadAgentTools::distFunc(q_near,q_sample)>_radius){
-                Eigen::Vector2d temp = QuadAgentTools::getPos(q_near-q_sample);
+                Eigen::Vector2d temp = QuadAgentTools::getPos(q_sample-q_near);
                 temp = temp*_radius/temp.norm();
                 q_sample[0] = q_near[0]+temp[0];
                 q_sample[1] = q_near[1]+temp[1];
@@ -148,7 +149,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
 
             if(edge_clear){
-                // std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
+                std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
                 node_vecs[k].push_back(q_candidate);
                 control_vecs[k].push_back(control);
                 parents[k][i]=idx_near;

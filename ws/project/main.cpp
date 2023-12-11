@@ -104,7 +104,7 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 int main(int argc, char ** argv){
     int num_agents = 1;
     QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents);
-    QuadMultiRRT kdrrt(100, .1, 1.0, 1);
+    QuadMultiRRT kdrrt(1000, .1, 1.0, 1);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
 
     std::cout<<"Num trajectories: "<< quad_trajectories.size() << "\n";

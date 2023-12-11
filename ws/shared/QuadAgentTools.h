@@ -15,7 +15,7 @@ namespace QuadAgentTools{
     /**
      * @brief returns a random control input, Z (vert force), M (pitching moment)
     */
-    static Eigen::Vector2d randomControl(const QuadAgentProperties& agent, const QuadState& x0, bool limit=1);
+    static Eigen::Vector2d randomControl(const QuadAgentProperties& agent, const QuadState& x0, bool limit=0);
 
     static uint32_t getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state);
 
