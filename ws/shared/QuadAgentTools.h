@@ -72,13 +72,12 @@ static Eigen::Vector2d QuadAgentTools::motorCommandsToControl(const QuadAgentPro
 static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& agent, const QuadState& x0, bool limit){
     double thrust = amp::RNG::randd(0,2.0*agent.max_motor_thrust);
     // double thrust = amp::RNG::nrand()*2.0*agent.max_motor_thrust;
-    double diff = amp::RNG::nrand()*0.5;
+    double diff = amp::RNG::nrand()*0.3;
     Eigen::Vector2d motor_commands(thrust*0.5-diff, thrust*0.5+diff);
-    // std::cout << thrust << ", " << diff<<", "<< motor_commands(0) << ", " << motor_commands(1) << "\n";
 
     // use derivitive controller to dampen the rotational velocity
-    if(limit and x0[5]>1.0){
-        double moment_des = -agent.kd*x0[2];
+    if(limit && abs(x0[5])>2.0){
+        double moment_des = -agent.kd*x0[5];
 
         Eigen::Matrix2d A;
         A<<-1.0,-1.0, -agent.l_arm, agent.l_arm;
@@ -95,6 +94,7 @@ static Eigen::Vector2d QuadAgentTools::randomControl(const QuadAgentProperties& 
     motor_commands[1] = clip(motor_commands[1], 0, agent.max_motor_thrust);
     // Eigen::Vector2d motor_commands(amp::RNG::randd(0, agent.max_motor_thrust),amp::RNG::randd(0, agent.max_motor_thrust));
     Eigen::Vector2d control = motorCommandsToControl(agent, motor_commands);
+    // std::cout << control[0] << ", " << control[1] <<", "<< motor_commands(0) << ", " << motor_commands(1) << "\n";
 
     return control;
 }
@@ -159,6 +159,14 @@ static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const Quad
     Eigen::Vector2d control_min = control_rand;
     QuadState q_min = rk4(agent, q0, control_rand, Dt);
     double min_dist = distFunc(q_min,q_steer);
+    
+    // std::cout<<"---------------------------\n";
+    // std::cout<<"q0: ";
+    // printState(q0);
+    // std::cout<<"q_steer: ";
+    // printState(q_steer);
+    // std::cout<<"samples:\n ";
+    // printState(q_min);
 
     QuadState q_sample;
     for(int i=0; i<n_max; i++){
@@ -168,6 +176,8 @@ static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const Quad
         q_sample = rk4(agent,q0,control_rand,Dt);
         double cur_dist = distFunc(q_sample,q_steer);
 
+        // printState(q_sample);
+
         // check for new min
         if(cur_dist<min_dist && withinBounds(env,agent,q_sample)){
             min_dist = cur_dist;
@@ -176,6 +186,10 @@ static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const Quad
         }
 
     }
+
+    // std::cout<<"returned: ";
+    // printState(q_min);
+
     control_used = control_min;
     return q_min;
 }

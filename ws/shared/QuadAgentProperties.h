@@ -12,14 +12,14 @@ typedef std::vector<QuadAgentTrajectory> QuadAgentsTrajectories;
 
 class QuadAgentProperties{
     public:
-    QuadAgentProperties(QuadState q_init_=QuadState(), QuadState q_goal_=QuadState(), double l_arm_=.15, double m_arm_=.05, double m_motor_=05):
+    QuadAgentProperties(QuadState q_init_=QuadState(), QuadState q_goal_=QuadState(), double l_arm_=.15, double m_arm_=.05, double m_motor_=.05):
     q_init (q_init_),
     q_goal (q_goal_),
     l_arm(l_arm_),
     m_arm(m_arm_),
     m_motor(m_motor_),
     m_tot(m_arm_+m_motor_),
-    Iy(2.0*m_arm_*pow(l_arm_,2) + (m_arm_*pow(2*l_arm_,2))/12),
+    Iy(2.0*m_motor*pow(l_arm_,2) + (m_arm_*pow(2*l_arm_,2))/12),
     radius(2*l_arm_),
     max_motor_thrust(3)
     {}

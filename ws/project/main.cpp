@@ -12,6 +12,10 @@ QuadAgentProblem setupSimpleSingleAgentProblem(){
     QuadAgentProblem prob;
 
     prob.env = amp::HW4::getEx3Workspace1();
+    prob.env.x_min = -10;
+    prob.env.x_max = 10;
+    prob.env.y_min = -10;
+    prob.env.y_max = 10;
 
     // setup agent
     QuadState q_init;
@@ -31,6 +35,10 @@ QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents){
     prob.num_agents = num_agents;
 
     prob.env = amp::HW4::getEx3Workspace1();
+    prob.env.x_min = -10;
+    prob.env.x_max = 10;
+    prob.env.y_min = -10;
+    prob.env.y_max = 10;
 
     std::vector<QuadState> q_inits(5);
     std::vector<QuadState> q_goals(5);
@@ -41,7 +49,7 @@ QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents){
     q_inits[3] << -2,1,0,0,0,0;
     q_inits[4] << -2,2,0,0,0,0;
 
-    q_goals[0] << -2,-2,0,0,0,0;
+    q_goals[0] << 0,-4,0,0,0,0;
     q_goals[1] << 2,1,0,0,0,0;
     q_goals[2] << 2,0,0,0,0,0;
     q_goals[3] << 2,-1,0,0,0,0;
@@ -94,8 +102,9 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 
 
 int main(int argc, char ** argv){
-    QuadAgentProblem prob = setupSimpleMultiAgentProblem(1);
-    QuadMultiRRT kdrrt(3000,.1);
+    int num_agents = 1;
+    QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents);
+    QuadMultiRRT kdrrt(100, .1, 1.0, 1);
     QuadAgentsTrajectories quad_trajectories = kdrrt.plan(prob);
 
     std::cout<<"Num trajectories: "<< quad_trajectories.size() << "\n";
@@ -114,12 +123,18 @@ int main(int argc, char ** argv){
     std::cout<< "graph size" << spps[0].graph->nodes().size()<<"\n";
     amp::Problem2D prob2d;
     prob2d.obstacles = prob.env.obstacles;
-    prob2d.x_min = -5;
-    prob2d.x_max = 5;
-    prob2d.y_min = -5;
-    prob2d.y_max = 5;
+    prob2d.x_min = -10;
+    prob2d.x_max = 10;
+    prob2d.y_min = -10;
+    prob2d.y_max = 10;
     amp::Graph test = *(spps[0].graph);
-    amp::Visualizer::makeFigure(prob2d, test, node_map[0]);
+
+    for(int i=0; i<1; i++){
+        prob2d.q_init = QuadAgentTools::getPos(prob.agents[i].q_init);
+        prob2d.q_goal = QuadAgentTools::getPos(prob.agents[i].q_goal);
+        amp::Visualizer::makeFigure(prob2d, *(spps[i].graph), node_map[i]);
+    }
+
     amp::Visualizer::showFigures();
     // amp::Visualizer::makeFigure(amp_prob,amp_paths);
 }

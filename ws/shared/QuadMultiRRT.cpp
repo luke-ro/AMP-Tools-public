@@ -103,15 +103,26 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 q_sample = problem.agents[k].q_goal;
             else 
                 q_sample = QuadAgentTools::sampleSpace(problem.env,problem.agents[k]);
+
                 
             uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample);
             q_near = node_vecs[k][idx_near];
             // std::cout<< "idx_near: " << idx_near << "\n";
+            
+            if(QuadAgentTools::distFunc(q_near,q_sample)>_radius){
+                Eigen::Vector2d temp = QuadAgentTools::getPos(q_near-q_sample);
+                temp = temp*_radius/temp.norm();
+                q_sample[0] = q_near[0]+temp[0];
+                q_sample[1] = q_near[1]+temp[1];
+            }
 
             Eigen::Vector2d control;
-            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,1,control);
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,50,control);
             
-            QuadAgentTools::printState(q_candidate);
+            // std::cout<<control[0]<<", "<<control[1]<<", ";
+            std::cout<<"q_near: "; QuadAgentTools::printState(q_near);
+            std::cout<<"q_samp: "; QuadAgentTools::printState(q_sample);
+            std::cout<<"q_cand: "; QuadAgentTools::printState(q_candidate);
 
             if(!QuadAgentTools::withinBounds(problem.env, problem.agents[k], q_candidate))
                 continue;
@@ -151,10 +162,10 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal) < _epsilon){
                     indi_success=true;
                     std::cout<<"FOUND GOAL\n";
-                    if(q_candidate!=problem.agents[k].q_goal){
-                        node_vecs[k].push_back(problem.agents[k].q_goal);
-                        parents[k][i] = i-1;
-                    }
+                    // if(q_candidate!=problem.agents[k].q_goal){
+                    //     node_vecs[k].push_back(problem.agents[k].q_goal);
+                    //     parents[k][i] = i-1;
+                    // }
                     break;
                 }
             }
