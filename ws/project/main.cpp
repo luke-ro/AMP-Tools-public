@@ -211,77 +211,96 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 }
 
 
+const bool RUN_TESTS = false;
+const bool RUN_MISC = true;
+
 
 int main(int argc, char ** argv){
-    int num_agents = 1;
-    int ws = 2;
-    QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
-    int n_rtt = 10;
-    double Dt=0.1;
-    double p_goal = 0.05;
-    double epsilon = 0.5;
-    int n_runs=10;
+    if(RUN_TESTS){
+        int num_agents = 1;
+        int ws = 2;
+        QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
-    std::vector<double> times(n_runs);
-    int num_success=0;
-    for(int i=0; i<n_runs; i++){
-        QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);
+        int n_rtt = 10;
+        double Dt=0.1;
+        double p_goal = 0.05;
+        double epsilon = 0.5;
+        int n_runs=10;
 
-        auto start = std::chrono::high_resolution_clock::now();
-    
+        std::vector<double> times(n_runs);
+        int num_success=0;
+        for(int i=0; i<n_runs; i++){
+            QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);
+
+            auto start = std::chrono::high_resolution_clock::now();
+        
+            QuadProblemResult plan_result = kdrrt.plan(prob);
+
+            auto end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> duration = end-start;
+
+            times[i] = double(duration.count());
+            num_success += plan_result.success;
+        }
+
+        std::cout<<"Time quantiles:\n";
+        printQuantiles(times);
+
+        std::cout<<"number of successes: "<<num_success<<" out of "<< n_rtt<<" runs \n";
+
+        std::list<std::vector<double>> data_sets = {times};
+        std::vector<std::string> labels = {"one agent ws2 n_rrt = 10000"};
+        std::string title = "";
+        std::string xlabel = "";
+        std::string ylabel = "";
+        amp::Visualizer::makeBoxPlot(data_sets,labels,title,xlabel,ylabel);
+
+        amp::Visualizer::showFigures();
+    } else if(RUN_MISC){
+        int num_agents = 1;
+        int ws = 2;
+        QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
+
+        int n_rtt = 10000;
+        double Dt=0.1;
+        double p_goal = 0.05;
+        double epsilon = 0.5;
+        int n_runs=10;
+
+        QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);    
         QuadProblemResult plan_result = kdrrt.plan(prob);
 
-        auto end = std::chrono::high_resolution_clock::now();
+        std::cout<<"Num trajectories: "<< plan_result.paths.size() << "\n";
 
-        std::chrono::duration<double> duration = end-start;
+        amp::MultiAgentPath2D amp_paths = trajectoriesToAmpMultiAgent(plan_result.paths);
+        amp::MultiAgentProblem2D amp_prob = quadToAmpMultiProblem(prob);
 
-        times[i] = double(duration.count());
-        num_success += plan_result.success;
+        std::cout<<"Num amp paths: "<< amp_paths.agent_paths.size() << "\n";
+        std::cout<<"Num amp agents: " << amp_prob.agent_properties.size() << "\n";
+
+        auto quad_controls = kdrrt.getControlInputs();
+        QuadOutput::writeToFile(prob, prob.agents, plan_result.paths, quad_controls);
+
+        auto spps = kdrrt.getSPPS();
+        auto node_map = kdrrt.getNodeMaps();
+        std::cout<< "graph size" << spps[0].graph->nodes().size()<<"\n";
+        amp::Problem2D prob2d;
+        prob2d.obstacles = prob.env.obstacles;
+        prob2d.x_min = -10;
+        prob2d.x_max = 10;
+        prob2d.y_min = -10;
+        prob2d.y_max = 10;
+        amp::Graph test = *(spps[0].graph);
+
+        for(int i=0; i<num_agents; i++){
+            prob2d.q_init = QuadAgentTools::getPos(prob.agents[i].q_init);
+            prob2d.q_goal = QuadAgentTools::getPos(prob.agents[i].q_goal);
+            amp::Visualizer::makeFigure(prob2d, *(spps[i].graph), node_map[i]);
+        }
+
+        amp::Visualizer::makeFigure(amp_prob,amp_paths);
+        amp::Visualizer::showFigures();
     }
-
-    std::cout<<"Time quantiles:\n";
-    printQuantiles(times);
-
-    std::cout<<"number of successes: "<<num_success<<" out of "<< n_rtt<<" runs \n";
-
-    std::list<std::vector<double>> data_sets = {times};
-    std::vector<std::string> labels = {"one agent ws2 n_rrt = 10000"};
-    std::string title = "";
-    std::string xlabel = "";
-    std::string ylabel = "";
-    amp::Visualizer::makeBoxPlot(data_sets,labels,title,xlabel,ylabel);
-
-    amp::Visualizer::showFigures();
-
-    // std::cout<<"Num trajectories: "<< plan_result.paths.size() << "\n";
-
-    // amp::MultiAgentPath2D amp_paths = trajectoriesToAmpMultiAgent(plan_result.paths);
-    // amp::MultiAgentProblem2D amp_prob = quadToAmpMultiProblem(prob);
-
-    // std::cout<<"Num amp paths: "<< amp_paths.agent_paths.size() << "\n";
-    // std::cout<<"Num amp agents: " << amp_prob.agent_properties.size() << "\n";
-
-    // auto quad_controls = kdrrt.getControlInputs();
-    // QuadOutput::writeToFile(prob, prob.agents, plan_result.paths, quad_controls);
-
-    // auto spps = kdrrt.getSPPS();
-    // auto node_map = kdrrt.getNodeMaps();
-    // std::cout<< "graph size" << spps[0].graph->nodes().size()<<"\n";
-    // amp::Problem2D prob2d;
-    // prob2d.obstacles = prob.env.obstacles;
-    // prob2d.x_min = -10;
-    // prob2d.x_max = 10;
-    // prob2d.y_min = -10;
-    // prob2d.y_max = 10;
-    // amp::Graph test = *(spps[0].graph);
-
-    // for(int i=0; i<num_agents; i++){
-    //     prob2d.q_init = QuadAgentTools::getPos(prob.agents[i].q_init);
-    //     prob2d.q_goal = QuadAgentTools::getPos(prob.agents[i].q_goal);
-    //     amp::Visualizer::makeFigure(prob2d, *(spps[i].graph), node_map[i]);
-    // }
-
-    // amp::Visualizer::showFigures();
-    // amp::Visualizer::makeFigure(amp_prob,amp_paths);
 }

@@ -106,7 +106,7 @@ QuadProblemResult QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 q_sample = QuadAgentTools::sampleSpace(problem.env,problem.agents[k]);
 
                 
-            uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample);
+            uint32_t idx_near= QuadAgentTools::getNearestNeighbor(node_vecs[k],q_sample,1);
             q_near = node_vecs[k][idx_near];
             // std::cout<< "idx_near: " << idx_near << "\n";
             
@@ -160,7 +160,8 @@ QuadProblemResult QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 
                 i++; 
 
-                if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal) < _epsilon){
+                if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal,0) < _epsilon){
+                // if(atGoal(q_candidate,problem.agents[k].q_goal,_epsilon_vec)){
                     indi_success=true;
                     std::cout<<"FOUND GOAL\n";
                     // if(q_candidate!=problem.agents[k].q_goal){

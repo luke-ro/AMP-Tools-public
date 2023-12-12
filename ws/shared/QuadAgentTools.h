@@ -17,7 +17,7 @@ namespace QuadAgentTools{
     */
     static Eigen::Vector2d randomControl(const QuadAgentProperties& agent, const QuadState& x0, bool limit=1);
 
-    static uint32_t getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state);
+    static uint32_t getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state, int nearest_neigh_mode);
 
     /**
      * @brief samples the space given 
@@ -29,7 +29,7 @@ namespace QuadAgentTools{
 
     static Eigen::Matrix<double,6,1> rk4(const QuadAgentProperties& agent, const QuadState& y0, const Eigen::Vector2d& u, double dt);
 
-    static double distFunc(QuadState q0, QuadState q1);
+    static double distFunc(QuadState q0, QuadState q1, int mode=0);
 
     static Eigen::Vector2d getPos(const QuadState& state);
 
@@ -128,12 +128,12 @@ static QuadState QuadAgentTools::sampleSpace(amp::Environment2D env, QuadAgentPr
 /**
  * @brief gets nearest nerighbor according to L2 norm of position
 */
-static uint32_t QuadAgentTools::getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state){
+static uint32_t QuadAgentTools::getNearestNeighbor(std::vector<QuadState> node_vec, const QuadState& state, int nearest_neigh_mode){
     uint32_t nearest = 0;
     double min_dist = std::numeric_limits<double>::max();
     for(int i=0; i<node_vec.size(); i++){
         // double dist = (p2-p_query).norm();
-        double dist = distFunc(state,node_vec[i]);
+        double dist = distFunc(state,node_vec[i],nearest_neigh_mode);
         if(dist<min_dist && dist>0){ //check for >0 to not return same point
             nearest = i;
             min_dist = dist;
@@ -158,7 +158,7 @@ static QuadState QuadAgentTools::steer(const amp::Environment2D& env, const Quad
     Eigen::Vector2d control_rand = randomControl(agent, q0);
     Eigen::Vector2d control_min = control_rand;
     QuadState q_min = rk4(agent, q0, control_rand, Dt);
-    double min_dist = distFunc(q_min,q_steer);
+    double min_dist = distFunc(q_min,q_steer,1);
     
     // std::cout<<"---------------------------\n";
     // std::cout<<"q0: ";
@@ -205,11 +205,52 @@ static Eigen::Matrix<double,6,1> QuadAgentTools::rk4(const QuadAgentProperties& 
 }
 
 
-static double QuadAgentTools::distFunc(QuadState q0, QuadState q1){
-    Eigen::Vector2d p0,p1;
-    p0<<q0(0),q0(1);
-    p1<<q1(0),q1(1);
-    return (p1-p0).norm();
+static double QuadAgentTools::distFunc(QuadState q0, QuadState q1, int mode){
+    switch (mode){
+        case 0:
+        {
+            Eigen::Vector2d p0,p1;
+            p0<<q0(0),q0(1);
+            p1<<q1(0),q1(1);
+            return (p1-p0).norm();
+            break;
+        }
+        case 1: //Takes into account theta and rates (vel, and ang vel)
+        {
+            // get difference betweem positions
+            double translational = distFunc(q0,q1,0);
+
+            //get difference between thetas
+            double rotational = fmod(abs(q0[2]-q1[2]),2.0*3.1415);
+            if(rotational > 3.1415)
+                rotational = (2.0*3.1415)-rotational;
+            
+            //difference between vels
+            Eigen::Vector2d v0,v1;
+            v0<<q0(3),q0(4);
+            v1<<q1(3),q1(4);
+            double vel_dif =  (v1-v0).norm();
+
+            //difference between ang vels
+            double ang_vel_dif = abs(q1[5] - q0[5]); 
+
+            // gains
+            double k_trans = 1.0;
+            double k_rot = 1.0;
+            double k_vel = 1.0;
+            double k_ang_vel = 1.0;
+
+            double cost = k_trans*translational + k_rot*rotational + k_vel*vel_dif + k_ang_vel*ang_vel_dif;
+            return cost;
+
+            break;
+        }
+        default:
+        {
+            return -1;
+            break;
+        }
+    }
 }
 
 /**
