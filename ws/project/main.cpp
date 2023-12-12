@@ -218,49 +218,49 @@ const bool RUN_MISC = true;
 int main(int argc, char ** argv){
 
     if(RUN_TESTS){
-        int num_agents = 1;
-        int ws = 2;
-        QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
+        // int num_agents = 1;
+        // int ws = 2;
+        // QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
-        int n_rtt = 10;
-        double Dt=0.1;
-        double p_goal = 0.05;
-        double epsilon = 0.5;
-        int n_runs=10;
+        // int n_rtt = 10;
+        // double Dt=0.1;
+        // double p_goal = 0.05;
+        // double epsilon = 0.5;
+        // int n_runs=10;
 
-        std::vector<double> times(n_runs);
-        int num_success=0;
-        for(int i=0; i<n_runs; i++){
-            QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);
+        // std::vector<double> times(n_runs);
+        // int num_success=0;
+        // for(int i=0; i<n_runs; i++){
+        //     QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);
 
-            auto start = std::chrono::high_resolution_clock::now();
+        //     auto start = std::chrono::high_resolution_clock::now();
         
-            QuadProblemResult plan_result = kdrrt.plan(prob);
+        //     QuadProblemResult plan_result = kdrrt.plan(prob);
 
-            auto end = std::chrono::high_resolution_clock::now();
+        //     auto end = std::chrono::high_resolution_clock::now();
 
-            std::chrono::duration<double> duration = end-start;
+        //     std::chrono::duration<double> duration = end-start;
 
-            times[i] = double(duration.count());
-            num_success += plan_result.success;
-        }
+        //     times[i] = double(duration.count());
+        //     num_success += plan_result.success;
+        // }
 
-        std::cout<<"Time quantiles:\n";
-        printQuantiles(times);
+        // std::cout<<"Time quantiles:\n";
+        // printQuantiles(times);
 
-        std::cout<<"number of successes: "<<num_success<<" out of "<< n_rtt<<" runs \n";
+        // std::cout<<"number of successes: "<<num_success<<" out of "<< n_rtt<<" runs \n";
 
-        std::list<std::vector<double>> data_sets = {times};
-        std::vector<std::string> labels = {"one agent ws2 n_rrt = 10000"};
-        std::string title = "";
-        std::string xlabel = "";
-        std::string ylabel = "";
-        amp::Visualizer::makeBoxPlot(data_sets,labels,title,xlabel,ylabel);
+        // std::list<std::vector<double>> data_sets = {times};
+        // std::vector<std::string> labels = {"one agent ws2 n_rrt = 10000"};
+        // std::string title = "";
+        // std::string xlabel = "";
+        // std::string ylabel = "";
+        // amp::Visualizer::makeBoxPlot(data_sets,labels,title,xlabel,ylabel);
 
-        amp::Visualizer::showFigures();
+        // amp::Visualizer::showFigures();
     } else if(RUN_MISC){
         int num_agents = 1;
-        int ws = 2;
+        int ws = 1;
         QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
         int n_rtt = 10000;
@@ -269,7 +269,10 @@ int main(int argc, char ** argv){
         double epsilon = 0.5;
         int n_runs=10;
 
-        QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);    
+        Eigen::Matrix<double,4,1> epsilon_vec;
+        epsilon_vec << .5, 3.0, 2.0, 1;
+
+        QuadMultiRRT kdrrt(epsilon_vec,n_rtt, Dt, p_goal, epsilon);    
         QuadProblemResult plan_result = kdrrt.plan(prob);
 
         std::cout<<"Num trajectories: "<< plan_result.paths.size() << "\n";

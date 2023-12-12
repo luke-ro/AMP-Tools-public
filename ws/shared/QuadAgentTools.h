@@ -8,6 +8,24 @@
 #include "Rotate.h"
 #include "QuadAgentProperties.h"
 
+inline double rotationalDist(QuadState q0, QuadState q1){
+    double rotational = fmod(abs(q0[2]-q1[2]),2.0*3.1415);
+    if(rotational > 3.1415)
+        rotational = (2.0*3.1415)-rotational;
+    return rotational;
+}
+
+inline double velDifference(QuadState q0, QuadState q1){
+    Eigen::Vector2d v0,v1;
+    v0<<q0(3),q0(4);
+    v1<<q1(3),q1(4);
+    double vel_dif =  (v1-v0).norm();
+    return vel_dif;
+}
+
+inline double angVelDifference(QuadState q0, QuadState q1){
+    return abs(q1[5] - q0[5]); 
+}
 
 namespace QuadAgentTools{
     static Eigen::Vector2d motorCommandsToControl(const QuadAgentProperties& agent, Eigen::Vector2d motor_commands);
@@ -40,7 +58,25 @@ namespace QuadAgentTools{
         std::cout<<x[0]<<", "<<x[1]<<", "<<x[2]<<", "<<x[3]<<", "<<x[4]<<", "<<x[5]<<"\n";
     }
 
-    static double clip(double q, double low, double high);    
+    static double clip(double q, double low, double high);  
+
+    static bool atGoal(QuadState q, QuadState q_goal, Eigen::Matrix<double,4,1> epsilon);
+}
+
+static bool QuadAgentTools::atGoal(QuadState q, QuadState q_goal, Eigen::Matrix<double,4,1> epsilon){
+    if(!(distFunc(q,q_goal) < epsilon[0]))
+        return false;
+
+    if(!(rotationalDist(q,q_goal) < epsilon[1]))
+        return false;
+
+    if(!(velDifference(q,q_goal) < epsilon[2]))
+        return false;
+
+    if(!(angVelDifference(q,q_goal) < epsilon[3]))
+        return false;
+
+    return true;
 }
 
 static double QuadAgentTools::clip(double q, double low, double high){
@@ -221,18 +257,13 @@ static double QuadAgentTools::distFunc(QuadState q0, QuadState q1, int mode){
             double translational = distFunc(q0,q1,0);
 
             //get difference between thetas
-            double rotational = fmod(abs(q0[2]-q1[2]),2.0*3.1415);
-            if(rotational > 3.1415)
-                rotational = (2.0*3.1415)-rotational;
+            double rotational = rotationalDist(q0,q1);
             
             //difference between vels
-            Eigen::Vector2d v0,v1;
-            v0<<q0(3),q0(4);
-            v1<<q1(3),q1(4);
-            double vel_dif =  (v1-v0).norm();
+            double vel_dif =  velDifference(q0,q1);
 
             //difference between ang vels
-            double ang_vel_dif = abs(q1[5] - q0[5]); 
+            double ang_vel_dif = angVelDifference(q0,q1);
 
             // gains
             double k_trans = 1.0;

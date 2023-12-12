@@ -160,8 +160,8 @@ QuadProblemResult QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 
                 i++; 
 
-                if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal,0) < _epsilon){
-                // if(atGoal(q_candidate,problem.agents[k].q_goal,_epsilon_vec)){
+                // if(QuadAgentTools::distFunc(q_candidate, problem.agents[k].q_goal,0) < _epsilon){
+                if(QuadAgentTools::atGoal(q_candidate,problem.agents[k].q_goal,_epsilon_vec)){
                     indi_success=true;
                     std::cout<<"FOUND GOAL\n";
                     // if(q_candidate!=problem.agents[k].q_goal){
