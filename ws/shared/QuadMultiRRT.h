@@ -22,7 +22,7 @@ class QuadMultiRRT{
         _radius (radius)
     {}
 
-    QuadAgentsTrajectories plan(const QuadAgentProblem& problem);
+    QuadProblemResult plan(const QuadAgentProblem& problem);
 
     std::vector<amp::ShortestPathProblem> getSPPS(){return _spprobs;}
     std::vector<std::map<uint32_t,Eigen::Vector2d>> getNodeMaps(){return _node_maps;}

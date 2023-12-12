@@ -41,7 +41,7 @@ bool stepFreeAtTime(const QuadAgentProblem& prob, const QuadAgentsTrajectories& 
 
 
 
-QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
+QuadProblemResult QuadMultiRRT::plan(const QuadAgentProblem& problem){
     int n_agents = problem.agents.size();
 
     //init trees for plotting
@@ -98,7 +98,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
         int i=1;
         std::cout<<"Running kinodynamic RRT. k="<< k <<"\n";
         do{
-            std::cout<<"top of loop"<<"\n";
+            // std::cout<<"top of loop"<<"\n";
             
             if(amp::RNG::randf()<_p_goal)
                 q_sample = problem.agents[k].q_goal;
@@ -118,12 +118,12 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
             }
 
             Eigen::Vector2d control;
-            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,50,control);
+            q_candidate = QuadAgentTools::steer(problem.env, problem.agents[k],q_near,q_sample,_Dt,10,control);
             
             // std::cout<<control[0]<<", "<<control[1]<<", ";
-            std::cout<<"q_near: "; QuadAgentTools::printState(q_near);
-            std::cout<<"q_samp: "; QuadAgentTools::printState(q_sample);
-            std::cout<<"q_cand: "; QuadAgentTools::printState(q_candidate);
+            // std::cout<<"q_near: "; QuadAgentTools::printState(q_near);
+            // std::cout<<"q_samp: "; QuadAgentTools::printState(q_sample);
+            // std::cout<<"q_cand: "; QuadAgentTools::printState(q_candidate);
 
             if(!QuadAgentTools::withinBounds(problem.env, problem.agents[k], q_candidate))
                 continue;
@@ -149,7 +149,7 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
 
 
             if(edge_clear){
-                std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
+                // std::cout<<"adding point to RRT: "<<q_candidate[0]<<", "<<q_candidate[1]<<"\n";
                 node_vecs[k].push_back(q_candidate);
                 control_vecs[k].push_back(control);
                 parents[k][i]=idx_near;
@@ -204,6 +204,10 @@ QuadAgentsTrajectories QuadMultiRRT::plan(const QuadAgentProblem& problem){
     _spprobs = spprobs;
 
     _controls = controls;
+
+    QuadProblemResult res;
+    res.paths = paths;
+    res.success = overall_success;
     
-    return paths;
+    return res;
 }

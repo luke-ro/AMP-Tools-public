@@ -55,7 +55,7 @@ def plotInstant(ax,y,particles,surface,xlim,ylim):
     ax.set(xlim=xlim,ylim=ylim,xlabel="x [m]",ylabel="y [m]")
     return ax
 
-def animateMultiAgentTraj(trajs, frame_time, buffer):
+def animateMultiAgentTraj(data, trajs, obstacles, frame_time, buffer):
     # https://www.geeksforgeeks.org/using-matplotlib-for-animations/
     fig,ax = plt.subplots()
 
@@ -64,6 +64,10 @@ def animateMultiAgentTraj(trajs, frame_time, buffer):
     y_min = 1e9
     y_max = -1e9
     n_frames = 0
+
+    for ob in obstacles:
+        ob_array = np.array(ob)
+        ax.fill(ob_array[:,0],ob_array[:,1])
 
     for key in trajs:
         x_min_temp = np.min(trajs[key]["trajectory"][:,0])-buffer
@@ -87,11 +91,14 @@ def animateMultiAgentTraj(trajs, frame_time, buffer):
     for key in trajs:
         x_quad,y_quad = plotquad_data(trajs[key]["trajectory"][0,:])
         line2 = ax.plot(x_quad,y_quad,label="Quadcopter",color="r")[0]
+        # ax.scatter(data[key]["q_init"][0],data[key]["q_init"][1],label=str(key)+" q_init")
+        # ax.scatter(data[key]["q_init"][0],data[key]["q_init"][1],label=str(key)+" q_goal")
+        ax.plot(trajs[key]["trajectory"][:,0],trajs[key]["trajectory"][:,1],alpha=0.5)
         quad_lines.append(line2)
 
     ax.set(xlim=[x_min,x_max],ylim=[y_min,y_max],xlabel="x [m]",ylabel="y [m]")
     ax.invert_yaxis()
-    ax.legend(loc="lower right")
+    # ax.legend(loc="lower right")
 
     def update(i):
         for key in trajs:
@@ -113,13 +120,17 @@ def animateMultiAgentTraj(trajs, frame_time, buffer):
     ani = FuncAnimation(fig=fig, func=update, frames = n_frames,interval=frame_time)
     return ani
 
-def animate_traj(traj,buffer=10,frame_time=30):
+def animate_traj(traj, buffer=10,frame_time=30):
     # https://www.geeksforgeeks.org/using-matplotlib-for-animations/
     fig,ax = plt.subplots()
+
     x_min = np.min(traj[:,0])-buffer
     x_max = np.max(traj[:,0])+buffer
     z_min = np.min(traj[:,1])-buffer
     z_max = np.max(traj[:,1])+buffer
+
+
+
 
     x_quad,y_quad = plotquad_data(traj[0,:])
     line2 = ax.plot(x_quad,y_quad,label="Quadcopter",color="r")[0]
@@ -143,14 +154,14 @@ if __name__ == "__main__":
     f = open("/home/user/repos/AMP-Tools-public/quad_planning_output.txt")
     data = json.load(f)
 
-    agent_data = data["agents"]
+    agent_trajs = data["agents"]
 
     # change keys from strings to ints
-    for i in range(len(agent_data)):
-        agent_data[i] = agent_data[str(i)]
-        agent_data.pop(str(i))
+    for i in range(len(agent_trajs)):
+        agent_trajs[i] = agent_trajs[str(i)]
+        agent_trajs.pop(str(i))
 
-        agent_data[i]["trajectory"] = np.array(agent_data[i]["trajectory"])
+        agent_trajs[i]["trajectory"] = np.array(agent_trajs[i]["trajectory"])
 
     anims = []
     # for key in data:
@@ -158,7 +169,7 @@ if __name__ == "__main__":
     #     print(traj1)
     #     anims.append(animate_traj(traj=traj1, frame_time=100))
 
-    multi_anim = animateMultiAgentTraj(agent_data, 100, 2)
+    multi_anim = animateMultiAgentTraj(data, agent_trajs, data["obstacles"], 100, 2)
 
     multi_anim.save('multi_agent_animation.gif',  
           writer = 'ffmpeg', fps = 4) 

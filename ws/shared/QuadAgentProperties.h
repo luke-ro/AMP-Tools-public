@@ -10,6 +10,11 @@ typedef Eigen::Matrix<double,6,1> QuadDerivativeState;
 typedef std::vector<QuadState> QuadAgentTrajectory;
 typedef std::vector<QuadAgentTrajectory> QuadAgentsTrajectories; 
 
+struct QuadProblemResult{
+    QuadAgentsTrajectories paths;
+    bool success = false;
+};
+
 class QuadAgentProperties{
     public:
     QuadAgentProperties(QuadState q_init_=QuadState(), QuadState q_goal_=QuadState(), double l_arm_=.15, double m_arm_=.05, double m_motor_=.05):
