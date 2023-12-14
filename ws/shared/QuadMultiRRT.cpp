@@ -139,6 +139,9 @@ QuadProblemResult QuadMultiRRT::plan(const QuadAgentProblem& problem){
                 continue;
             }
 
+            if(H::checkCollsionEnv(problem.env,temp2))
+                continue;
+
 
             // check for collisions with agents who already have a plan
             if(edge_clear && !stepFreeAtTime(problem, paths, q_near, q_candidate, k, level[idx_near]+1)){

@@ -365,8 +365,8 @@ int main(int argc, char ** argv){
 
         amp::Visualizer::showFigures();
     } else if(RUN_MISC){
-        int num_agents = 2;
-        int ws = 3;
+        int num_agents = 4;
+        int ws = 2;
         QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
         int n_rtt = 20000;
@@ -376,11 +376,17 @@ int main(int argc, char ** argv){
         // int n_runs=10;
 
         Eigen::Matrix<double,4,1> epsilon_vec;
-        epsilon_vec << 0.5, 1000.0, 6.0, 1000.0; 
+        epsilon_vec << 0.5, 1000.0, .5, 1000.0; 
         // epsilons[0] << 0.5, 0.1*3.1415, 1000.0, 1000.0; // how close states have to be to the goal 
 
+        // QuadProblemResult plan_result;
+        // QuadMultiRRT kdrrt(epsilon_vec,n_rtt, Dt, p_goal, epsilon);
+        // do{
+        //     kdrrt = QuadMultiRRT(epsilon_vec,n_rtt, Dt, p_goal, epsilon);    
+        //     plan_result = kdrrt.plan(prob);
+        // }while(!plan_result.success);
 
-        QuadMultiRRT kdrrt(epsilon_vec,n_rtt, Dt, p_goal, epsilon);    
+        QuadMultiRRT kdrrt = QuadMultiRRT(epsilon_vec,n_rtt, Dt, p_goal, epsilon);    
         QuadProblemResult plan_result = kdrrt.plan(prob);
 
         std::cout<<"Num trajectories: "<< plan_result.paths.size() << "\n";
