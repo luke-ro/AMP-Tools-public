@@ -95,7 +95,7 @@ def animateMultiAgentTraj(data, trajs, obstacles, frame_time, buffer):
         # ax.scatter(data[key]["q_init"][0],data[key]["q_init"][1],label=str(key)+" q_goal")
         ax.plot(trajs[key]["trajectory"][:,0],trajs[key]["trajectory"][:,1],alpha=0.5)
         quad_lines.append(line2)
-
+    ax.set_aspect("equal")
     ax.set(xlim=[x_min,x_max],ylim=[y_min,y_max],xlabel="x [m]",ylabel="y [m]")
     ax.invert_yaxis()
     # ax.legend(loc="lower right")
@@ -172,6 +172,6 @@ if __name__ == "__main__":
     multi_anim = animateMultiAgentTraj(data, agent_trajs, data["obstacles"], 100, 2)
 
     multi_anim.save('multi_agent_animation.gif',  
-          writer = 'ffmpeg', fps = 4) 
+          writer = 'ffmpeg', fps = 10) 
     
     plt.show()

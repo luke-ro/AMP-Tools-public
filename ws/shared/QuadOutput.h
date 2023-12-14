@@ -9,6 +9,7 @@ namespace QuadOutput{
     static bool writeControlsJSON(std::ofstream& myfile, std::vector<QuadControl> cont);
     static bool writeObstaclesJSON(std::ofstream& myfile, std::vector<amp::Polygon> obstacles);
     static bool writeStateJSON(std::ofstream& myfile, QuadState x);
+    static void writeDataCSV(std::ofstream& f, std::vector<double> data);
 
 }
 
@@ -158,4 +159,14 @@ static bool QuadOutput::writeControlsJSON(std::ofstream& myfile, std::vector<Qua
 
     return true;
 
+}
+
+static void QuadOutput::writeDataCSV(std::ofstream& f, std::vector<double> data){
+    for(int i=0; i<data.size(); i++){
+        f<<std::to_string(data[i]);
+        if(i != data.size()-1) 
+            f <<", ";
+    }
+
+    f<<"\n";
 }

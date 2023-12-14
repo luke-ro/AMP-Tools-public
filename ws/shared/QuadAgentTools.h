@@ -267,7 +267,7 @@ static double QuadAgentTools::distFunc(QuadState q0, QuadState q1, int mode){
 
             // gains
             double k_trans = 1.0;
-            double k_rot = 1.0;
+            double k_rot = 0.0;
             double k_vel = 1.0;
             double k_ang_vel = 1.0;
 

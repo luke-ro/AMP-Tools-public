@@ -25,7 +25,7 @@ class QuadAgentProperties{
     m_motor(m_motor_),
     m_tot(m_arm_+m_motor_),
     Iy(2.0*m_motor*pow(l_arm_,2) + (m_arm_*pow(2*l_arm_,2))/12),
-    radius(2*l_arm_),
+    radius(l_arm_),
     max_motor_thrust(3)
     {}
 

@@ -1,6 +1,7 @@
 #include <iostream>
+#include <fstream>
 
-#include<chrono>
+#include <chrono>
 
 #include "AMPCore.h"
 #include "hw/HW4.h"
@@ -115,12 +116,56 @@ std::vector<amp::Polygon> getObstacleWS2(){
     return obs;
 }
 
+std::vector<amp::Polygon> getObstacleWS3(){
+    std::vector<Eigen::Vector2d> pg1_verts;
+    pg1_verts.push_back(Eigen::Vector2d(-0.5,-1));
+    pg1_verts.push_back(Eigen::Vector2d(0.5,-1));
+    pg1_verts.push_back(Eigen::Vector2d(0.5,-.5));
+    pg1_verts.push_back(Eigen::Vector2d(-0.5,-.5));
+
+    std::vector<Eigen::Vector2d> pg2_verts;
+    pg2_verts.push_back(Eigen::Vector2d(-0.5,0.5));
+    pg2_verts.push_back(Eigen::Vector2d(0.5,0.5));
+    pg2_verts.push_back(Eigen::Vector2d(0.5,1.0));
+    pg2_verts.push_back(Eigen::Vector2d(-0.5,1.0));
+
+    // std::vector<Eigen::Vector2d> pg3_verts;
+    // pg3_verts.push_back(Eigen::Vector2d(3,-2));
+    // pg3_verts.push_back(Eigen::Vector2d(5,-2));
+    // pg3_verts.push_back(Eigen::Vector2d(5,0));
+    // pg3_verts.push_back(Eigen::Vector2d(3,0));
+
+    // std::vector<Eigen::Vector2d> pg4_verts;
+    // pg4_verts.push_back(Eigen::Vector2d(2,3));
+    // pg4_verts.push_back(Eigen::Vector2d(4,3));
+    // pg4_verts.push_back(Eigen::Vector2d(4,5));
+    // pg4_verts.push_back(Eigen::Vector2d(2,5));
+
+    // std::vector<Eigen::Vector2d> pg5_verts;
+    // pg5_verts.push_back(Eigen::Vector2d(-2,3));
+    // pg5_verts.push_back(Eigen::Vector2d(-4,3));
+    // pg5_verts.push_back(Eigen::Vector2d(-4,5));
+    // pg5_verts.push_back(Eigen::Vector2d(-2,5));
+
+    std::vector<amp::Polygon> obs;
+
+    obs.push_back(amp::Polygon(pg1_verts));
+    obs.push_back(amp::Polygon(pg2_verts));
+    // obs.push_back(amp::Polygon(pg3_verts));
+    // obs.push_back(amp::Polygon(pg4_verts));
+    // obs.push_back(amp::Polygon(pg5_verts));
+
+    return obs;
+}
+
 QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents, int ws){
     QuadAgentProblem prob;
     prob.num_agents = num_agents;
 
     std::vector<Eigen::Vector2d> pg1_verts;
     
+    std::vector<QuadState> q_inits(5);
+    std::vector<QuadState> q_goals(5);
 
     // amp::HW4::getEx3Workspace1()
     switch (ws){
@@ -133,38 +178,68 @@ QuadAgentProblem setupSimpleMultiAgentProblem(int num_agents, int ws){
             pg1_verts.push_back(Eigen::Vector2d(-1,1));
             amp::Polygon pg1(pg1_verts);
             prob.env.obstacles.push_back(pg1);
+            prob.env.x_min = -10;
+            prob.env.x_max = 10;
+            prob.env.y_min = -10;
+            prob.env.y_max = 10;
+
+            q_inits[0] << -4, -6, 0,0,0,0;
+            q_inits[1] <<  4, -6, 0,0,0,0;
+            q_inits[2] << -2, -6, 0,0,0,0;
+            q_inits[3] <<  2, -6, 0,0,0,0;
+            q_inits[4] <<  0, -6, 0,0,0,0;
+
+            q_goals[0] <<  4,  6, 0,0,0,0;
+            q_goals[1] << -4,  6, 0,0,0,0;
+            q_goals[2] <<  2,  6, 0,0,0,0;
+            q_goals[3] << -2,  6, 0,0,0,0;
+            q_goals[4] <<  0,  6, 0,0,0,0;
+
             break;
         }
         // 5 squares in olympic logo pattern
         case 2:
         {
             prob.env.obstacles = getObstacleWS2();
+            prob.env.x_min = -7.5;
+            prob.env.x_max = 7.5;
+            prob.env.y_min = -7.5;
+            prob.env.y_max = 7.5;
+
+            q_inits[0] << -4, -6, 0,0,0,0;
+            q_inits[1] <<  4, -6, 0,0,0,0;
+            q_inits[2] << -2, -6, 0,0,0,0;
+            q_inits[3] <<  2, -6, 0,0,0,0;
+            q_inits[4] <<  0, -6, 0,0,0,0;
+
+            q_goals[0] <<  4,  6, 0,0,0,0;
+            q_goals[1] << -4,  6, 0,0,0,0;
+            q_goals[2] <<  2,  6, 0,0,0,0;
+            q_goals[3] << -2,  6, 0,0,0,0;
+            q_goals[4] <<  0,  6, 0,0,0,0;
+            break;
+        }
+        case 3:
+        {
+            prob.env.obstacles = getObstacleWS3();
+            prob.env.x_min = -1.5;
+            prob.env.x_max = 1.5;
+            prob.env.y_min = -1.5;
+            prob.env.y_max = 1.5;
+
+            q_inits[0] << 1.25,  0,    0,0,0,0;
+            q_inits[1] << -1.25, 0,    0,0,0,0;
+            q_inits[2] << 0,    -1.25, 0,0,0,0;
+
+
+            q_goals[0] << -1.25,  0, 0,0,0,0;
+            q_goals[1] <<  1.25,  0, 0,0,0,0;
+            q_goals[2] <<  0,  1.25, 0,0,0,0;
             break;
         }
         default:
             break;
     }
-
-
-    prob.env.x_min = -10;
-    prob.env.x_max = 10;
-    prob.env.y_min = -10;
-    prob.env.y_max = 10;
-
-    std::vector<QuadState> q_inits(5);
-    std::vector<QuadState> q_goals(5);
-
-    q_inits[0] << -4, -6, 0,0,0,0;
-    q_inits[1] <<  4, -6, 0,0,0,0;
-    q_inits[2] << -2, -6, 0,0,0,0;
-    q_inits[3] <<  2, -6, 0,0,0,0;
-    q_inits[4] <<  0, -6, 0,0,0,0;
-
-    q_goals[0] <<  4,  6, 0,0,0,0;
-    q_goals[1] << -4,  6, 0,0,0,0;
-    q_goals[2] <<  2,  6, 0,0,0,0;
-    q_goals[3] << -2,  6, 0,0,0,0;
-    q_goals[4] <<  0,  6, 0,0,0,0;
 
     for(int i=0; i<num_agents; i++){
         QuadAgentProperties agent(q_inits[i],q_goals[i]);
@@ -218,59 +293,92 @@ const bool RUN_MISC = true;
 int main(int argc, char ** argv){
 
     if(RUN_TESTS){
-        // int num_agents = 1;
-        // int ws = 2;
-        // QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
-
-        // int n_rtt = 10;
-        // double Dt=0.1;
-        // double p_goal = 0.05;
-        // double epsilon = 0.5;
-        // int n_runs=10;
-
-        // std::vector<double> times(n_runs);
-        // int num_success=0;
-        // for(int i=0; i<n_runs; i++){
-        //     QuadMultiRRT kdrrt(n_rtt, Dt, p_goal, epsilon);
-
-        //     auto start = std::chrono::high_resolution_clock::now();
-        
-        //     QuadProblemResult plan_result = kdrrt.plan(prob);
-
-        //     auto end = std::chrono::high_resolution_clock::now();
-
-        //     std::chrono::duration<double> duration = end-start;
-
-        //     times[i] = double(duration.count());
-        //     num_success += plan_result.success;
-        // }
-
-        // std::cout<<"Time quantiles:\n";
-        // printQuantiles(times);
-
-        // std::cout<<"number of successes: "<<num_success<<" out of "<< n_rtt<<" runs \n";
-
-        // std::list<std::vector<double>> data_sets = {times};
-        // std::vector<std::string> labels = {"one agent ws2 n_rrt = 10000"};
-        // std::string title = "";
-        // std::string xlabel = "";
-        // std::string ylabel = "";
-        // amp::Visualizer::makeBoxPlot(data_sets,labels,title,xlabel,ylabel);
-
-        // amp::Visualizer::showFigures();
-    } else if(RUN_MISC){
-        int num_agents = 1;
         int ws = 1;
+        std::vector<std::vector<double>> data_sets;
+        std::vector<double> successes;
+
+
+        int n_rtt = 20000;
+        double Dt=0.1;
+        double p_goal = 0.05;
+        int n_runs=100;
+
+        std::vector<double> num_agents_vec = {1, 2, 3, 4};
+        std::vector<Eigen::Matrix<double,4,1>> epsilons(1);
+        // epsilons[0] << 0.5, 1000.0, 1000.0, 1000.0; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 1000.0, 6, 1000.0; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 0.08*3.1415, 1000.0, 1000.0; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 1000, 1000.0, 1.0*3.1415; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 0.08*3.1415, 6, 1.0*3.1415; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 0.08*3.1415, 6, 1000.0; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 0.08*3.1415, 1000, 1.0*3.1415; // how close states have to be to the goal 
+        // epsilons[0] << 0.5, 1000.0, 6, 1.0*3.1415; // how close states have to be to the goal 
+
+        Eigen::Matrix<double,4,1> epsilon_vec;
+        epsilon_vec<<0.5, 1000.0, 6, 1000.0;
+        for(int j=0; j<num_agents_vec.size(); j++){
+            int num_agents = num_agents_vec[j];
+            QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
+            
+    
+            std::cout<<"Test num "<<j<<"\n";
+            std::vector<double> times(n_runs);
+            int num_success=0;
+            for(int i=0; i<n_runs; i++){
+                
+                QuadMultiRRT kdrrt(epsilon_vec, n_rtt, Dt, p_goal);   
+
+                auto start = std::chrono::high_resolution_clock::now();
+            
+                QuadProblemResult plan_result = kdrrt.plan(prob);
+
+                auto end = std::chrono::high_resolution_clock::now();
+
+                std::chrono::duration<double> duration = end-start;
+
+                times[i] = double(duration.count());
+                num_success += plan_result.success;
+            }
+            successes.push_back(num_success);
+            data_sets.push_back(times);
+
+        }
+        for(int i=0; i<num_agents_vec.size(); i++)
+            std::cout<<"epsilon vec number "<< i<< " number of successes: "<<successes[i]<<" out of "<< n_runs << " runs \n";
+
+        std::ofstream f;
+        f.open("/home/user/repos/AMP-Tools-public/testing_output.csv");
+        f<<"# different numbers of agents on ws1. 1, 2, 3, 4 agents. ";
+        QuadOutput::writeDataCSV(f,successes);
+        for(int i=0; i<num_agents_vec.size(); i++)
+            QuadOutput::writeDataCSV(f,data_sets[i]);
+        f.close();
+
+        std::vector<std::string> labels = {"n = 1", "d = 2", "d = 3", "d = 4"};
+        std::string title = "Computation times changing distance required";
+        std::string xlabel = "";
+        std::string ylabel = "Time [s]";
+        std::list<std::vector<double>> data_sets_list(data_sets.begin(), data_sets.end());
+        amp::Visualizer::makeBoxPlot(data_sets_list, labels, title, xlabel, ylabel);
+        amp::Visualizer::makeBarGraph(successes,labels,"","","");
+        
+
+        amp::Visualizer::showFigures();
+    } else if(RUN_MISC){
+        int num_agents = 2;
+        int ws = 3;
         QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
 
-        int n_rtt = 10000;
+        int n_rtt = 20000;
         double Dt=0.1;
         double p_goal = 0.05;
         double epsilon = 0.5;
-        int n_runs=10;
+        // int n_runs=10;
 
         Eigen::Matrix<double,4,1> epsilon_vec;
-        epsilon_vec << .5, 3.0, 2.0, 1;
+        epsilon_vec << 0.5, 1000.0, 6.0, 1000.0; 
+        // epsilons[0] << 0.5, 0.1*3.1415, 1000.0, 1000.0; // how close states have to be to the goal 
+
 
         QuadMultiRRT kdrrt(epsilon_vec,n_rtt, Dt, p_goal, epsilon);    
         QuadProblemResult plan_result = kdrrt.plan(prob);
