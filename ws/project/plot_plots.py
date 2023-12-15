@@ -4,23 +4,23 @@ from numpy import genfromtxt
 
 if __name__ == "__main__":
     epsilon_data = genfromtxt(r"/home/user/repos/AMP-Tools-public/testing_output_50_chang_eps.csv",delimiter=",")
-    epsilon_successes = [25,44,33,22]
+    epsilon_successes = [74,43,52,54,25,29,21,11]
     # print(epsilon_data)
 
 
     #fonts
     label_sz = 14
-    fig_sz = (4,3)
+    fig_sz = (5,3)
 
     ## CHanging epsilon for a single agent
-    labels = ["A","B","C","D"]
+    labels = ["A","B","C","D","E","F","G","H"]
     fig,ax = plt.subplots(figsize=fig_sz)
     # quants = [(0.25,0.75) for _ in range(4)]
     ax.violinplot(epsilon_data.T, showmeans=False, showmedians=True)
     ax.yaxis.grid(True)
     # ax.set_title("")
     ax.set_ylabel("Time [s]",fontsize=label_sz)
-    ax.set_xticks([1,2,3,4],labels)
+    ax.set_xticks([1,2,3,4,5,6,7,8],labels)
     fig.tight_layout()
 
     fig,ax = plt.subplots(figsize=fig_sz)

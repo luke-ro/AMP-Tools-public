@@ -286,14 +286,14 @@ amp::MultiAgentProblem2D quadToAmpMultiProblem(QuadAgentProblem quad_prob){
 }
 
 
-const bool RUN_TESTS = false;
-const bool RUN_MISC = true;
+const bool RUN_TESTS = true;
+const bool RUN_MISC = false;
 
 
 int main(int argc, char ** argv){
 
     if(RUN_TESTS){
-        int ws = 1;
+        int ws = 2;
         std::vector<std::vector<double>> data_sets;
         std::vector<double> successes;
 
@@ -303,7 +303,7 @@ int main(int argc, char ** argv){
         double p_goal = 0.05;
         int n_runs=100;
 
-        std::vector<double> num_agents_vec = {1, 2, 3, 4};
+        std::vector<double> num_agents_vec = {1};
         std::vector<Eigen::Matrix<double,4,1>> epsilons(1);
         // epsilons[0] << 0.5, 1000.0, 1000.0, 1000.0; // how close states have to be to the goal 
         // epsilons[0] << 0.5, 1000.0, 6, 1000.0; // how close states have to be to the goal 
@@ -315,7 +315,7 @@ int main(int argc, char ** argv){
         // epsilons[0] << 0.5, 1000.0, 6, 1.0*3.1415; // how close states have to be to the goal 
 
         Eigen::Matrix<double,4,1> epsilon_vec;
-        epsilon_vec<<0.5, 1000.0, 6, 1000.0;
+        epsilon_vec<<0.5, 0.08*3.1415, 6, .1*3.1415;
         for(int j=0; j<num_agents_vec.size(); j++){
             int num_agents = num_agents_vec[j];
             QuadAgentProblem prob = setupSimpleMultiAgentProblem(num_agents,ws);
